@@ -1,0 +1,120 @@
+apply plugin: 'cpp'
+
+wrapper {
+	gradleVersion = '4.3'
+}
+
+model {
+	platforms {
+		binaryen {
+			architecture "binaryen"
+		}
+
+		asmjs {
+			architecture "asmjs"
+		}
+	}
+
+	toolChains {
+		Emscripten(Clang) {
+			target("asmjs") {
+				cppCompiler.executable = 'em++'
+				linker.executable = "em++"
+
+				cppCompiler.withArguments { args ->
+					args << "-std=c++14"
+					args << "-O2"
+					args << "-s"
+					args << "USE_GLFW=3"
+					args << "-s"
+					args << "USE_WEBGL2=1"
+				}
+
+				linker.withArguments { args ->
+					args[1] += ".html"
+					args.remove "-m64"
+					args << "-O2"
+					args << "-s"
+					args << "USE_GLFW=3"
+					args << "-s"
+					args << "USE_WEBGL2=1"
+				}
+			}
+
+			target("binaryen") {
+				cppCompiler.executable = 'em++'
+				linker.executable = "em++"
+
+				cppCompiler.withArguments { args ->
+					args << "-std=c++14"
+					args << "-O2"
+					args << "-s"
+					args << "USE_GLFW=3"
+					args << "-s"
+					args << "USE_WEBGL2=1"
+					args << "-s"
+					args << "BINARYEN=1"
+				}
+
+				linker.withArguments { args ->
+					args[1] += ".html"
+					args.remove "-m64"
+					args << "-O2"
+					args << "-s"
+					args << "USE_GLFW=3"
+					args << "-s"
+					args << "USE_WEBGL2=1"
+					args << "-s"
+					args << "BINARYEN=1"
+				}
+			}
+		}
+	}	
+
+	components {
+		ws(NativeExecutableSpec) {
+			targetPlatform "binaryen"
+			targetPlatform "asmjs"
+
+			sources {
+				cpp {
+					source {
+						srcDir 'src/main/cpp'
+						include '**/*.cpp'
+					}
+
+					exportedHeaders {
+						srcDir 'src/main/include'
+						include '**/*.hpp'
+					}
+				}
+			}
+		}
+	}
+}
+
+task emscriptenUpdate {
+	doLast {
+		"emsdk-portable/emsdk update".execute()
+	}
+}
+
+task emscriptenInstall {
+	doLast {
+		"emsdk-portable/emsdk install latest".execute()
+	}
+}
+
+task emscriptenActivate {
+	doLast {
+		"emsdk-portable/emsdk activate latest".execute()
+	}
+}
+
+task run {
+	dependsOn build
+
+	doLast {
+		java.awt.Desktop.getDesktop().browse(new java.io.File("build/exe/ws/ws.html").toURI());
+	}
+}
