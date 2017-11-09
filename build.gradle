@@ -93,22 +93,25 @@ model {
 	}
 }
 
-task emscriptenUpdate {
-	doLast {
-		"emsdk-portable/emsdk update".execute()
-	}
+task emscriptenUpdate (type: Exec) {
+	executable "emsdk-portable/emsdk"
+	args "update"
 }
 
-task emscriptenInstall {
-	doLast {
-		"emsdk-portable/emsdk install latest".execute()
-	}
+task emscriptenInstall (type: Exec) {
+	dependsOn emscriptenUpdate
+	executable "emsdk-portable/emsdk"
+	args "install", "latest"
 }
 
-task emscriptenActivate {
-	doLast {
-		"emsdk-portable/emsdk activate latest".execute()
-	}
+task emscriptenActivate (type: Exec) {
+	dependsOn emscriptenInstall
+	executable "emsdk-portable/emsdk"
+	args "activate", "latest"
+}
+
+task emscripten {
+	dependsOn emscriptenActivate
 }
 
 task run {
