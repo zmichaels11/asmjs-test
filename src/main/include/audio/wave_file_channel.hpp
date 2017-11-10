@@ -1,22 +1,24 @@
 #pragma once
 
 #include <cstdio>
+#include <cstdint>
 #include <string>
 
 #include "audio/format.hpp"
 #include "audio/sound_channel.hpp"
 
 namespace audio {
-    class wave_file_channel : public sound_channel {
-        FILE * _pFile;
+    class wave_file_channel : public sound_channel {        
+
+        std::int16_t _channels;
+        std::int16_t _bitsPerSample;
+        std::int32_t _sampleRate;
+        std::int32_t _byteRate;
+        std::int32_t _size;
         long _offset;
-        int _channels;
-        int _sampleRate;
-        int _bitsPerSample;
-        int _byteRate;
-        int _size;
         long _dataStart;
         format _format;
+        FILE * _pFile;
 
         bool parseSubchunk();
 
@@ -26,6 +28,8 @@ namespace audio {
 
     public:
         wave_file_channel(const std::string& path);
+
+        virtual ~wave_file_channel();
 
         void seekStart();
 
@@ -46,7 +50,5 @@ namespace audio {
         int read(char * dst, unsigned int n);
 
         bool isOpen() const;
-
-        void close();
     };
 }

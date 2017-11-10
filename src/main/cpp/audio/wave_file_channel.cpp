@@ -1,62 +1,47 @@
 #include "audio/wave_file_channel.hpp"
 
 #include <cstdio>
-#include <iostream>
-#include <memory>
+#include <cstdint>
 
 namespace audio {
-    static short _parseShort(char * c) {
-        auto ps = reinterpret_cast<short *> (c);
-
-        return *ps;
-    }
-
-    static int _parseInt(char * c) {
-        auto pi = reinterpret_cast<int *> (c);
-
-        return *pi;
-    }
-
-    static int _parseIntBE(char * c) {
-        char tmp[4];
-
-        tmp[0] = c[3];
-        tmp[1] = c[2];
-        tmp[2] = c[1];
-        tmp[3] = c[0];
-
-        auto pi = reinterpret_cast<int *> (tmp);
-
-        return *pi;
+    static void _onError(const std::string& msg) {        
+        #ifdef __EMSCRIPTEN__
+            printf("ERR: %s\n", msg.c_str());
+            __builtin_trap();
+        #else
+            throw msg;
+        #endif
     }
 
     wave_file_channel::wave_file_channel(const std::string& path) {
-        _pFile = std::fopen(path.c_str(), "r");
-
-        char riffHeader[12];
-        char * p;
-
-        if (std::fread(riffHeader, 1, 12, _pFile) != 12) {
-            printf("Stream terminated early!\n");
-            __builtin_trap();
+        if ((_pFile = std::fopen(path.c_str(), "rb")) == nullptr) {
+            _onError("Could not open file: " + path);
         }
 
-        p = riffHeader;
+        constexpr std::int32_t RIFF = 0x46464952;
+        std::int32_t riff = 0;
 
-        constexpr int RIFF = 0x52494646;
-        int riff = _parseIntBE(p);
-
-        if (riff != RIFF) {
-            printf("Container is not RIFF! Expected: 0x%08x but got 0x%08x\n", RIFF, riff);
-            __builtin_trap();
+        if (std::fread(&riff, 4, 1, _pFile) != 1) {
+            _onError("Stream terminated before reading container type!");
         }
 
-        constexpr int WAVE = 0x57415645;
-        int wave = _parseIntBE(p + 8);
+        if (riff != RIFF) {            
+            _onError("Container is not RIFF!");
+        }
+
+        if (std::fseek(_pFile, 4, SEEK_CUR) != 0) {
+            _onError("Error skipping 4 bytes!");
+        }
+
+        constexpr std::int32_t WAVE = 0x45564157;
+        std::int32_t wave = 0;
+
+        if (std::fread(&wave, 4, 1, _pFile) != 1) {
+            _onError("Stream terminated before reading audio format type!");
+        }
 
         if (wave != WAVE) {
-            printf("Audio format is not WAVE! Expected: 0x%08x but got 0x%08x\n", WAVE, wave);
-            __builtin_trap();
+            _onError("Audio format is not WAVE!");
         }
         
         while (!parseSubchunk()) {
@@ -66,7 +51,7 @@ namespace audio {
         _dataStart = std::ftell(_pFile);
     }
 
-    void wave_file_channel::close() {
+    wave_file_channel::~wave_file_channel() {
         if (_pFile) {
             std::fclose(_pFile);
             _pFile = nullptr;
@@ -113,29 +98,52 @@ namespace audio {
         return _pFile != nullptr;
     }
 
-    void wave_file_channel::parseFormatSubchunk(unsigned int chunkSize) {
-        auto buffer = std::make_unique<char>(chunkSize);
-        auto data = buffer.get();
+    void wave_file_channel::parseFormatSubchunk(unsigned int chunkSize) {        
+        const auto endOfChunk = std::ftell(_pFile) + chunkSize;
+        std::int16_t audioFormat = 0;        
 
-        std::fread(data, 1, chunkSize, _pFile);
+        if (std::fread(&audioFormat, 2, 1, _pFile) != 1) {
+            _onError("Stream terminated before reading audio format in format subchunk!");
+        }
 
-        auto audioFormat = _parseShort(data);
+        if (std::fread(&_channels, 2, 1, _pFile) != 1) {
+            _onError("Stream terminated before reading channels in format subchunk!");
+        }
+        
+        if (std::fread(&_sampleRate, 4, 1, _pFile) != 1) {
+            _onError("Stream terminated before reading sample rate in format subchunk!");
+        }
 
-        _channels = _parseShort(data + 2);
-        _sampleRate = _parseInt(data + 4);
-        _byteRate = _parseInt(data + 8);
-        //blockAlign = _parseShort(data + 8);
-        _bitsPerSample = _parseShort(data + 14);
+        if (std::fread(&_byteRate, 4, 1, _pFile) != 1) {
+            _onError("Stream terminated before reading byteRate in format subchunk!");
+        }
 
-        constexpr int _PCM = 0x0001;
+        // skip blockAlign
+        if (std::fseek(_pFile, 2, SEEK_CUR) != 0) {
+            _onError("Error skipping 2 bytes!");
+        }
+
+        if (std::fread(&_bitsPerSample, 2, 1, _pFile) != 1) {
+            _onError("Stream terminated before reading bitsPerSample in format subchunk!");
+        }
+
+        constexpr std::int16_t _PCM = 0x0001;
 
         if (audioFormat != _PCM) {
-            short extSize = _parseShort(data + 16);
+            std::int16_t extSize = 0;
+
+            if (std::fread(&extSize, 2, 1, _pFile) != 1) {
+                _onError("Stream terminated before reading extSize in format subchunk!");
+            }
 
             if (extSize == 22) {
-                //validBitsPerSample = _parseShort(data + 18);
-                //channelMask = _parseInt(data + 20);
-                audioFormat = _parseShort(data + 24);
+                if (std::fseek(_pFile, 6, SEEK_CUR) != 0) {
+                    _onError("Error skipping 2 bytes!");
+                }
+                
+                if (!std::fread(&audioFormat, 2, 1, _pFile) != 1) {
+                    _onError("Stream terminated before reading audioFormat it format subchunk!");
+                }
             }
         }
 
@@ -151,8 +159,7 @@ namespace audio {
                                 _format = format::MONO16;
                                 break;
                             default:
-                                printf("Unsupported audio format!\n");
-                                __builtin_trap();
+                                _onError("Unsupported audio format!");
                         }
                         break;
                     case 2:
@@ -164,13 +171,11 @@ namespace audio {
                                 _format = format::STEREO16;
                                 break;
                             default:
-                                printf("Unsupported audio format!\n");
-                                __builtin_trap();                            
+                                _onError("Unsupported audio format!");       
                         }
                         break;
                     default:
-                        printf("Unsupported audio format!\n");
-                        __builtin_trap();                        
+                        _onError("Unsupported audio format!");
                 }
                 break;
             case 0x0003:
@@ -181,8 +186,7 @@ namespace audio {
                                 _format = format::MONO_FLOAT32;
                                 break;
                             default:
-                                printf("Unsupported audio format!\n");
-                                __builtin_trap();
+                                _onError("Unsupported audio format!");
                         }
                         break;
                     case 2:
@@ -191,13 +195,11 @@ namespace audio {
                                 _format = format::STEREO_FLOAT32;
                                 break;
                             default:
-                                printf("Unsupported audio format!\n");
-                                __builtin_trap();
+                                _onError("Unsupported audio format!");
                         }
                         break;
                     default:
-                        printf("Unsupported audio format!\n");
-                        __builtin_trap();                        
+                        _onError("Unsupported audio format!");
                 }
                 break;
             case 0x0006:
@@ -209,8 +211,7 @@ namespace audio {
                         _format = format::STEREO_ALAW;
                         break;
                     default:
-                        printf("Unsupported audio format!\n");
-                        __builtin_trap();
+                        _onError("Unsupported audio format!");
                 }
                 break;
             case 0x0007:
@@ -222,36 +223,38 @@ namespace audio {
                         _format = format::STEREO_ULAW;
                         break;
                     default:
-                        printf("Unsupported audio format!\n");
-                        __builtin_trap();
+                        _onError("Unsupported audio format!");
                 }
                 break;
             default:
-                printf("Unsupported audio format!\n");
-                __builtin_trap();
+                _onError("Unsupported audio format!");
         }
+
+        std::fseek(_pFile, endOfChunk, SEEK_SET);
     }
 
     void wave_file_channel::skipSubchunk(unsigned int chunkSize) {
         std::fseek(_pFile, chunkSize, SEEK_CUR);
     }
 
-    bool wave_file_channel::parseSubchunk() {
-        char header[8];
+    bool wave_file_channel::parseSubchunk() {        
+        std::int32_t chunkId = 0;
 
-        if (std::fread(header, 1, 8, _pFile) != 8) {
-            printf("Stream terminated early!\n");
-            __builtin_trap();
+        if (std::fread(&chunkId, 4, 1, _pFile) != 1) {
+            _onError("Stream terminated early!");
+        }
+        
+        std::int32_t chunkSize = 0;
+
+        if (std::fread(&chunkSize, 4, 1, _pFile) != 1) {
+            _onError("Stream terminated early!");
         }
 
-        auto chunkId = _parseIntBE(header);
-        auto chunkSize = _parseInt(header + 4);
-
         switch (chunkId) {
-            case 0x666d7420:
+            case 0x20746d66:
                 parseFormatSubchunk(chunkSize);
                 return false;
-            case 0x64617461:
+            case 0x61746164:
                 _size = chunkSize;
                 return true;
             default:

@@ -6,6 +6,10 @@ wrapper {
 
 model {
 	platforms {
+		x86_64 {
+			architecture "x86_64"
+		}
+
 		binaryen {
 			architecture "binaryen"
 		}
@@ -16,12 +20,28 @@ model {
 	}
 
 	toolChains {
-		Emscripten(Clang) {
-			target("asmjs") {
-				cppCompiler.executable = 'em++'
-				linker.executable = "em++"
+		gcc (Gcc) {
+			target("x86_64") {
+				cppCompiler.withArguments { args -> 
+					args << "-std=c++14"
+					args << "-O2"
+				}
 
-				cppCompiler.withArguments { args ->
+				linker.withArguments { args -> 
+					args << "-O2"
+					args << "-lGLESv2"
+					args << "-lglfw"
+					args << "-lopenal"					
+				}
+			}
+		}
+
+		Emscripten(Clang) {
+			eachPlatform {
+				cppCompiler.executable = 'em++'
+				linker.executable = 'em++'
+
+				cppCompiler.withArguments { args -> 
 					args << "-std=c++14"
 					args << "-O2"
 					args << "-s"
@@ -30,7 +50,7 @@ model {
 					args << "USE_WEBGL2=1"
 				}
 
-				linker.withArguments { args ->
+				linker.withArguments { args -> 
 					args[1] += ".html"
 					args.remove "-m64"
 					args << "-O2"
@@ -38,36 +58,22 @@ model {
 					args << "USE_GLFW=3"
 					args << "-s"
 					args << "USE_WEBGL2=1"
+					args << "--preload-file"
+					args << "data"
 				}
 			}
 
-			target("binaryen") {
-				cppCompiler.executable = 'em++'
-				linker.executable = "em++"
+			target ("asmjs")
 
-				cppCompiler.withArguments { args ->
-					args << "-std=c++14"
-					args << "-O2"
-					args << "-s"
-					args << "USE_GLFW=3"
-					args << "-s"
-					args << "USE_WEBGL2=1"
+			target("binaryen") {				
+				cppCompiler.withArguments { args ->					
 					args << "-s"
 					args << "BINARYEN=1"
 				}
 
-				linker.withArguments { args ->
-					args[1] += ".html"
-					args.remove "-m64"
-					args << "-O2"
-					args << "-s"
-					args << "USE_GLFW=3"
-					args << "-s"
-					args << "USE_WEBGL2=1"
+				linker.withArguments { args ->					
 					args << "-s"
 					args << "BINARYEN=1"
-					args << "--preload-file"
-					args << "data"
 				}
 			}
 		}
@@ -77,6 +83,7 @@ model {
 		ws(NativeExecutableSpec) {
 			targetPlatform "binaryen"
 			targetPlatform "asmjs"
+			targetPlatform "x86_64"
 
 			sources {
 				cpp {
