@@ -425,3 +425,4 @@ __pycache__/
 # End of https://www.gitignore.io/api/git,c++,gradle,eclipse,netbeans,visualstudio,visualstudiocode
 
 emsdk-portable
+.vscode

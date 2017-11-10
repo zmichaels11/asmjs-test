@@ -66,6 +66,8 @@ model {
 					args << "USE_WEBGL2=1"
 					args << "-s"
 					args << "BINARYEN=1"
+					args << "--preload-file"
+					args << "data"
 				}
 			}
 		}
@@ -115,9 +117,9 @@ task emscripten {
 }
 
 task run {
-	dependsOn build
+	dependsOn build		
 
-	doLast {
-		java.awt.Desktop.getDesktop().browse(new java.io.File("build/exe/ws/ws.html").toURI());
+	doLast {		
+		java.awt.Desktop.getDesktop().browse(new java.io.File("build/exe/ws/${arch}/ws.html").toURI());
 	}
 }
