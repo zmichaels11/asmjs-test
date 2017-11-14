@@ -1,43 +1,43 @@
 #include "audio/wave_file_channel.hpp"
 
-#include <cstdio>
 #include <cstdint>
 
-namespace audio {
-    static void _onError(const std::string& msg) {        
-        #ifdef __EMSCRIPTEN__
-            printf("ERR: %s\n", msg.c_str());
-            __builtin_trap();
-        #else
-            throw msg;
-        #endif
-    }
+#include <iostream>
+#include <fstream>
+#include <sstream>
+
+namespace audio {    
+
+    static void _onError(const std::string& msg) {                
+        std::cerr << "Err: " << msg << std::endl;
+        __builtin_trap();        
+    }    
 
     wave_file_channel::wave_file_channel(const std::string& path) {
-        if ((_pFile = std::fopen(path.c_str(), "rb")) == nullptr) {
-            _onError("Could not open file: " + path);
+        _file.open(path, std::ifstream::binary);
+
+        if (!_file) {
+            _onError("Failed to open file: " + path);
         }
 
         constexpr std::int32_t RIFF = 0x46464952;
-        std::int32_t riff = 0;
-
-        if (std::fread(&riff, 4, 1, _pFile) != 1) {
-            _onError("Stream terminated before reading container type!");
-        }
-
-        if (riff != RIFF) {            
-            _onError("Container is not RIFF!");
-        }
-
-        if (std::fseek(_pFile, 4, SEEK_CUR) != 0) {
-            _onError("Error skipping 4 bytes!");
-        }
-
         constexpr std::int32_t WAVE = 0x45564157;
+        std::int32_t riff = 0;
         std::int32_t wave = 0;
 
-        if (std::fread(&wave, 4, 1, _pFile) != 1) {
-            _onError("Stream terminated before reading audio format type!");
+        _file.read(reinterpret_cast<char *> (&riff), sizeof(riff));        
+        _file.seekg(4, std::ifstream::cur);
+        _file.read(reinterpret_cast<char *> (&wave), sizeof(wave));
+
+        if (riff != RIFF) {
+            std::stringstream err;
+
+            err << "Container is not RIFF! Expected: "
+                << RIFF
+                << " but got: "
+                << riff;
+
+            _onError(err.str());
         }
 
         if (wave != WAVE) {
@@ -48,26 +48,21 @@ namespace audio {
             //process
         }
 
-        _dataStart = std::ftell(_pFile);
-    }
-
-    wave_file_channel::~wave_file_channel() {
-        if (_pFile) {
-            std::fclose(_pFile);
-            _pFile = nullptr;
-        }
+        _dataStart = _file.tellg();
     }
 
     void wave_file_channel::seekStart() {
-
+        _file.seekg(_dataStart);
     }
 
     void wave_file_channel::seek(unsigned int sample) {
+        auto seekPos = _channels * _bitsPerSample / 8 * sample;
 
+        _file.seekg(seekPos, std::ifstream::cur);            
     }
 
     float wave_file_channel::getLength() const {
-        return 0.0F;
+        return float(_size) / float(_byteRate);
     }
 
     int wave_file_channel::getSampleRate() const {
@@ -87,63 +82,39 @@ namespace audio {
     }
 
     format wave_file_channel::getFormat() const {
-        return static_cast<format>(0);
+        return _format;
     }
 
-    int wave_file_channel::read(char * dst, unsigned int n) {
-        return 0;
+    bool wave_file_channel::read(char * dst, std::size_t& n) {        
+        if (_file.read(dst, n)) {
+            return true;
+        } else {
+            n = _file.gcount();
+            return false;
+        }        
     }
 
-    bool wave_file_channel::isOpen() const {
-        return _pFile != nullptr;
-    }
+    void wave_file_channel::parseFormatSubchunk(unsigned int chunkSize) {                
+        std::int16_t audioFormat;
 
-    void wave_file_channel::parseFormatSubchunk(unsigned int chunkSize) {        
-        const auto endOfChunk = std::ftell(_pFile) + chunkSize;
-        std::int16_t audioFormat = 0;        
-
-        if (std::fread(&audioFormat, 2, 1, _pFile) != 1) {
-            _onError("Stream terminated before reading audio format in format subchunk!");
-        }
-
-        if (std::fread(&_channels, 2, 1, _pFile) != 1) {
-            _onError("Stream terminated before reading channels in format subchunk!");
-        }
-        
-        if (std::fread(&_sampleRate, 4, 1, _pFile) != 1) {
-            _onError("Stream terminated before reading sample rate in format subchunk!");
-        }
-
-        if (std::fread(&_byteRate, 4, 1, _pFile) != 1) {
-            _onError("Stream terminated before reading byteRate in format subchunk!");
-        }
-
+        _file.read(reinterpret_cast<char *> (&audioFormat), sizeof(audioFormat));
+        _file.read(reinterpret_cast<char *> (&_channels), sizeof(_channels));
+        _file.read(reinterpret_cast<char *> (&_sampleRate), sizeof(_sampleRate));
+        _file.read(reinterpret_cast<char *> (&_byteRate), sizeof(_byteRate));        
         // skip blockAlign
-        if (std::fseek(_pFile, 2, SEEK_CUR) != 0) {
-            _onError("Error skipping 2 bytes!");
-        }
-
-        if (std::fread(&_bitsPerSample, 2, 1, _pFile) != 1) {
-            _onError("Stream terminated before reading bitsPerSample in format subchunk!");
-        }
+        _file.seekg(2, std::ifstream::cur);
+        _file.read(reinterpret_cast<char *> (&_bitsPerSample), sizeof(_bitsPerSample));
 
         constexpr std::int16_t _PCM = 0x0001;
 
         if (audioFormat != _PCM) {
-            std::int16_t extSize = 0;
+            std::int16_t extSize;
 
-            if (std::fread(&extSize, 2, 1, _pFile) != 1) {
-                _onError("Stream terminated before reading extSize in format subchunk!");
-            }
+            _file.read(reinterpret_cast<char *> (&extSize), sizeof(extSize));
 
-            if (extSize == 22) {
-                if (std::fseek(_pFile, 6, SEEK_CUR) != 0) {
-                    _onError("Error skipping 2 bytes!");
-                }
-                
-                if (!std::fread(&audioFormat, 2, 1, _pFile) != 1) {
-                    _onError("Stream terminated before reading audioFormat it format subchunk!");
-                }
+            if (extSize == 22) {                
+                _file.seekg(6, std::ifstream::cur);
+                _file.read(reinterpret_cast <char*> (audioFormat), sizeof(audioFormat));
             }
         }
 
@@ -229,32 +200,28 @@ namespace audio {
             default:
                 _onError("Unsupported audio format!");
         }
-
-        std::fseek(_pFile, endOfChunk, SEEK_SET);
     }
 
-    void wave_file_channel::skipSubchunk(unsigned int chunkSize) {
-        std::fseek(_pFile, chunkSize, SEEK_CUR);
+    void wave_file_channel::skipSubchunk(unsigned int chunkSize) {        
+        _file.seekg(chunkSize, std::ifstream::cur);
     }
 
     bool wave_file_channel::parseSubchunk() {        
-        std::int32_t chunkId = 0;
+        std::int32_t chunkId;        
+        std::int32_t chunkSize;
 
-        if (std::fread(&chunkId, 4, 1, _pFile) != 1) {
-            _onError("Stream terminated early!");
-        }
+        _file.read(reinterpret_cast<char *> (&chunkId), sizeof(chunkId));
+        _file.read(reinterpret_cast<char *> (&chunkSize), sizeof(chunkSize));
+
+        chunkId = __builtin_bswap32(chunkId);
+
+        std::cout << "ChunkId: " << chunkId << " ChunkSize: " << chunkSize << std::endl;
         
-        std::int32_t chunkSize = 0;
-
-        if (std::fread(&chunkSize, 4, 1, _pFile) != 1) {
-            _onError("Stream terminated early!");
-        }
-
         switch (chunkId) {
-            case 0x20746d66:
+            case 0x666d7420:                
                 parseFormatSubchunk(chunkSize);
                 return false;
-            case 0x61746164:
+            case 0x64617461:                
                 _size = chunkSize;
                 return true;
             default:

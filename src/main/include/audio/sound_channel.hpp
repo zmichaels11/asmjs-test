@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "audio/format.hpp"
 
 namespace audio {
@@ -15,7 +17,6 @@ namespace audio {
         virtual void seek(unsigned int sample) = 0;
         virtual float getLength() const = 0;
 
-        virtual int read(char * dst, unsigned int n) = 0;
-        virtual bool isOpen() const = 0;
+        virtual bool read(char * dst, std::size_t& n) = 0;
     };
 }

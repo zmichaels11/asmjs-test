@@ -10,6 +10,8 @@
 #endif
 
 #include <cstdio>
+
+#include <functional>
 #include <string>
 
 namespace {
@@ -82,16 +84,16 @@ application::~application() {
 }
 
 void application::doFrame() const {
-    _onFrame();
+    _onFrame(userData.get());
     glfwSwapBuffers(_window);    
     glfwPollEvents();
 }
 
-void application::setOnFrame(const std::function<void()>& fn) {
+void application::setOnFrame(const std::function<void(void *)>& fn) {
     _onFrame = fn;
 }
 
-void application::start(const std::function<void()>& fn) {
+void application::start(const std::function<void(void *)>& fn) {
     setOnFrame(fn);
 
 #ifdef __EMSCRIPTEN__

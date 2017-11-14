@@ -1,7 +1,8 @@
 #pragma once
 
-#include <cstdio>
+#include <cstddef>
 #include <cstdint>
+#include <fstream>
 #include <string>
 
 #include "audio/format.hpp"
@@ -15,10 +16,9 @@ namespace audio {
         std::int32_t _sampleRate;
         std::int32_t _byteRate;
         std::int32_t _size;
-        long _offset;
         long _dataStart;
         format _format;
-        FILE * _pFile;
+        std::ifstream _file;
 
         bool parseSubchunk();
 
@@ -27,28 +27,34 @@ namespace audio {
         void parseFormatSubchunk(unsigned int chunkSize);
 
     public:
+        wave_file_channel() {}
+
         wave_file_channel(const std::string& path);
 
-        virtual ~wave_file_channel();
+        wave_file_channel(const wave_file_channel&) = delete;
 
-        void seekStart();
+        wave_file_channel(wave_file_channel&&) = default;
 
-        void seek(unsigned int sample);
+        wave_file_channel& operator=(const wave_file_channel&) = delete;
 
-        float getLength() const;
+        wave_file_channel& operator=(wave_file_channel&&) = default;
 
-        int getChannels() const;
+        virtual void seekStart();
 
-        int getSampleRate() const;
+        virtual void seek(unsigned int sample);
 
-        int getBitsPerSample() const;
+        virtual float getLength() const;
 
-        int getByteRate() const;
+        virtual int getChannels() const;
 
-        format getFormat() const;
+        virtual int getSampleRate() const;
 
-        int read(char * dst, unsigned int n);
+        virtual int getBitsPerSample() const;
 
-        bool isOpen() const;
+        virtual int getByteRate() const;
+
+        virtual format getFormat() const;
+
+        virtual bool read(char * dst, std::size_t& n);
     };
 }
