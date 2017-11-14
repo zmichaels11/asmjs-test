@@ -28,10 +28,14 @@ namespace audio {
 
         _time = stb_vorbis_stream_length_in_seconds(_handle);
         _byteRate = _sampleRate * _channels * 4;
+        std::cout << "Opened vorbis handle: " << _handle << std::endl;
     }
 
     vorbis_file_channel::~vorbis_file_channel() {
-        stb_vorbis_close(_handle);
+        if (_handle) {
+            std::cout << "Closing vorbis handle: " << _handle << std::endl;
+            stb_vorbis_close(_handle);
+        }
     }
 
     void vorbis_file_channel::seekStart() {
@@ -64,6 +68,14 @@ namespace audio {
 
     format vorbis_file_channel::getFormat() const {
         return _format;
+    }
+
+    bool vorbis_file_channel::read(float * dst, std::size_t& n) {
+        auto read = stb_vorbis_get_samples_float_interleaved(_handle, _channels, dst, int(n));
+
+        n = std::size_t(read);
+
+        return (read != 0);
     }
 
     bool vorbis_file_channel::read(char * dst, std::size_t& n) {

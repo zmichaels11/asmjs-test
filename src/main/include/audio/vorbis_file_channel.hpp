@@ -20,18 +20,26 @@ namespace audio {
 
         stb_vorbis * _handle;
 
+        vorbis_file_channel(vorbis_file_channel&) = delete;
+
+        vorbis_file_channel& operator=(const vorbis_file_channel&) = delete;
+
     public:
-        vorbis_file_channel() {}
+        vorbis_file_channel() :
+            _channels(0),
+            _sampleRate(0),
+            _byteRate(0),
+            _size(0),
+            _dataStart(0),
+            _time(0),
+            _format(static_cast<format>(0)),
+            _handle(nullptr){}
 
         vorbis_file_channel(const std::string& path);
 
-        vorbis_file_channel(const vorbis_file_channel&) = delete;
+        virtual ~vorbis_file_channel();        
 
-        vorbis_file_channel(vorbis_file_channel&&) = default;
-
-        virtual ~vorbis_file_channel();
-
-        vorbis_file_channel& operator=(const vorbis_file_channel&) = delete;
+        vorbis_file_channel(vorbis_file_channel&&) = default;                
 
         vorbis_file_channel& operator=(vorbis_file_channel&&) = default;
 
@@ -50,6 +58,8 @@ namespace audio {
         virtual int getByteRate() const;
 
         virtual format getFormat() const;
+
+        virtual bool read(float * dst, std::size_t& n);
 
         virtual bool read(char * dst, std::size_t& n);
     };

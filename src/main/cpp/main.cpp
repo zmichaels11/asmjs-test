@@ -12,6 +12,7 @@
 #include "audio/source.hpp"
 #include "audio/wave_file_channel.hpp"
 #include "audio/vorbis_file_channel.hpp"
+#include "util.hpp"
 
 constexpr int width = 640;
 constexpr int height = 480;
@@ -19,7 +20,7 @@ constexpr int height = 480;
 struct AppData {
 	audio::buffer buffers[3];
 	audio::source source;
-	audio::wave_file_channel sound;
+	std::unique_ptr<audio::sound_channel> sound;
 };
 
 void frame(void * pUserData) {
@@ -34,23 +35,30 @@ void frame(void * pUserData) {
 		printf("Version: %s\n", glGetString(GL_VERSION));
 		printf("Extensions: %s\n", glGetString(GL_EXTENSIONS));
 
-		printf("ByteRate: %d\n", pAppData->sound.getByteRate());	
-		printf("SampleRate: %d\n", pAppData->sound.getSampleRate());	
-		printf("Format: %d\n", static_cast<int> (pAppData->sound.getFormat()));
-		sampleSize = pAppData->sound.getByteRate() / 15;
+		printf("ByteRate: %d\n", pAppData->sound->getByteRate());	
+		printf("SampleRate: %d\n", pAppData->sound->getSampleRate());	
+		printf("Format: %d\n", static_cast<int> (pAppData->sound->getFormat()));
+		sampleSize = util::alignUp(pAppData->sound->getByteRate() / 15, 4096);
+
+		printf("Buffer size: %d\n", sampleSize);
 
 		for (int i = 0; i < 3; i++) {
 			char transfer[sampleSize];
 			std::size_t size = sampleSize;
-			eof = !pAppData->sound.read(transfer, size);
+			eof = !pAppData->sound->read(transfer, size);
 
-			pAppData->buffers[i].setData(pAppData->sound.getFormat(), transfer, size, pAppData->sound.getSampleRate());			
+			printf("Read %d bytes\n", size);
+
+			pAppData->buffers[i].setData(pAppData->sound->getFormat(), transfer, size, pAppData->sound->getSampleRate());			
 			pAppData->source.queueBuffer(pAppData->buffers[i]);
 
 			if (eof) {
+				printf("Reached EOF before fully saturating!\n");
 				break;
 			}
 		}
+
+		printf("Enqueued 3 buffers!\n");
 
 		pAppData->source.play();					
 
@@ -64,15 +72,15 @@ void frame(void * pUserData) {
 			char transfer[sampleSize];
 			std::size_t size = sampleSize;
 
-			if (!pAppData->sound.read(transfer, size)) {
+			if (!pAppData->sound->read(transfer, size)) {				
 				eof = true;
 			}			
 
 			buffer.setData(
-				pAppData->sound.getFormat(),
+				pAppData->sound->getFormat(),
 				transfer,
 				size,
-				pAppData->sound.getSampleRate());
+				pAppData->sound->getSampleRate());
 
 			pAppData->source.queueBuffer(buffer);			
 
@@ -87,18 +95,15 @@ void frame(void * pUserData) {
 }
 
 int main(int argc, char** argv) {	
-	application app(width, height, "ws"); 	
-
-	audio::vorbis_file_channel vfc("data/audio/atmono.ogg");
-
-	printf("vorbis channels: %d\n", vfc.getChannels());
-	printf("vorbis sample rate: %d\n", vfc.getSampleRate());
+	application app(width, height, "ws"); 		
 	
 	auto userData = std::make_shared<AppData>();
 
-	userData->sound = audio::wave_file_channel("data/audio/atpcm16.wav");
+	//userData->sound = audio::wave_file_channel("data/audio/atpcm16.wav");
+	userData->sound = std::make_unique<audio::vorbis_file_channel>("data/audio/atmono.ogg");
 
 	app.userData = userData;	
+	printf("begin!\n");
 	app.start(frame);
 
 	return 0;
