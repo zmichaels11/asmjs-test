@@ -26,18 +26,18 @@ namespace audio {
 
         void parseFormatSubchunk(unsigned int chunkSize);
 
+        wave_file_channel(const wave_file_channel&) = delete;
+
+        wave_file_channel& operator=(wave_file_channel&&) = default;
+
     public:
         wave_file_channel() {}
 
-        wave_file_channel(const std::string& path);
-
-        wave_file_channel(const wave_file_channel&) = delete;
+        wave_file_channel(const std::string& path);        
 
         wave_file_channel(wave_file_channel&&) = default;
 
-        wave_file_channel& operator=(const wave_file_channel&) = delete;
-
-        wave_file_channel& operator=(wave_file_channel&&) = default;
+        wave_file_channel& operator=(const wave_file_channel&) = delete;        
 
         virtual void seekStart();
 

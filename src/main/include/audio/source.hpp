@@ -10,16 +10,16 @@ namespace audio {
     class source {
         ALuint _handle;
 
+        source(const source&) = delete;
+
+        source& operator=(const source&) = delete;
+
     public:
         source();
 
-        ~source();
+        ~source();        
 
-        source(const source&) = delete;
-
-        source(source&&) = default;        
-
-        source& operator=(const source&) = delete;
+        source(source&&) = default;                
 
         source& operator=(source&&) = default;
 

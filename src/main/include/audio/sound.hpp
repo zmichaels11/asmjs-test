@@ -29,14 +29,7 @@ namespace audio {
 
         sound& operator=(const sound&) = delete;
 
-    public:    
-        sound() :
-            _channel(nullptr),
-            _format(static_cast<format> (0)),
-            _sampleRate(0),
-            _bufferSize(0),
-            _loopSample(0) {}
-
+    public: 
         sound(const std::string& path, float loopOffset = 0.0F);
 
         sound(sound&&) = default;

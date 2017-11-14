@@ -12,20 +12,20 @@ namespace audio {
         bool _transient;
         friend class source;
 
+        buffer(const buffer&) = delete;
+
+        buffer& operator=(const buffer&) = delete;
+
     public:
         buffer();
 
         buffer(ALuint handle) : 
             _handle(handle), 
-            _transient(true) {}
-
-        buffer(const buffer&) = delete;
+            _transient(true) {}        
 
         buffer(buffer&&) = default;
 
-        virtual ~buffer();
-
-        buffer& operator=(const buffer&) = delete;
+        virtual ~buffer();        
 
         buffer& operator=(buffer&&) = default;
 
