@@ -5,7 +5,9 @@
 #include <sstream>
 #include <string>
 
-#include "audio/stb_vorbis.hpp"
+#define STB_VORBIS_HEADER_ONLY
+#define STB_VORBIS_STATIC
+#include "stb_vorbis.cpp"
 
 namespace audio {
     static void _onError(const std::string& msg) {
@@ -16,9 +18,11 @@ namespace audio {
     vorbis_file_channel::vorbis_file_channel(const std::string& path) {
         int err = 0;
 
-        _handle = stb_vorbis_open_filename(path.c_str(), &err, nullptr);
+        auto handle = stb_vorbis_open_filename(path.c_str(), &err, nullptr);
 
-        auto info = stb_vorbis_get_info(_handle);
+        _handle = handle;
+
+        auto info = stb_vorbis_get_info(handle);
 
         _channels = info.channels;
         _sampleRate = info.sample_rate;      
@@ -26,7 +30,7 @@ namespace audio {
             ? format::MONO_FLOAT32
             : format::STEREO_FLOAT32;
 
-        _time = stb_vorbis_stream_length_in_seconds(_handle);
+        _time = stb_vorbis_stream_length_in_seconds(handle);
         _byteRate = _sampleRate * _channels * 4;
         std::cout << "Opened vorbis handle: " << _handle << std::endl;
     }
@@ -34,16 +38,16 @@ namespace audio {
     vorbis_file_channel::~vorbis_file_channel() {
         if (_handle) {
             std::cout << "Closing vorbis handle: " << _handle << std::endl;
-            stb_vorbis_close(_handle);
+            stb_vorbis_close(reinterpret_cast <stb_vorbis *> (_handle));
         }
     }
 
     void vorbis_file_channel::seekStart() {
-        stb_vorbis_seek_start(_handle);
+        stb_vorbis_seek_start(reinterpret_cast <stb_vorbis *> (_handle));
     }
 
     void vorbis_file_channel::seek(unsigned int sample) {
-        stb_vorbis_seek(_handle, sample);
+        stb_vorbis_seek(reinterpret_cast <stb_vorbis *> (_handle), sample);
     }
 
     float vorbis_file_channel::getLength() const {
@@ -71,7 +75,7 @@ namespace audio {
     }
 
     bool vorbis_file_channel::read(float * dst, std::size_t& n) {
-        auto read = stb_vorbis_get_samples_float_interleaved(_handle, _channels, dst, int(n));
+        auto read = stb_vorbis_get_samples_float_interleaved(reinterpret_cast <stb_vorbis *> (_handle), _channels, dst, int(n));
 
         n = std::size_t(read);
 
@@ -81,7 +85,7 @@ namespace audio {
     bool vorbis_file_channel::read(char * dst, std::size_t& n) {
         auto floats = reinterpret_cast<float *> (dst);
         int numFloats = n / sizeof(float);
-        int read = stb_vorbis_get_samples_float_interleaved(_handle, _channels, floats, numFloats);
+        int read = stb_vorbis_get_samples_float_interleaved(reinterpret_cast <stb_vorbis *> (_handle), _channels, floats, numFloats);
 
         n = read * sizeof(float);
 

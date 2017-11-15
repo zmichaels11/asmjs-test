@@ -5,7 +5,6 @@
 
 #include "audio/format.hpp"
 #include "audio/sound_channel.hpp"
-#include "audio/stb_vorbis.hpp"
 
 namespace audio {
     class vorbis_file_channel : public sound_channel {
@@ -18,7 +17,7 @@ namespace audio {
         float _time;
         format _format;
 
-        stb_vorbis * _handle;
+        void * _handle;
 
         vorbis_file_channel(vorbis_file_channel&) = delete;
 
