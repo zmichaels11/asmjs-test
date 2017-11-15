@@ -8,6 +8,8 @@
 #include "graphics/buffer_target.hpp"
 
 namespace graphics {
+    class vertex_array;
+
     class buffer {
         GLuint _handle;
         buffer_info _info;
@@ -15,6 +17,8 @@ namespace graphics {
         buffer(const buffer&) = delete;
 
         buffer& operator=(const buffer&) = delete;
+
+        friend class vertex_array;
     public:
         buffer(const buffer_info& info);
 
