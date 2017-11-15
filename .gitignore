@@ -426,3 +426,4 @@ __pycache__/
 
 emsdk-portable
 .vscode
+ws.code-workspace
