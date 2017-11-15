@@ -7,6 +7,8 @@
 namespace audio {
     class sound_channel {
     public:
+        virtual ~sound_channel(){}
+
         virtual int getChannels() const = 0;
         virtual int getSampleRate() const = 0;
         virtual int getBitsPerSample() const = 0;

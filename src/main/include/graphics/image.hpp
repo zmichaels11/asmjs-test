@@ -7,6 +7,8 @@
 namespace graphics {
     class image {
     public:
+        virtual ~image() {}
+        
         virtual unsigned int getWidth() const = 0;
 
         virtual unsigned int getHeight() const = 0;
