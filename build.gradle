@@ -5,6 +5,7 @@ wrapper {
 }
 
 model {
+
 	platforms {
 		x86_64 {
 			architecture "x86_64"
@@ -21,7 +22,7 @@ model {
 
 	toolChains {
 		gcc (Gcc) {
-			target("x86_64") {
+			target("x86_64") {				
 				cppCompiler.withArguments { args -> 
 					args << "-std=c++14"
 					args << "-O0"
@@ -30,7 +31,7 @@ model {
 
 				linker.withArguments { args -> 
 					args << "-O0"
-					args << "-lGLESv2"
+					args << "-lGL"
 					args << "-lglfw"
 					args << "-lopenal"					
 				}
