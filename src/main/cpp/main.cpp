@@ -44,12 +44,10 @@ int main(int argc, char** argv) {
 	application app(width, height, "ws"); 		
 	
 	auto userData = std::make_shared<AppData>();
-
-	//userData->sound = audio::wave_file_channel("data/audio/atpcm16.wav");
+	
 	userData->sound = std::make_unique<audio::sound>("data/audio/atmono.ogg");
 
-	app.userData = userData;	
-	printf("begin!\n");
+	app.userData = userData;		
 	app.start(frame);
 
 	return 0;

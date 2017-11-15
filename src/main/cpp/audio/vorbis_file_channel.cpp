@@ -6,7 +6,7 @@
 #include <string>
 
 #define STB_VORBIS_HEADER_ONLY
-#define STB_VORBIS_STATIC
+//#define STB_VORBIS_STATIC
 #include "stb_vorbis.cpp"
 
 namespace audio {
@@ -32,12 +32,10 @@ namespace audio {
 
         _time = stb_vorbis_stream_length_in_seconds(handle);
         _byteRate = _sampleRate * _channels * 4;
-        std::cout << "Opened vorbis handle: " << _handle << std::endl;
     }
 
     vorbis_file_channel::~vorbis_file_channel() {
         if (_handle) {
-            std::cout << "Closing vorbis handle: " << _handle << std::endl;
             stb_vorbis_close(reinterpret_cast <stb_vorbis *> (_handle));
         }
     }
