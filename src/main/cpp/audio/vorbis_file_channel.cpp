@@ -6,7 +6,8 @@
 #include <string>
 
 #define STB_VORBIS_HEADER_ONLY
-//#define STB_VORBIS_STATIC
+#define STB_VORBIS_NO_PUSHDATA_API
+#define STB_VORBIS_NO_INTEGER_CONVERSION
 #include "stb_vorbis.cpp"
 
 namespace audio {

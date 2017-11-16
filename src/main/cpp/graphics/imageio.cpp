@@ -11,7 +11,12 @@
 #include "graphics/image.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
+
+#ifdef __EMSCRIPTEN__
 #define STBI_NO_SIMD
+#endif
+
+#define STBI_ONLY_PNG
 #define STB_IMAGE_STATIC
 #include "stbimage.cpp"
 

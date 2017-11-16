@@ -1,3 +1,6 @@
+#define STB_VORBIS_NO_PUSHDATA_API
+#define STB_VORBIS_NO_INTEGER_CONVERSION
+
 // Ogg Vorbis audio decoder - v1.11 - public domain
 // http://nothings.org/stb_vorbis/
 //
@@ -71,12 +74,6 @@
 extern "C" {
 #endif
 
-#ifdef STB_VORBIS_STATIC
-#define STBVDEF static
-#else
-#define STBVDEF extern
-#endif
-
 ///////////   THREAD SAFETY
 
 // Individual stb_vorbis* handles are not thread-safe; you cannot decode from
@@ -130,24 +127,24 @@ typedef struct
 } stb_vorbis_info;
 
 // get general information about the file
-STBVDEF stb_vorbis_info stb_vorbis_get_info(stb_vorbis *f);
+extern stb_vorbis_info stb_vorbis_get_info(stb_vorbis *f);
 
 // get the last error detected (clears it, too)
-STBVDEF int stb_vorbis_get_error(stb_vorbis *f);
+extern int stb_vorbis_get_error(stb_vorbis *f);
 
 // close an ogg vorbis file and free all memory in use
-STBVDEF void stb_vorbis_close(stb_vorbis *f);
+extern void stb_vorbis_close(stb_vorbis *f);
 
 // this function returns the offset (in samples) from the beginning of the
 // file that will be returned by the next decode, if it is known, or -1
 // otherwise. after a flush_pushdata() call, this may take a while before
 // it becomes valid again.
 // NOT WORKING YET after a seek with PULLDATA API
-STBVDEF int stb_vorbis_get_sample_offset(stb_vorbis *f);
+extern int stb_vorbis_get_sample_offset(stb_vorbis *f);
 
 // returns the current seek point within the file, or offset from the beginning
 // of the memory buffer. In pushdata mode it returns 0.
-STBVDEF unsigned int stb_vorbis_get_file_offset(stb_vorbis *f);
+extern unsigned int stb_vorbis_get_file_offset(stb_vorbis *f);
 
 ///////////   PUSHDATA API
 
@@ -160,7 +157,7 @@ STBVDEF unsigned int stb_vorbis_get_file_offset(stb_vorbis *f);
 // need to give it the same data again PLUS more. Note that the Vorbis
 // specification does not bound the size of an individual frame.
 
-STBVDEF stb_vorbis *stb_vorbis_open_pushdata(
+extern stb_vorbis *stb_vorbis_open_pushdata(
          const unsigned char * datablock, int datablock_length_in_bytes,
          int *datablock_memory_consumed_in_bytes,
          int *error,
@@ -174,7 +171,7 @@ STBVDEF stb_vorbis *stb_vorbis_open_pushdata(
 // if returns NULL and *error is VORBIS_need_more_data, then the input block was
 //       incomplete and you need to pass in a larger block from the start of the file
 
-STBVDEF int stb_vorbis_decode_frame_pushdata(
+extern int stb_vorbis_decode_frame_pushdata(
          stb_vorbis *f,
          const unsigned char *datablock, int datablock_length_in_bytes,
          int *channels,             // place to write number of float * buffers
@@ -204,7 +201,7 @@ STBVDEF int stb_vorbis_decode_frame_pushdata(
 // the first channel, and (*output)[1][0] contains the first sample from
 // the second channel.
 
-STBVDEF void stb_vorbis_flush_pushdata(stb_vorbis *f);
+extern void stb_vorbis_flush_pushdata(stb_vorbis *f);
 // inform stb_vorbis that your next datablock will not be contiguous with
 // previous ones (e.g. you've seeked in the data); future attempts to decode
 // frames will cause stb_vorbis to resynchronize (as noted above), and
@@ -229,28 +226,28 @@ STBVDEF void stb_vorbis_flush_pushdata(stb_vorbis *f);
 // just want to go ahead and use pushdata.)
 
 #if !defined(STB_VORBIS_NO_STDIO) && !defined(STB_VORBIS_NO_INTEGER_CONVERSION)
-STBVDEF int stb_vorbis_decode_filename(const char *filename, int *channels, int *sample_rate, short **output);
+extern int stb_vorbis_decode_filename(const char *filename, int *channels, int *sample_rate, short **output);
 #endif
 #if !defined(STB_VORBIS_NO_INTEGER_CONVERSION)
-STBVDEF int stb_vorbis_decode_memory(const unsigned char *mem, int len, int *channels, int *sample_rate, short **output);
+extern int stb_vorbis_decode_memory(const unsigned char *mem, int len, int *channels, int *sample_rate, short **output);
 #endif
 // decode an entire file and output the data interleaved into a malloc()ed
 // buffer stored in *output. The return value is the number of samples
 // decoded, or -1 if the file could not be opened or was not an ogg vorbis file.
 // When you're done with it, just free() the pointer returned in *output.
 
-STBVDEF stb_vorbis * stb_vorbis_open_memory(const unsigned char *data, int len,
+extern stb_vorbis * stb_vorbis_open_memory(const unsigned char *data, int len,
                                   int *error, const stb_vorbis_alloc *alloc_buffer);
 // create an ogg vorbis decoder from an ogg vorbis stream in memory (note
 // this must be the entire stream!). on failure, returns NULL and sets *error
 
 #ifndef STB_VORBIS_NO_STDIO
-STBVDEF stb_vorbis * stb_vorbis_open_filename(const char *filename,
+extern stb_vorbis * stb_vorbis_open_filename(const char *filename,
                                   int *error, const stb_vorbis_alloc *alloc_buffer);
 // create an ogg vorbis decoder from a filename via fopen(). on failure,
 // returns NULL and sets *error (possibly to VORBIS_file_open_failure).
 
-STBVDEF stb_vorbis * stb_vorbis_open_file(FILE *f, int close_handle_on_close,
+extern stb_vorbis * stb_vorbis_open_file(FILE *f, int close_handle_on_close,
                                   int *error, const stb_vorbis_alloc *alloc_buffer);
 // create an ogg vorbis decoder from an open FILE *, looking for a stream at
 // the _current_ seek point (ftell). on failure, returns NULL and sets *error.
@@ -260,7 +257,7 @@ STBVDEF stb_vorbis * stb_vorbis_open_file(FILE *f, int close_handle_on_close,
 // owns the _entire_ rest of the file after the start point. Use the next
 // function, stb_vorbis_open_file_section(), to limit it.
 
-STBVDEF stb_vorbis * stb_vorbis_open_file_section(FILE *f, int close_handle_on_close,
+extern stb_vorbis * stb_vorbis_open_file_section(FILE *f, int close_handle_on_close,
                 int *error, const stb_vorbis_alloc *alloc_buffer, unsigned int len);
 // create an ogg vorbis decoder from an open FILE *, looking for a stream at
 // the _current_ seek point (ftell); the stream will be of length 'len' bytes.
@@ -269,8 +266,8 @@ STBVDEF stb_vorbis * stb_vorbis_open_file_section(FILE *f, int close_handle_on_c
 // confused.
 #endif
 
-STBVDEF int stb_vorbis_seek_frame(stb_vorbis *f, unsigned int sample_number);
-STBVDEF int stb_vorbis_seek(stb_vorbis *f, unsigned int sample_number);
+extern int stb_vorbis_seek_frame(stb_vorbis *f, unsigned int sample_number);
+extern int stb_vorbis_seek(stb_vorbis *f, unsigned int sample_number);
 // these functions seek in the Vorbis file to (approximately) 'sample_number'.
 // after calling seek_frame(), the next call to get_frame_*() will include
 // the specified sample. after calling stb_vorbis_seek(), the next call to
@@ -278,14 +275,14 @@ STBVDEF int stb_vorbis_seek(stb_vorbis *f, unsigned int sample_number);
 // do not need to seek to EXACTLY the target sample when using get_samples_*,
 // you can also use seek_frame().
 
-STBVDEF int stb_vorbis_seek_start(stb_vorbis *f);
+extern int stb_vorbis_seek_start(stb_vorbis *f);
 // this function is equivalent to stb_vorbis_seek(f,0)
 
-STBVDEF unsigned int stb_vorbis_stream_length_in_samples(stb_vorbis *f);
-STBVDEF float        stb_vorbis_stream_length_in_seconds(stb_vorbis *f);
+extern unsigned int stb_vorbis_stream_length_in_samples(stb_vorbis *f);
+extern float        stb_vorbis_stream_length_in_seconds(stb_vorbis *f);
 // these functions return the total length of the vorbis stream
 
-STBVDEF int stb_vorbis_get_frame_float(stb_vorbis *f, int *channels, float ***output);
+extern int stb_vorbis_get_frame_float(stb_vorbis *f, int *channels, float ***output);
 // decode the next frame and return the number of samples. the number of
 // channels returned are stored in *channels (which can be NULL--it is always
 // the same as the number of channels reported by get_info). *output will
@@ -296,8 +293,8 @@ STBVDEF int stb_vorbis_get_frame_float(stb_vorbis *f, int *channels, float ***ou
 // and stb_vorbis_get_samples_*(), since the latter calls the former.
 
 #ifndef STB_VORBIS_NO_INTEGER_CONVERSION
-STBVDEF int stb_vorbis_get_frame_short_interleaved(stb_vorbis *f, int num_c, short *buffer, int num_shorts);
-STBVDEF int stb_vorbis_get_frame_short            (stb_vorbis *f, int num_c, short **buffer, int num_samples);
+extern int stb_vorbis_get_frame_short_interleaved(stb_vorbis *f, int num_c, short *buffer, int num_shorts);
+extern int stb_vorbis_get_frame_short            (stb_vorbis *f, int num_c, short **buffer, int num_samples);
 #endif
 // decode the next frame and return the number of *samples* per channel.
 // Note that for interleaved data, you pass in the number of shorts (the
@@ -324,16 +321,16 @@ STBVDEF int stb_vorbis_get_frame_short            (stb_vorbis *f, int num_c, sho
 //    Note that this is not _good_ surround etc. mixing at all! It's just so
 //    you get something useful.
 
-STBVDEF int stb_vorbis_get_samples_float_interleaved(stb_vorbis *f, int channels, float *buffer, int num_floats);
-STBVDEF int stb_vorbis_get_samples_float(stb_vorbis *f, int channels, float **buffer, int num_samples);
+extern int stb_vorbis_get_samples_float_interleaved(stb_vorbis *f, int channels, float *buffer, int num_floats);
+extern int stb_vorbis_get_samples_float(stb_vorbis *f, int channels, float **buffer, int num_samples);
 // gets num_samples samples, not necessarily on a frame boundary--this requires
 // buffering so you have to supply the buffers. DOES NOT APPLY THE COERCION RULES.
 // Returns the number of samples stored per channel; it may be less than requested
 // at the end of the file. If there are no more samples in the file, returns 0.
 
 #ifndef STB_VORBIS_NO_INTEGER_CONVERSION
-STBVDEF int stb_vorbis_get_samples_short_interleaved(stb_vorbis *f, int channels, short *buffer, int num_shorts);
-STBVDEF int stb_vorbis_get_samples_short(stb_vorbis *f, int channels, short **buffer, int num_samples);
+extern int stb_vorbis_get_samples_short_interleaved(stb_vorbis *f, int channels, short *buffer, int num_shorts);
+extern int stb_vorbis_get_samples_short(stb_vorbis *f, int channels, short **buffer, int num_samples);
 #endif
 // gets num_samples samples, not necessarily on a frame boundary--this requires
 // buffering so you have to supply the buffers. Applies the coercion rules above
