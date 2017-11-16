@@ -6,6 +6,8 @@
 #include "graphics/texture_info.hpp"
 
 namespace graphics {
+    class framebuffer;
+
     class texture {
         GLuint _handle;
         texture_info _info;
@@ -15,6 +17,8 @@ namespace graphics {
 
         texture& operator=(const texture&) = delete;
 
+        friend class framebuffer;
+
     public:
         texture(const texture_info& info);
 
@@ -23,6 +27,8 @@ namespace graphics {
         ~texture();
 
         texture& operator=(texture&&) = default;
+
+        const texture_info& getInfo() const;
 
         void generateMipmap() const;
 

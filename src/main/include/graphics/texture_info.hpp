@@ -3,7 +3,7 @@
 #include <cstddef>
 
 #include "graphics/sampler_info.hpp"
-#include "graphics/texture_internal_format.hpp"
+#include "graphics/internal_format.hpp"
 
 namespace graphics {
     struct texture_info {
@@ -17,6 +17,6 @@ namespace graphics {
         std::size_t levels;
 
         sampler_info samplerInfo;
-        texture_internal_format internalFormat;
+        internal_format format;
     };
 }

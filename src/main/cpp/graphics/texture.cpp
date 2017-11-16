@@ -5,6 +5,9 @@
 #include <iostream>
 #include <string>
 
+#include "graphics/pixel_info.hpp"
+#include "graphics/texture_info.hpp"
+
 namespace graphics {
     namespace {
         static void _onError(const std::string& msg) {
@@ -16,7 +19,7 @@ namespace graphics {
     texture::texture(const texture_info& info) {
         glGenTextures(1, &_handle);
         
-        const auto internalFormat = static_cast<GLenum> (info.internalFormat);
+        const auto internalFormat = static_cast<GLenum> (info.format);
 
         if (info.extent.height > 1) {
             if (info.extent.depth > 1) {
@@ -43,6 +46,10 @@ namespace graphics {
 
     texture::~texture() {
         glDeleteTextures(1, &_handle);
+    }
+
+    const texture_info& texture::getInfo() const {
+        return _info;
     }
 
     void texture::generateMipmap() const {
