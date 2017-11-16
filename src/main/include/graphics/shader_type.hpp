@@ -1,10 +1,12 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class shader_type : GLenum {
-        VERTEX = GL_VERTEX_SHADER,
-        FRAGMENT = GL_FRAGMENT_SHADER
+    enum class shader_type : unsigned int {
+        VERTEX = 0x8B31,
+        FRAGMENT = 0x8B30,
+        GEOMETRY = 0x8DD9,
+        TESS_EVALUATION = 0x8E87,
+        TESS_CONTROL = 0x8E88,
+        COMPUTE = 0x91B9
     };
 }

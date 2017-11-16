@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 #include "graphics/compare_op.hpp"
 #include "graphics/stencil_op_state_info.hpp"
 

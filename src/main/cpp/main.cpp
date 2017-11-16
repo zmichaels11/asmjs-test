@@ -1,7 +1,5 @@
 #include "app.hpp"
 
-#include <GLES3/gl3.h>
-
 #include <cstdio>
 
 #include <iostream>
@@ -9,12 +7,14 @@
 #include <string>
 
 #include "audio/sound.hpp"
+#include "graphics/clear_state_info.hpp"
 
 constexpr int width = 640;
 constexpr int height = 480;
 
 struct AppData {
 	std::unique_ptr<audio::sound> sound;
+	graphics::clear_state_info clearState;
 };
 
 void frame(void * pUserData) {
@@ -36,8 +36,7 @@ void frame(void * pUserData) {
 
 	pAppData->sound->onFrame();
 
-	glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
-	glClear(GL_COLOR_BUFFER_BIT);	
+	graphics::apply(pAppData->clearState);
 }
 
 int main(int argc, char** argv) {	
@@ -46,8 +45,10 @@ int main(int argc, char** argv) {
 	auto userData = std::make_shared<AppData>();
 	
 	userData->sound = std::make_unique<audio::sound>("data/audio/atmono.ogg");
+	userData->clearState.buffers = graphics::clear_buffer::COLOR;
+	userData->clearState.color = {0.0F, 0.0F, 0.2F, 1.0F};
 
-	app.userData = userData;		
+	app.userData = userData;	
 	app.start(frame);
 
 	return 0;

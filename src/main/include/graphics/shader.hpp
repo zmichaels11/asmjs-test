@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 #include "graphics/shader_info.hpp"
 
 namespace graphics {
@@ -9,7 +7,7 @@ namespace graphics {
 
     class shader {
         shader_info _info;
-        GLuint _handle;
+        unsigned int _handle;
 
         shader(const shader&) = delete;
 

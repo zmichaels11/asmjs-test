@@ -1,5 +1,7 @@
 #include "graphics/depth_stencil_state_info.hpp"
 
+#include <GLES3/gl3.h>
+
 namespace graphics {
     void apply(const depth_stencil_state_info& info) {
         if (info.depthTestEnabled) {

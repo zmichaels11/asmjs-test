@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 #include <cstddef>
 
 #include "graphics/buffer_info.hpp"
@@ -11,7 +9,7 @@ namespace graphics {
     class vertex_array;
 
     class buffer {
-        GLuint _handle;
+        unsigned int _handle;
         buffer_info _info;
 
         buffer(const buffer&) = delete;

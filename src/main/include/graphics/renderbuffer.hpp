@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 #include "graphics/renderbuffer_info.hpp"
 
 namespace graphics {
@@ -9,7 +7,7 @@ namespace graphics {
     
     class renderbuffer {
         renderbuffer_info _info;
-        GLuint _handle;
+        unsigned int _handle;
 
         renderbuffer(const renderbuffer&) = delete;
 

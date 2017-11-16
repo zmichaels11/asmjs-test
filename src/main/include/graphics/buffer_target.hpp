@@ -1,16 +1,14 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class buffer_target : GLenum {
-        ARRAY = GL_ARRAY_BUFFER,
-        ELEMENT = GL_ELEMENT_ARRAY_BUFFER,
-        PIXEL_UNPACK = GL_PIXEL_UNPACK_BUFFER,
-        PIXEL_PACK = GL_PIXEL_PACK_BUFFER,
-        COPY_READ = GL_COPY_READ_BUFFER,
-        COPY_WRITE = GL_COPY_WRITE_BUFFER,
-        TRANSFORM_FEEDBACK = GL_TRANSFORM_FEEDBACK_BUFFER,
-        UNIFORM_BUFFER = GL_UNIFORM_BUFFER
+    enum class buffer_target : unsigned int {
+        ARRAY = 0x8892,
+        ELEMENT = 0x8893,
+        PIXEL_UNPACK = 0x88EC,
+        PIXEL_PACK = 0x88EB,
+        COPY_READ = 0x8F36,
+        COPY_WRITE = 0x8F37,
+        TRANSFORM_FEEDBACK = 0x8C8E,
+        UNIFORM_BUFFER = 0x8A11
     };
 }

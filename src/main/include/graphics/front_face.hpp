@@ -1,10 +1,8 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class front_face : GLenum {
-        CCW = GL_CCW,
-        CW = GL_CW
+    enum class front_face : unsigned int {
+        CCW = 0x0901,
+        CW = 0x0900
     };
 }

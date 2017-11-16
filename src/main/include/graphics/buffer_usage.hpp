@@ -1,17 +1,15 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class buffer_usage : GLenum {
-        STREAM_DRAW = GL_STREAM_DRAW,
-        STREAM_READ = GL_STREAM_READ,
-        STREAM_COPY = GL_STREAM_COPY,
-        STATIC_DRAW = GL_STATIC_DRAW,
-        STATIC_READ = GL_STATIC_READ,
-        STATIC_COPY = GL_STATIC_COPY,
-        DYNAMIC_DRAW = GL_DYNAMIC_DRAW,
-        DYNAMIC_READ = GL_DYNAMIC_READ,
-        DYNAMIC_COPY = GL_DYNAMIC_COPY
+    enum class buffer_usage : unsigned int {
+        STREAM_DRAW = 0x88E0,
+        STREAM_READ = 0x88E1,
+        STREAM_COPY = 0x88E2,
+        STATIC_DRAW = 0x88E4,
+        STATIC_READ = 0x88E5,
+        STATIC_COPY = 0x88E6,
+        DYNAMIC_DRAW = 0x88E8,
+        DYNAMIC_READ = 0x88E9,
+        DYNAMIC_COPY = 0x88EA
     };
 }

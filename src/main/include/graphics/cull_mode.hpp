@@ -1,12 +1,10 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class cull_mode : GLenum {
-        NONE = GL_NONE,
-        FRONT = GL_FRONT,
-        BACK = GL_BACK,
-        FRONT_AND_BACK = GL_FRONT_AND_BACK
+    enum class cull_mode : unsigned int {
+        NONE = 0,
+        FRONT = 0x0404,
+        BACK = 0x0405,
+        FRONT_AND_BACK = 0x0408
     };
 }

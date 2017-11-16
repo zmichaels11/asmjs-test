@@ -1,15 +1,14 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class compare_op : GLenum {
-        NEVER = GL_NEVER,
-        ALWAYS = GL_ALWAYS,
-        LESS = GL_LESS,
-        GREATER = GL_GREATER,
-        LEQUAL = GL_LEQUAL,
-        GEQUAL = GL_GEQUAL,
-        NOTEQUAL = GL_NOTEQUAL
+    enum class compare_op : unsigned int {
+        NEVER = 0x0200,
+        ALWAYS = 0x0207,
+        LESS = 0x0201,
+        EQUAL = 0x0202,
+        GREATER = 0x0204,
+        LEQUAL = 0x0203,
+        GEQUAL = 0x0206,
+        NOTEQUAL = 0x0205
     };
 }

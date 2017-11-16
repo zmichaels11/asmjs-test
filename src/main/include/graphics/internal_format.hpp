@@ -1,26 +1,24 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class internal_format : GLenum {
-        R8 = GL_R8,        
-        RG8 = GL_RG8,
-        RGB8 = GL_RGB8,
-        RGBA8 = GL_RGBA8,
-        R16F = GL_R16F,
-        RG16F = GL_RG16F,
-        RGB16F = GL_RGB16F,
-        RGBA16F = GL_RGBA16F,
-        RGB10_A2 = GL_RGB10_A2,
-        RGBA4 = GL_RGBA4,
-        RGB565 = GL_RGB565,
-        RGB5_A1 = GL_RGB5_A1,                
-        DEPTH_COMPONENT16 = GL_DEPTH_COMPONENT16,
-        DEPTH_COMPONENT24 = GL_DEPTH_COMPONENT24,
-        DEPTH_COMPONENT32F = GL_DEPTH_COMPONENT32F,
-        DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8,
-        DEPTH32F_STENCIL8 = GL_DEPTH32F_STENCIL8,
-        STENCIL_INDEX8 = GL_STENCIL_INDEX8
+    enum class internal_format : unsigned int {
+        R8 = 0x8229,        
+        RG8 = 0x822B,
+        RGB8 = 0x8051,
+        RGBA8 = 0x8058,
+        R16F = 0x822D,
+        RG16F = 0x822F,
+        RGB16F = 0x881B,
+        RGBA16F = 0x881A,
+        RGB10_A2 = 0x8059,
+        RGBA4 = 0x8056,
+        RGB565 = 0x8D62,
+        RGB5_A1 = 0x8057,                
+        DEPTH_COMPONENT16 = 0x81A5,
+        DEPTH_COMPONENT24 = 0x81A6,
+        DEPTH_COMPONENT32F = 0x8CAC,
+        DEPTH24_STENCIL8 = 0x88F0,
+        DEPTH32F_STENCIL8 = 0x8CAD,
+        STENCIL_INDEX8 = 0x8D48
     };
 }

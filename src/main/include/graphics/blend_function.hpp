@@ -1,23 +1,21 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class blend_function : GLenum {
-        ZERO = GL_ZERO,
-        ONE = GL_ONE,
-        ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR,
-        SRC_COLOR = GL_SRC_COLOR,
-        ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR,
-        DST_COLOR = GL_DST_COLOR,
-        ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA,
-        SRC_ALPHA = GL_SRC_ALPHA,
-        ONE_MINUS_DST_ALPHA = GL_ONE_MINUS_DST_ALPHA,
-        DST_ALPHA = GL_DST_ALPHA,
-        ONE_MINUS_CONSTANT_COLOR = GL_ONE_MINUS_CONSTANT_COLOR,
-        CONSTANT_COLOR = GL_CONSTANT_COLOR,
-        ONE_MINUS_CONSTANT_ALPHA = GL_ONE_MINUS_CONSTANT_ALPHA,
-        CONSTANT_ALPHA = GL_CONSTANT_ALPHA,
-        SRC_ALPHA_SATURATE = GL_SRC_ALPHA_SATURATE
+    enum class blend_function : unsigned int {
+        ZERO = 0,
+        ONE = 1,
+        ONE_MINUS_SRC_COLOR = 0x0301,
+        SRC_COLOR = 0x0300,
+        ONE_MINUS_DST_COLOR = 0x0307,
+        DST_COLOR = 0x0306,
+        ONE_MINUS_SRC_ALPHA = 0x0303,
+        SRC_ALPHA = 0x0302,
+        ONE_MINUS_DST_ALPHA = 0x0305,
+        DST_ALPHA = 0x0304,
+        ONE_MINUS_CONSTANT_COLOR = 0x8002,
+        CONSTANT_COLOR = 0x8001,
+        ONE_MINUS_CONSTANT_ALPHA = 0x8004,
+        CONSTANT_ALPHA = 0x8003,
+        SRC_ALPHA_SATURATE = 0x0308
     };
 }

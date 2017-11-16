@@ -1,16 +1,14 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class draw_mode : GLenum {
-        POINTS = GL_POINTS,
-        LINE_STRIP = GL_LINE_STRIP,
-        LINE_LOOP = GL_LINE_LOOP,
-        LINES = GL_LINES,
-        TRIANGLE_STRIP = GL_TRIANGLE_STRIP,
-        TRIANGLE_FAN = GL_TRIANGLE_FAN,
-        TRIANGLES = GL_TRIANGLES
+    enum class draw_mode : unsigned int {
+        POINTS = 0x0000,
+        LINE_STRIP = 0x0003,
+        LINE_LOOP = 0x0002,
+        LINES = 0x0001,
+        TRIANGLE_STRIP = 0x0005,
+        TRIANGLE_FAN = 0x0006,
+        TRIANGLES = 0x0004
     };
 }
 

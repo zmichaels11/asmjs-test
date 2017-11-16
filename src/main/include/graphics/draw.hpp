@@ -1,7 +1,6 @@
 #pragma once
 
 #include <cstddef>
-#include <GLES3/gl3.h>
 
 #include "graphics/draw_mode.hpp"
 #include "graphics/index_type.hpp"

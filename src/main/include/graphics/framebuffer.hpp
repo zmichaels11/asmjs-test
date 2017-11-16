@@ -1,12 +1,10 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 #include "graphics/framebuffer_info.hpp"
 
 namespace graphics {
     class framebuffer {
-        GLuint _handle;
+        unsigned int _handle;
         framebuffer_info _info;
 
         framebuffer(const framebuffer&) = delete;

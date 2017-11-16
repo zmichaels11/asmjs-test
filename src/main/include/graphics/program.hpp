@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 #include <string>
 
 #include "graphics/program_info.hpp"
@@ -9,7 +7,7 @@
 namespace graphics {
     class program {
         program_info _info;
-        GLuint _handle;
+        unsigned int _handle;
 
         program(const program&) = delete;
 

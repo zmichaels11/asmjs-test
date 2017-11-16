@@ -1,9 +1,7 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class polygon_mode : GLenum {
+    enum class polygon_mode : unsigned int {
         //FILL = GL_FILL,
         //LINE = GL_LINE,
         //POINT = GL_POINT

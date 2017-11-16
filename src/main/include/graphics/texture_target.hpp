@@ -1,11 +1,9 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 namespace graphics {
-    enum class texture_target : GLenum {
-        TEXTURE_2D = GL_TEXTURE_2D,
-        TEXTURE_3D = GL_TEXTURE_3D,
-        TEXTURE_2D_ARRAY = GL_TEXTURE_2D_ARRAY        
+    enum class texture_target : unsigned int {
+        TEXTURE_2D = 0x0DE1,
+        TEXTURE_3D = 0x806F,
+        TEXTURE_2D_ARRAY = 0x8C1A        
     }
 }

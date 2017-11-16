@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 #include "graphics/pixel_info.hpp"
 #include "graphics/texture_info.hpp"
 
@@ -9,9 +7,9 @@ namespace graphics {
     class framebuffer;
 
     class texture {
-        GLuint _handle;
+        unsigned int _handle;
         texture_info _info;
-        GLenum _target;
+        unsigned int _target;
 
         texture(const texture&) = delete;
 

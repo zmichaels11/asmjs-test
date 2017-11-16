@@ -1,7 +1,5 @@
 #pragma once
 
-#include <GLES3/gl3.h>
-
 #include "graphics/vertex_array_info.hpp"
 
 namespace graphics {
@@ -9,7 +7,7 @@ namespace graphics {
 
     class vertex_array {
         vertex_array_info _info;
-        GLuint _handle;
+        unsigned int _handle;
 
         vertex_array(const vertex_array&) = delete;
 
