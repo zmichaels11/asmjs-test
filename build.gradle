@@ -38,10 +38,25 @@ model {
 			}
 		}
 
-		Emscripten(Clang) {
+		Emscripten (Clang) {
 			eachPlatform {
 				cppCompiler.executable = 'em++'
 				linker.executable = 'em++'
+				staticLibArchiver.executable = 'em++'
+
+				staticLibArchiver.withArguments { args -> 
+					args[0] = '-o'
+					args[1] = args[1].replace('.a', '.bc')
+
+					args << '-O2'
+					args << '-emit-llvm'
+					args << '-s'
+					args << 'USE_GLFW=3'
+					args << '-s'
+					args << 'USE_WEBGL2=1'
+
+					//System.out.println("StaticLibArchiver Args: $args")
+				}
 
 				cppCompiler.withArguments { args -> 
 					args << "-std=c++14"
@@ -50,6 +65,9 @@ model {
 					args << "USE_GLFW=3"
 					args << "-s"
 					args << "USE_WEBGL2=1"
+					args << "-emit-llvm"
+
+					//System.out.println("Compiler Args: $args")
 				}
 
 				linker.withArguments { args -> 
@@ -62,12 +80,23 @@ model {
 					args << "USE_WEBGL2=1"
 					args << "--preload-file"
 					args << "data"
+
+					for (int i = 0; i < args.size(); i++) {
+						args[i] = args[i].replace('.a', '.bc')
+					}
+
+					//System.out.println("Linker Args: $args")
 				}
 			}
 
 			target ("asmjs")
 
-			target("binaryen") {				
+			target("binaryen") {
+				staticLibArchiver.withArguments { args -> 
+					args << '-s'
+					args << 'BINARYEN=1'
+				}
+
 				cppCompiler.withArguments { args ->					
 					args << "-s"
 					args << "BINARYEN=1"
@@ -82,23 +111,68 @@ model {
 	}	
 
 	components {
+		audio(NativeLibrarySpec) {
+			targetPlatform 'asmjs'
+			targetPlatform 'binaryen'
+			targetPlatform 'x86_64'
+
+			sources {
+				cpp {
+					source {
+						srcDirs 'src/share/cpp', 'src/libaudio/cpp'
+						include '**/*.cpp'
+					}
+
+					exportedHeaders {
+						srcDirs 'src/share/include', 'src/libaudio/include'
+						include '**/*.hpp'
+					}
+				}
+			}
+		}
+
+		graphics(NativeLibrarySpec) {
+			targetPlatform 'asmjs'
+			targetPlatform 'binaryen'
+			targetPlatform 'x86_64'
+			
+			sources {
+				cpp {
+					source {
+						srcDirs 'src/share/cpp', 'src/libgraphics/cpp'
+						include '**/*.cpp'
+					}
+
+					exportedHeaders {
+						srcDirs 'src/share/include', 'src/libgraphics/include'
+						include '**/*.hpp'
+					}
+				}
+			}
+		}
+
 		ws(NativeExecutableSpec) {
+			targetPlatform 'asmjs'
 			targetPlatform "binaryen"
-			targetPlatform "asmjs"
 			targetPlatform "x86_64"
 
 			sources {
 				cpp {
 					source {
-						srcDir 'src/main/cpp'
+						srcDirs 'src/share/cpp', 'src/main/cpp'
 						include '**/*.cpp'
 					}
 
 					exportedHeaders {
-						srcDir 'src/main/include'
+						srcDirs 'src/share/include', 'src/main/include'
 						include '**/*.hpp'
 					}
 				}
+			}
+
+			binaries.all {
+				lib library: 'audio', linkage: 'static'
+				lib library: 'graphics', linkage: 'static'
 			}
 		}
 	}
