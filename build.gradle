@@ -164,7 +164,7 @@ model {
 					}
 
 					exportedHeaders {
-						srcDirs 'src/share/include', 'src/main/include'
+						srcDirs 'src/share/include', 'src/main/include', 'src/libmath/include'
 						include '**/*.hpp'
 					}
 				}
