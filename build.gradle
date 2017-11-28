@@ -5,6 +5,11 @@ wrapper {
 }
 
 model {
+	flavors {
+		dummy
+		test_sound
+	}
+
 
 	platforms {
 		x86_64 {
@@ -173,6 +178,13 @@ model {
 			binaries.all {
 				lib library: 'audio', linkage: 'static'
 				lib library: 'graphics', linkage: 'static'
+
+				if (flavor == flavors.test_sound) {
+					cppCompiler.define('FN_INIT', 'test::sound::init')
+					cppCompiler.define('FN_FRAME', 'test::sound::frame')
+				} else {
+					buildable = false
+				}
 			}
 		}
 	}
