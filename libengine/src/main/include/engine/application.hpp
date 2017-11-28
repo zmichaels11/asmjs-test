@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include <functional>
 #include <memory>
 #include <string>
@@ -11,6 +13,10 @@ namespace engine {
         virtual void update() const = 0;
 
         virtual bool isValid() const = 0;
+
+        virtual double getTime() const = 0;
+
+        
     };
 
     class application {

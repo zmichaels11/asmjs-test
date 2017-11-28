@@ -13,6 +13,7 @@
 #include <functional>
 #include <string>
 
+
 namespace engine {
     namespace {        
         static void _onError(const std::string& msg) {
@@ -66,11 +67,15 @@ namespace engine {
 
             void update() const {
                 glfwSwapBuffers(_window);
-                glfwPollEvents();
+                glfwPollEvents();                
             }
 
             bool isValid() const {
                 return !glfwWindowShouldClose(_window);
+            }            
+
+            double getTime() const {
+                return glfwGetTime();
             }
         };
 
