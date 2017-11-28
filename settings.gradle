@@ -1,0 +1,24 @@
+import java.nio.file.*
+import java.nio.file.attribute.*
+
+rootProject.name = 'asmjs_test'
+
+def subDirs = []
+
+Files.walkFileTree(rootDir.toPath(), new SimpleFileVisitor<Path>() {
+    FileVisitResult visitFile(Path path, BasicFileAttributes attr) throws IOException {
+        if (path.endsWith(Paths.get('build.gradle'))) {
+            subDirs << path.parent
+        }
+
+        return FileVisitResult.CONTINUE;
+    }
+})
+
+subDirs.each { dir ->
+    def proj = rootDir.toPath().relativize(dir).toString().replace('/', ':')
+
+    if (!proj.isEmpty()) {
+        include proj
+    }
+}

@@ -1,0 +1,116 @@
+apply plugin: 'cpp'
+
+wrapper {
+    gradleVersion = '4.3'    
+}
+
+model {
+    platforms {
+		x86_64 {
+			architecture "x86_64"
+		}
+
+		binaryen {
+			architecture "binaryen"
+		}
+
+		asmjs {
+			architecture "asmjs"
+		}
+	}
+
+	toolChains {
+		gcc (Gcc) {
+			target("x86_64") {				
+				cppCompiler.withArguments { args -> 
+                    args.add(0, '-std=c++14')
+                    args.add(0, '-O2')
+				}
+
+				linker.withArguments { args -> 
+                    args.add(0, '-O2')
+				}
+			}
+		}
+
+		emscripten (Clang) {
+			eachPlatform {
+				cppCompiler.executable = 'em++'
+				linker.executable = 'em++'
+
+				cppCompiler.withArguments { args -> 
+                    args.add(0, '-std=c++14')
+                    args.add(0, '-O2')
+                    args.add(0, '-emit-llvm')
+				}
+				
+				linker.withArguments { args -> 
+					args.remove '-m64'
+					args.add(0, '-O2')
+
+					for (int i = 0; i < args.size(); i++) {
+						args[i] = args[i].replace('.a', '.bc')
+                        
+                        if (args[i] == '-o') {
+                            args[i+1] += '.html'
+                        }
+					}
+				}
+			}
+
+			target ("asmjs") {}
+
+			target("binaryen") {
+				staticLibArchiver.withArguments { args -> 
+					args << '-s'
+					args << 'BINARYEN=1'
+				}
+
+				cppCompiler.withArguments { args ->					
+					args << "-s"
+					args << "BINARYEN=1"
+				}
+
+				linker.withArguments { args ->					
+					args << "-s"
+					args << "BINARYEN=1"
+				}
+			}
+		}
+	}	
+
+    components {
+        soundTest(NativeExecutableSpec) {
+            targetPlatform 'asmjs'
+            targetPlatform 'binaryen'
+            targetPlatform 'x86_64'
+
+            sources {
+                cpp {
+                    lib project: ':libaudio', library: 'audio', linkage: 'static'
+                    lib project: ':libgraphics', library: 'graphics', linkage: 'static'
+                    lib project: ':libengine', library: 'engine', linkage: 'static'
+
+                    source {
+                        srcDir 'src/main/cpp'
+                        include '**/*.cpp'
+                    }
+
+                    exportedHeaders {
+                        srcDirs '../share/src/main/include', 'src/main/include'
+                        include '**/*.hpp'
+                    }
+                }
+            }
+
+            binaries.all {                
+                if (toolChain.name == 'emscripten') {
+                    cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
+                    linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
+                } else {
+                    linker.args '-lopenal', '-lGL', '-lglfw'                    
+                }
+            }
+        }
+    }
+}
