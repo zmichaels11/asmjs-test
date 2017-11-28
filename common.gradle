@@ -1,5 +1,101 @@
 apply plugin: 'cpp'
 
+def CXX_OPT = '-O2'
+def CXX_STD = '-std=c++14'
+
 task wrapper(type: Wrapper) {
     gradleVersion = '4.2'
 }
+
+model {
+	platforms {
+		x86_64 {
+			architecture "x86_64"
+		}
+
+		binaryen {
+			architecture "binaryen"
+		}
+
+		asmjs {
+			architecture "asmjs"
+		}
+	}
+
+	toolChains {
+		gcc (Gcc) {
+			target("x86_64") {				
+				cppCompiler.withArguments { args -> 
+					args.add(0, "$CXX_STD")
+					args.add(0, "$CXX_OPT")
+				}
+
+				linker.withArguments { args -> 
+					args.add(0, "$CXX_OPT")
+				}
+			}
+		}
+
+		emscripten (Clang) {
+			eachPlatform {
+				cppCompiler.executable = 'em++'
+				linker.executable = 'em++'
+				staticLibArchiver.executable = 'em++'
+
+				staticLibArchiver.withArguments { args -> 
+                    args.remove '-rcs'
+                    args.add(0, "$CXX_OPT")
+                    args.add(0, '-emit-llvm')
+
+                    int outputIdx;                    
+                    for (outputIdx = 0; outputIdx < args.size(); outputIdx++) {
+                        if (args[outputIdx].endsWith('.a')) {                            
+                            args[outputIdx] = args[outputIdx].replace('.a', '.bc')
+                            args.add(outputIdx, '-o')
+                            break;
+                        }
+                    }                    
+				}
+
+				cppCompiler.withArguments { args -> 
+					args.add(0, "$CXX_STD")
+					args.add(0, "$CXX_OPT")
+					args.add(0, '-emit-llvm')
+				}
+
+				linker.withArguments { args -> 
+					args.remove '-m64'
+					args.add(0, '-O2')
+
+					for (int i = 0; i < args.size(); i++) {
+						args[i] = args[i].replace('.a', '.bc')
+                        
+                        if (args[i] == '-o') {
+                            args[i+1] += '.html'
+                        }
+					}
+				}
+			}
+
+			target ("asmjs") {}
+
+			target("binaryen") {
+				staticLibArchiver.withArguments { args ->
+					args << '-s'
+					args << 'BINARYEN=1'
+				}
+
+				cppCompiler.withArguments { args ->					
+					args << "-s"
+					args << "BINARYEN=1"
+				}
+
+				linker.withArguments { args ->					
+					args << "-s"
+					args << "BINARYEN=1"
+				}
+			}
+		}
+	}	
+}
+	
