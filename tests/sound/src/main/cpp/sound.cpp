@@ -6,7 +6,7 @@
 
 #include "audio/sound.hpp"
 #include "graphics/clear_state_info.hpp"
-#include "app.hpp"
+#include "engine/application.hpp"
 
 struct AppData {
 	std::unique_ptr<audio::sound> sound;
@@ -33,7 +33,7 @@ void frame(void * pUserData) {
 }
 
 int main(int argc, char** argv) {
-	application app(640, 480, "Sound Test");
+	engine::application app(640, 480, "Sound Test");
 
 	auto userData = std::make_shared<AppData>();
 
