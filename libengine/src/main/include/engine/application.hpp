@@ -7,16 +7,44 @@
 #include <string>
 
 namespace engine {
+    struct button_state {
+        float value;
+        double time;
+    };
+
+    enum class input_type {
+        KEYBOARD,
+        MOUSE,
+        GAMEPAD0,
+        GAMEPAD1,
+        GAMEPAD2,
+        GAMEPAD3
+    };
+
+    constexpr int MOUSE_LEFT = 0;
+    constexpr int MOUSE_MIDDLE = 1;
+    constexpr int MOUSE_RIGHT = 2;
+    constexpr int MOUSE_X = 0;
+    constexpr int MOUSE_Y = 1;
+
     struct resources {
         virtual ~resources() {}
 
-        virtual void update() const = 0;
+        virtual void update() = 0;
 
         virtual bool isValid() const = 0;
 
         virtual double getTime() const = 0;
 
-        
+        virtual button_state getButton(input_type input, int buttonId) const = 0;
+
+        virtual std::size_t getButtonCount(input_type input) const = 0;
+
+        virtual button_state getAxis(input_type input, int axisId) const = 0;
+
+        virtual std::size_t getAxesCount(input_type input) const = 0;
+
+        virtual bool isAvailable(input_type input) const = 0;
     };
 
     class application {
@@ -43,7 +71,7 @@ namespace engine {
 
         void setOnFrame(const std::function<void(void *)>& fn);
 
-        void doFrame() const;
+        void doFrame();
 
         void start(const std::function<void(void *)>& fn);
     };
