@@ -72,6 +72,8 @@ namespace audio {
                     if (!_channel->read(pTfr, remaining)) {
                         _channel->seek(_loopSample);
                         pTfr += remaining;
+                    } else {
+                        break;
                     }
                 }
 
@@ -105,7 +107,7 @@ namespace audio {
         return _state;
     }
 
-    void sound::play() {
+    void sound::play() {                
         for (int i = 0; i < 3; i++) {
             char transfer[_bufferSize];
             std::size_t size = _bufferSize;
@@ -135,6 +137,8 @@ namespace audio {
                 if (!_channel->read(pTfr, remaining)) {
                     _channel->seek(_loopSample);
                     pTfr += remaining;
+                } else {
+                    break;
                 }
             }
 

@@ -10,8 +10,10 @@
 #endif
 
 #include <cstddef>
+
 #include <iostream>
 #include <functional>
+#include <limits>
 #include <memory>
 #include <string>
 
@@ -22,6 +24,12 @@ namespace engine {
             std::cerr << "ERR: " << msg << std::endl;
             __builtin_trap();
         }
+
+        static void _updateMousePos(GLFWwindow * window, double xpos, double ypos);
+
+        static void _updateMouseButton(GLFWwindow * window, int button, int action, int mods);
+
+        static void _updateKeyboardKey(GLFWwindow * window, int key, int scancode, int action, int mods);
 
         struct native_resources : public resources {
             GLFWwindow * _window;
@@ -39,7 +47,7 @@ namespace engine {
                 std::unique_ptr<button_state[]> buttons;
                 std::size_t numButtons;
                 bool connected;
-            } _gamepadStates[4];
+            } _gamepadStates[4];                      
 
             native_resources(int width, int height, const std::string& title) {
                 if (!glfwInit()) {
@@ -69,6 +77,10 @@ namespace engine {
                 if (!alcMakeContextCurrent(_alcContext)) {
                     _onError("alcMakeContextCurrent failed!");
                 }
+
+                glfwSetMouseButtonCallback(_window, _updateMouseButton);
+                glfwSetCursorPosCallback(_window, _updateMousePos);
+                glfwSetKeyCallback(_window, _updateKeyboardKey);
             }
 
             ~native_resources() {
@@ -213,10 +225,51 @@ namespace engine {
             }
         };
 
-#ifdef __EMSCRIPTEN__
-        application * _pApp;
+        static application * _pApp;
+        static native_resources * _pRes;
 
-        void _doFrameStatic() {
+        static void _updateMousePos(GLFWwindow * window, double xpos, double ypos) {            
+            _pRes->_mouseStates.axes[MOUSE_X] = {xpos, _pRes->_time};
+            _pRes->_mouseStates.axes[MOUSE_Y] = {ypos, _pRes->_time};
+        }
+
+        static void _updateMouseButton(GLFWwindow * window, int button, int action, int mods) {            
+            double value = (action == GLFW_PRESS) ? 1.0 : 0.0;
+
+            switch (button) {
+                case GLFW_MOUSE_BUTTON_LEFT:
+                    _pRes->_mouseStates.buttons[MOUSE_LEFT] = {value, _pRes->_time};
+                    break;
+                case GLFW_MOUSE_BUTTON_RIGHT:
+                    _pRes->_mouseStates.buttons[MOUSE_RIGHT] = {value, _pRes->_time};
+                    break;
+                case GLFW_MOUSE_BUTTON_MIDDLE:
+                    _pRes->_mouseStates.buttons[MOUSE_MIDDLE] = {value, _pRes->_time};
+                    break;
+            }
+        }
+
+        static void _updateKeyboardKey(GLFWwindow * window, int key, int scancode, int action, int mods) {
+            double value;
+
+            switch (action) {
+                case GLFW_PRESS:
+                case GLFW_REPEAT:
+                    value = 1.0;
+                    break;
+                case GLFW_RELEASE:
+                    value = 0.0;
+                    break;
+                default:
+                    value = std::numeric_limits<double>::quiet_NaN();
+                    break;
+            }
+
+            _pRes->_keyboardStates[key] = {value, _pRes->_time};
+        }
+
+#ifdef __EMSCRIPTEN__
+        static void _doFrameStatic() {
             _pApp->doFrame();
             
         }
@@ -228,19 +281,21 @@ namespace engine {
     }
 
     void application::doFrame() {
-        _onFrame(userData.get());
+        _onFrame(this);
         _resources->update();
     }
 
-    void application::setOnFrame(const std::function<void(void *)>& fn) {
+    void application::setOnFrame(const std::function<void(application *)>& fn) {
         _onFrame = fn;
     }
 
-    void application::start(const std::function<void(void *)>& fn) {
+    void application::start(const std::function<void(application *)>& fn) {
         setOnFrame(fn);
 
-#ifdef __EMSCRIPTEN__
         _pApp = this;
+        _pRes = reinterpret_cast<native_resources*> (_resources.get());
+
+#ifdef __EMSCRIPTEN__        
         emscripten_set_main_loop(_doFrameStatic, 60, 1);
 #else
         while (_resources->isValid()) {

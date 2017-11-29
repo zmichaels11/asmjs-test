@@ -8,7 +8,7 @@
 
 namespace engine {
     struct button_state {
-        float value;
+        double value;
         double time;
     };
 
@@ -49,7 +49,7 @@ namespace engine {
 
     class application {
         std::unique_ptr<resources> _resources;        
-        std::function<void(void *)> _onFrame;
+        std::function<void(application *)> _onFrame;
 
         application(const application&) = delete;
 
@@ -69,10 +69,34 @@ namespace engine {
 
         application& operator=(const application&) = delete;            
 
-        void setOnFrame(const std::function<void(void *)>& fn);
+        void setOnFrame(const std::function<void(application *)>& fn);
 
         void doFrame();
 
-        void start(const std::function<void(void *)>& fn);
+        void start(const std::function<void(application *)>& fn);
+
+        inline double getTime() const {
+            return _resources->getTime();
+        }
+
+        inline button_state getButton(input_type input, int buttonId) const {
+            return _resources->getButton(input, buttonId);
+        }
+
+        inline std::size_t getButtonCount(input_type input) const {
+            return _resources->getButtonCount(input);
+        }
+
+        inline button_state getAxis(input_type input, int axisId) const {
+            return _resources->getAxis(input, axisId);
+        }
+
+        inline std::size_t getAxesCount(input_type input) const {
+            return _resources->getAxesCount(input);
+        }
+
+        inline bool isAvailable(input_type input) const {
+            return _resources->isAvailable(input);
+        }
     };
 }

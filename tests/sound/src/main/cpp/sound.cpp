@@ -2,7 +2,8 @@
 
 #include <memory>
 
-#include <GLES3/gl3.h>
+#define GLFW_INCLUDE_ES3
+#include <GLFW/glfw3.h>
 
 #include "audio/sound.hpp"
 #include "graphics/clear_state_info.hpp"
@@ -13,9 +14,9 @@ struct AppData {
 	graphics::clear_state_info clearState;
 };
 
-void frame(void * pUserData) {
-	static bool runOnce = true;
-	auto pAppData = reinterpret_cast<AppData *> (pUserData);
+void frame(engine::application * pApp) {
+	static bool runOnce = true;	
+	auto pAppData = reinterpret_cast<AppData *> (pApp->userData.get());	
 
 	if (runOnce) {
         printf("Vendor: %s\n", glGetString(GL_VENDOR));
@@ -26,7 +27,15 @@ void frame(void * pUserData) {
         pAppData->sound->play();
 
         runOnce = false;
-    }
+    }	
+
+	auto keyReturn = pApp->getButton(engine::input_type::KEYBOARD, GLFW_KEY_ENTER);
+	
+	if (keyReturn.value > 0.0 && pAppData->sound->getState() == audio::sound_state::STOPPED) {
+		printf("Enter pressed at: %f\n", keyReturn.time);
+		pAppData->sound = std::make_unique<audio::sound>("data/audio/atmono.ogg");		
+		pAppData->sound->play();
+	}
 
     pAppData->sound->onFrame();
     graphics::apply(pAppData->clearState);
