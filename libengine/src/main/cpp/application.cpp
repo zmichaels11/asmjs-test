@@ -41,8 +41,45 @@ namespace {
         void update();
 
         bool isValid() const;
-    };    
+    };        
+}
 
+namespace {
+    std::unique_ptr<native_resources> _pNativeResources;
+    std::function<void(void*)> _onFrame;
+    std::shared_ptr<void> _pUserData;
+    double _time;        
+}
+
+namespace engine {
+    namespace application {
+        void setOnFrame(const std::function<void(void*)>& callback) {
+            _onFrame = callback;
+        }
+
+        void init(const std::string& name, unsigned int width, unsigned int height) {
+            _pNativeResources = std::make_unique<native_resources> (name, width, height);
+        }
+
+        double getTime() {
+            return _time;
+        }
+
+        void start(const std::shared_ptr<void>& pUserData) {
+            _pUserData = pUserData;
+
+#ifdef __EMSCRIPTEN__
+            emscripten_set_main_loop(doFrame, 60, 1);
+#else
+            while (_pNativeResources->isValid()) {
+                doFrame();
+            }
+#endif
+        }
+    }
+}
+
+namespace {
     native_resources::native_resources(const std::string& title, unsigned int width, unsigned int height) {
         if (!glfwInit()) {
             _onError("glfwInit failed!");
@@ -94,45 +131,10 @@ namespace {
         glfwSwapBuffers(glfw.pWindow);
         glfwPollEvents();
     }    
-}
-
-namespace {
-    std::unique_ptr<native_resources> _pNativeResources;
-    std::function<void(void*)> _onFrame;
-    std::shared_ptr<void> _pUserData;
-    double _time;    
 
     void doFrame() {        
         _onFrame(_pUserData.get());
         _pNativeResources->update();
         _time = glfwGetTime();
-    }
-}
-
-namespace engine {
-    namespace application {
-        void setOnFrame(const std::function<void(void*)>& callback) {
-            _onFrame = callback;
-        }
-
-        void init(const std::string& name, unsigned int width, unsigned int height) {
-            _pNativeResources = std::make_unique<native_resources> (name, width, height);
-        }
-
-        double getTime() {
-            return _time;
-        }
-
-        void start(const std::shared_ptr<void>& pUserData) {
-            _pUserData = pUserData;
-
-#ifdef __EMSCRIPTEN__
-            emscripten_set_main_loop(doFrame, 60, 1);
-#else
-            while (_pNativeResources->isValid()) {
-                doFrame();
-            }
-#endif
-        }
     }
 }
