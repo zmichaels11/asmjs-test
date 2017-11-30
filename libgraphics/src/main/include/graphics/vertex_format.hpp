@@ -5,6 +5,7 @@ namespace graphics {
         FLOAT,
         VEC2,
         VEC3,
-        VEC4
+        VEC4,
+        X8Y8Z8W8_UNORM
     };
 }

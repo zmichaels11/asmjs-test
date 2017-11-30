@@ -9,6 +9,6 @@ namespace graphics {
     struct pixel_info {
         pixel_type type;
         pixel_format format;
-        void * pData;
+        const void * pData;
     };
 }

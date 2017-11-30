@@ -24,6 +24,11 @@ namespace graphics {
         glDeleteBuffers(1, &_handle);
     }
 
+    void buffer::invalidate() const {
+        glBindBuffer(static_cast<GLenum> (_info.target), _handle);
+        glBufferData(static_cast<GLenum> (_info.target), _info.initialData.size, nullptr, static_cast<GLenum> (_info.usage));
+    }
+
     void buffer::bind(buffer_target target) const {
         glBindBuffer(static_cast<GLenum> (target), _handle);        
     }

@@ -18,6 +18,8 @@ namespace graphics {
 
         friend class vertex_array;
     public:
+        buffer() : _handle(0) {}
+        
         buffer(const buffer_info& info);
 
         ~buffer();
@@ -30,7 +32,9 @@ namespace graphics {
             bind(_info.target);
         }
 
-        void bind(buffer_target target) const;        
+        void bind(buffer_target target) const;
+
+        void invalidate() const;
 
         void subData(long offset, const void * src, std::size_t size) const;
 

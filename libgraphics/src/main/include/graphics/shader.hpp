@@ -16,6 +16,8 @@ namespace graphics {
         friend class program;
 
     public:
+        shader() : _handle(0) {}
+        
         shader(const shader_info& info);
 
         shader(shader&&) = default;

@@ -14,6 +14,8 @@ namespace graphics {
         vertex_array& operator=(const vertex_array&) = delete;
 
     public:
+        vertex_array() : _handle(0) {}
+        
         vertex_array(const vertex_array_info& info);
 
         ~vertex_array();

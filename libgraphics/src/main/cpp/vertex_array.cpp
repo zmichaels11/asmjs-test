@@ -17,8 +17,24 @@ namespace graphics {
             __builtin_trap();
         }
 
+        static bool _normalized(vertex_format format) {
+            switch (format) {
+                case vertex_format::X8Y8Z8W8_UNORM:
+                    return true;
+                case vertex_format::FLOAT:                    
+                case vertex_format::VEC2:
+                case vertex_format::VEC3:
+                case vertex_format::VEC4:
+                    return false;
+                default:
+                    _onError("Unsupported vertx format!");
+            }
+        }
+
         static GLenum _type(vertex_format format) {
             switch (format) {
+                case vertex_format::X8Y8Z8W8_UNORM:
+                    return GL_UNSIGNED_BYTE;
                 case vertex_format::FLOAT:                    
                 case vertex_format::VEC2:
                 case vertex_format::VEC3:
@@ -31,6 +47,8 @@ namespace graphics {
 
         static GLint _size(vertex_format format) {
             switch (format) {
+                case vertex_format::X8Y8Z8W8_UNORM:
+                    return 4;
                 case vertex_format::FLOAT:
                     return 1;
                 case vertex_format::VEC2:
@@ -46,6 +64,8 @@ namespace graphics {
 
         static GLsizei _bytes(vertex_format format) {
             switch (format) {
+                case vertex_format::X8Y8Z8W8_UNORM:
+                    return 4;
                 case vertex_format::FLOAT:
                     return 4;
                 case vertex_format::VEC2:
@@ -87,7 +107,7 @@ namespace graphics {
 
             auto strideAdjust = pBinding->stride - _bytes(it->format);
 
-            glVertexAttribPointer(it->location, _size(it->format), _type(it->format), false, strideAdjust, reinterpret_cast<const void *> (pBinding->offset));
+            glVertexAttribPointer(it->location, _size(it->format), _type(it->format), _normalized(it->format), strideAdjust, reinterpret_cast<const void *> (pBinding->offset));
         }
     }
 

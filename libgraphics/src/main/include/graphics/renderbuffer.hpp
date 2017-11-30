@@ -16,6 +16,8 @@ namespace graphics {
         friend class framebuffer;
 
     public:
+        renderbuffer() : _handle(0) {}
+        
         renderbuffer(const renderbuffer_info& info);
 
         ~renderbuffer();

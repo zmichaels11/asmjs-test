@@ -12,6 +12,8 @@ namespace graphics {
         framebuffer& operator=(const framebuffer&) = delete;
 
     public:
+        framebuffer() : _handle(0) {}
+
         framebuffer(const framebuffer_info& info);
 
         framebuffer(framebuffer&&) = default;

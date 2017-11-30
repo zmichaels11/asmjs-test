@@ -18,6 +18,8 @@ namespace graphics {
         friend class framebuffer;
 
     public:
+        texture() : _handle(0) {}
+        
         texture(const texture_info& info);
 
         texture(texture&&) = default;

@@ -14,6 +14,8 @@ namespace graphics {
         program& operator= (const program&) = delete;
 
     public:
+        program() : _handle(0) {}
+        
         program(const program_info& info);
 
         program(program&&) = default;
