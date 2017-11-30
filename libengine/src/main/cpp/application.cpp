@@ -9,6 +9,18 @@
 #include <emscripten/emscripten.h>
 #endif
 
+#define NK_INCLUDE_FIXED_TYPES
+#define NK_INCLUDE_STANDARD_IO
+#define NK_INCLUDE_STANDARD_VARARGS
+#define NK_INCLUDE_DEFAULT_ALLOCATOR
+#define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
+#define NK_INCLUDE_FONT_BAKING
+#define NK_INCLUDE_DEFAULT_FONT
+#define NK_IMPLEMENTATION
+#define NK_GLFW_GL3_IMPLEMENTATION
+#include "nuklear/nuklear.hpp"
+#include "nuklear/nuklear_glfw_gles3.hpp"
+
 #include <cstddef>
 
 #include <iostream>
@@ -20,6 +32,9 @@
 
 namespace engine {
     namespace {        
+        static constexpr std::size_t MAX_VERTEX_BUFFER = 512 * 1024;
+        static constexpr std::size_t MAX_ELEMENT_BUFFER = 128 * 1024;
+
         static void _onError(const std::string& msg) {
             std::cerr << "ERR: " << msg << std::endl;
             __builtin_trap();
@@ -35,6 +50,7 @@ namespace engine {
             GLFWwindow * _window;
             ALCdevice * _alcDevice;
             ALCcontext * _alcContext;
+            nk_context * _nkContext;
             double _time;
             button_state _keyboardStates[GLFW_KEY_LAST];
             struct mouse_state_T {
@@ -47,7 +63,21 @@ namespace engine {
                 std::unique_ptr<button_state[]> buttons;
                 std::size_t numButtons;
                 bool connected;
-            } _gamepadStates[4];                      
+            } _gamepadStates[4]; 
+
+            void _acquireGUIFocus() const {
+                glfwSetScrollCallback(_window, nk_gflw3_scroll_callback);
+                glfwSetCharCallback(_window, nk_glfw3_char_callback);
+                glfwSetMouseButtonCallback(_window, nk_glfw3_mouse_button_callback);
+                glfwSetCursorPosCallback(_window, nullptr);
+            } 
+
+            void _releaseGUIFocus() const {
+                glfwSetMouseButtonCallback(_window, _updateMouseButton);
+                glfwSetCursorPosCallback(_window, _updateMousePos);
+                glfwSetScrollCallback(_window, nullptr);
+                glfwSetCharCallback(_window, nullptr);
+            }                    
 
             native_resources(int width, int height, const std::string& title) {
                 if (!glfwInit()) {
@@ -78,9 +108,8 @@ namespace engine {
                     _onError("alcMakeContextCurrent failed!");
                 }
 
-                glfwSetMouseButtonCallback(_window, _updateMouseButton);
-                glfwSetCursorPosCallback(_window, _updateMousePos);
-                glfwSetKeyCallback(_window, _updateKeyboardKey);
+                _nkContext = nk_glfw3_init(_window, NK_GLFW3_INSTALL_CALLBACKS);
+                _releaseGUIFocus();                
             }
 
             ~native_resources() {
