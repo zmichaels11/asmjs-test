@@ -40,7 +40,7 @@ namespace engine {
 
             virtual void build();
 
-            void setChildren(const std::vector<std::shared_ptr<component>>& children);
+            inline void setChildren(const std::vector<std::shared_ptr<component>>& children);
 
             inline const std::string& getName() const;
 
@@ -50,6 +50,10 @@ namespace engine {
 
             inline frame_opts getOptions() const;
         };
+
+        void frame::setChildren(const std::vector<std::shared_ptr<component>>& children) {
+            _children = children;
+        }
 
         const std::string& frame::getName() const {
             return _name;

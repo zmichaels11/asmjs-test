@@ -31,9 +31,13 @@
 #include <vector>
 
 #include "engine/gui/button.hpp"
+#include "engine/gui/color.hpp"
+#include "engine/gui/color_combo_box.hpp"
 #include "engine/gui/component.hpp"
 #include "engine/gui/dynamic_row_layout.hpp"
 #include "engine/gui/frame.hpp"
+#include "engine/gui/int_slider.hpp"
+#include "engine/gui/label.hpp"
 #include "engine/gui/option_group.hpp"
 #include "engine/gui/static_row_layout.hpp"
 
@@ -165,10 +169,6 @@ namespace engine {
     }
 
     namespace gui {
-        void frame::setChildren(const std::vector<std::shared_ptr<component>>& children) {
-            _children = children;
-        }
-
         void frame::build() {            
             auto pCtx = &_pNativeResources->nuklear.context;
 
@@ -227,6 +227,69 @@ namespace engine {
 
             _onChange = nullptr;
             _selectedIdx = 0;
+        }
+
+        void int_slider::build() {
+            auto pCtx = &_pNativeResources->nuklear.context;
+            int current = _value;
+
+            nk_property_int(pCtx, _label.c_str(), _min, &_value, _max, _step, _incPerPx);
+
+            if (_value != current && _onChange) {
+                _onChange(this);
+            }
+        }
+
+        void label::build() {
+            auto pCtx = &_pNativeResources->nuklear.context;
+            nk_flags align;
+
+            switch (_alignment) {
+                case label_alignment::LEFT:
+                    align = NK_TEXT_LEFT;
+                    break;
+                case label_alignment::CENTER:
+                    align = NK_TEXT_CENTERED;
+                    break;
+                case label_alignment::RIGHT:
+                    align = NK_TEXT_RIGHT;
+                    break;
+            }
+
+            nk_label(pCtx, _text.c_str(), align);
+        }
+
+        void color_combo_box::build() {
+            auto pCtx = &_pNativeResources->nuklear.context;
+            auto color = nk_rgba(_color.r, _color.g, _color.b, _color.a);            
+            decltype(color) newColor;
+
+            if (nk_combo_begin_color(pCtx, color, nk_vec2(nk_widget_width(pCtx), 400))) {
+                nk_layout_row_dynamic(pCtx, 120, 1);
+                newColor = nk_color_picker(pCtx, color, NK_RGBA);
+                nk_layout_row_dynamic(pCtx, 25, 1);
+                newColor.r = static_cast<nk_byte> (nk_propertyi(pCtx, "#R:", 0, newColor.r, 255, 1, 1));
+                newColor.g = static_cast<nk_byte> (nk_propertyi(pCtx, "#G:", 0, newColor.g, 255, 1, 1));
+                newColor.b = static_cast<nk_byte> (nk_propertyi(pCtx, "#B:", 0, newColor.b, 255, 1, 1));
+                newColor.a = static_cast<nk_byte> (nk_propertyi(pCtx, "#A:", 0, newColor.a, 255, 1, 1));
+
+                if (color.r != newColor.r || color.g != newColor.g || color.b != newColor.b || color.a != newColor.a) {
+                    _color.r = static_cast<std::uint8_t> (newColor.r);
+                    _color.g = static_cast<std::uint8_t> (newColor.g);
+                    _color.b = static_cast<std::uint8_t> (newColor.b);
+                    _color.a = static_cast<std::uint8_t> (newColor.a);
+
+                    if (_onChange) {
+                        _onChange(this);
+                    }
+                }
+
+                nk_combo_end(pCtx);
+            }
+        }
+
+        void color_combo_box::setOnChange(const std::function<void(const color_combo_box *)>& callback) {
+            _onChange = callback;
         }
     }
 }
