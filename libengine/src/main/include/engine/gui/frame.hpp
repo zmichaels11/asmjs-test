@@ -2,20 +2,21 @@
 
 #include <cstddef>
 
+#include <memory>
 #include <string>
+#include <vector>
 
 #include "engine/gui/component.hpp"
 #include "engine/gui/frame_opts.hpp"
 
 namespace engine {
     namespace gui {
-        class frame : public component {
+        class frame : public virtual component {
             std::string _name;
             std::string _title;
             int _x, _y;
             unsigned int _w, _h;
-            component * _pChildren;
-            std::size_t _numChildren;
+            std::vector<std::shared_ptr<component>> _children;
             frame_opts _opts;
 
         public:
@@ -27,8 +28,7 @@ namespace engine {
                 _title(title),
                 _x(x), _y(y),
                 _w(w), _h(h),
-                _pChildren(nullptr),
-                _numChildren(0) {}
+                _children() {}
 
             frame(frame_opts opts, int x, int y, unsigned int w, unsigned int h, const std::string& title) :
                 _opts(opts),
@@ -36,12 +36,35 @@ namespace engine {
                 _title(title),
                 _x(x), _y(y),
                 _w(w), _h(h),
-                _pChildren(nullptr),
-                _numChildren(0) {}
+                _children() {}
 
             virtual void build();
 
-            void setChildren(component * pChildren, std::size_t count);
+            void setChildren(const std::vector<std::shared_ptr<component>>& children);
+
+            inline const std::string& getName() const;
+
+            inline const std::string& getTitle() const;
+
+            inline std::size_t getNumChildren() const;
+
+            inline frame_opts getOptions() const;
         };
+
+        const std::string& frame::getName() const {
+            return _name;
+        }
+
+        const std::string& frame::getTitle() const {
+            return _title;
+        }
+
+        frame_opts frame::getOptions() const {
+            return _opts;
+        }
+
+        std::size_t frame::getNumChildren() const {
+            return _children.size();
+        }
     }
 }

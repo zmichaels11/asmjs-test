@@ -28,9 +28,13 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
+#include "engine/gui/button.hpp"
 #include "engine/gui/component.hpp"
+#include "engine/gui/dynamic_row_layout.hpp"
 #include "engine/gui/frame.hpp"
+#include "engine/gui/static_row_layout.hpp"
 
 namespace {
     constexpr std::size_t MAX_VERTEX_BUFFER = 512 * 1024;
@@ -160,21 +164,44 @@ namespace engine {
     }
 
     namespace gui {
-        void frame::setChildren(component * pChildren, std::size_t count) {
-            _pChildren = pChildren;
-            _numChildren = count;
+        void frame::setChildren(const std::vector<std::shared_ptr<component>>& children) {
+            _children = children;
         }
 
         void frame::build() {            
             auto pCtx = &_pNativeResources->nuklear.context;
 
             if (nk_begin(pCtx, _title.c_str(), nk_rect(_x, _y, _w, _h), static_cast<nk_flags> (_opts))) {
-                for (auto it = _pChildren; it != (_pChildren + _numChildren); it++) {
-                    it->build();
+                for (auto&& child : _children) {
+                    child->build();
                 }
             }
 
             nk_end(pCtx);
+        }
+
+        void button::setOnAction(const std::function<void(const button *)>& callback) {
+            _onAction = callback;
+        }
+
+        void button::build() {
+            auto pCtx = &_pNativeResources->nuklear.context;
+
+            if (nk_button_label(pCtx, _label.c_str()) && _onAction) {
+                _onAction(this);
+            }
+        }
+
+        void static_row_layout::build() {
+            auto pCtx = &_pNativeResources->nuklear.context;
+
+            nk_layout_row_static(pCtx, _height, _itemWidth, _cols);
+        }
+
+        void dynamic_row_layout::build() {
+            auto pCtx = &_pNativeResources->nuklear.context;
+
+            nk_layout_row_dynamic(pCtx, _height, _cols);
         }
     }
 }
@@ -236,6 +263,9 @@ namespace {
             alcMakeContextCurrent(nullptr);
             alcDestroyContext(oal.pContext);
             alcCloseDevice(oal.pDevice);
+
+            nk_font_atlas_clear(&nuklear.atlas);
+            nk_free(&nuklear.context);
 
             glDeleteBuffers(1, &nuklear.ogl.vbo);
             glDeleteBuffers(1, &nuklear.ogl.ebo);
