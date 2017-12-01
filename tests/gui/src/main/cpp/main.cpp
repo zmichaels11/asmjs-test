@@ -32,22 +32,9 @@ struct AppData {
     graphics::viewport_state_info viewportState;
 };
 
+void updateBackground();
+
 std::shared_ptr<AppData> _userData;
-
-void frame(void * userData) {
-    auto appData = reinterpret_cast<AppData *> (userData);
-
-    graphics::apply(appData->viewportState);
-    graphics::apply(appData->clearState);
-}
-
-void updateBackground() {
-    _userData->clearState.color = {
-        _userData->background.r / 255.0F,
-        _userData->background.g / 255.0F,
-        _userData->background.b / 255.0F,
-        _userData->background.a / 255.0F};
-}
 
 int main(int argc, char** argv) {
     engine::application::init("GUI Test", 640, 480);
@@ -123,6 +110,20 @@ int main(int argc, char** argv) {
     _userData->viewportState.width = 640;
     _userData->viewportState.height = 480;
     
-    engine::application::setOnFrame(frame);
+    engine::application::setOnFrame([](auto userData){
+        auto appData = reinterpret_cast<AppData *> (userData);
+
+        graphics::apply(appData->viewportState);
+        graphics::apply(appData->clearState);
+    });
+
     engine::application::start(_userData);
+}
+
+void updateBackground() {
+    _userData->clearState.color = {
+        _userData->background.r / 255.0F,
+        _userData->background.g / 255.0F,
+        _userData->background.b / 255.0F,
+        _userData->background.a / 255.0F};
 }
