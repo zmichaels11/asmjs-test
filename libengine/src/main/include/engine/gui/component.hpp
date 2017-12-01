@@ -3,8 +3,8 @@
 namespace engine {
     namespace gui {
         class component {
-        public:            
-            virtual void prepare() const;
+        public:                        
+            virtual void build() = 0;
         };
     }
 }
