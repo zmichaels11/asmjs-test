@@ -1,8 +1,10 @@
 #include "engine/application.hpp"
 #include "engine/gui/button.hpp"
 #include "engine/gui/component.hpp"
+#include "engine/gui/dynamic_row_layout.hpp"
 #include "engine/gui/frame.hpp"
 #include "engine/gui/frame_opts.hpp"
+#include "engine/gui/option_group.hpp"
 #include "engine/gui/static_row_layout.hpp"
 
 #include "graphics/clear_state_info.hpp"
@@ -14,6 +16,11 @@
 
 struct AppData {
     std::shared_ptr<engine::gui::frame> root;
+
+    engine::gui::option options[2] = {
+        {"easy", nullptr},
+        {"hard", nullptr}
+    };
 
     graphics::clear_state_info clearState;
     graphics::viewport_state_info viewportState;
@@ -28,6 +35,12 @@ void frame(void * userData) {
 
 void sayHello(const engine::gui::button * btn) {
     std::cout << "Hello from <" << btn->getLabel() << ">" << std::endl;
+}
+
+void modeChange(const engine::gui::option_group * optGroup) {
+    auto selected = optGroup->getSelected();
+    
+    std::cout << "Mode set to: " << selected->label << std::endl;
 }
 
 int main(int argc, char** argv) {
@@ -52,6 +65,16 @@ int main(int argc, char** argv) {
 
             children.push_back(rowLayout);
             children.push_back(btn);
+        }
+
+        {
+            auto rowLayout = std::make_shared<engine::gui::dynamic_row_layout>(30, 2);
+            auto optMode = std::make_shared<engine::gui::option_group>(userData->options, 2);
+
+            optMode->setOnChange(modeChange);
+
+            children.push_back(rowLayout);
+            children.push_back(optMode);
         }
 
         userData->root->setChildren(children);
