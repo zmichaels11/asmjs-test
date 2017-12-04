@@ -7,7 +7,7 @@
 #include "engine/gui/dynamic_row_layout.hpp"
 #include "engine/gui/frame.hpp"
 #include "engine/gui/frame_opts.hpp"
-#include "engine/gui/int_slider.hpp"
+#include "engine/gui/slider.hpp"
 #include "engine/gui/label.hpp"
 #include "engine/gui/option_group.hpp"
 #include "engine/gui/static_row_layout.hpp"
@@ -73,13 +73,14 @@ int main(int argc, char** argv) {
         }
 
         {
-            auto slider = std::make_shared<engine::gui::int_slider>("Compression:", 0, 100, 10, 20);
+            auto slider = std::make_shared<engine::gui::slider<float>>(0.0F, 1.0F, 0.1F, 0.5F);
 
             slider->setOnChange([](auto p) {
                 std::cout << "Compression changed to: " << p->getValue() << std::endl;
             });
 
             children.push_back(std::make_shared<engine::gui::dynamic_row_layout>(25, 1));
+            children.push_back(std::make_shared<engine::gui::label>("Compression:"));            
             children.push_back(slider);
         }
 

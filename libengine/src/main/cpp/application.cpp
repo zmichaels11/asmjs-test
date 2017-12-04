@@ -36,7 +36,7 @@
 #include "engine/gui/component.hpp"
 #include "engine/gui/dynamic_row_layout.hpp"
 #include "engine/gui/frame.hpp"
-#include "engine/gui/int_slider.hpp"
+#include "engine/gui/slider.hpp"
 #include "engine/gui/label.hpp"
 #include "engine/gui/option_group.hpp"
 #include "engine/gui/static_row_layout.hpp"
@@ -229,11 +229,24 @@ namespace engine {
             _selectedIdx = 0;
         }
 
-        void int_slider::build() {
+        template<>
+        void slider<float>::build() {
+            auto pCtx = &_pNativeResources->nuklear.context;
+            float current = _value;
+
+            nk_slider_float(pCtx, _min, &_value, _max, _step);
+
+            if (_value != current && _onChange) {
+                _onChange(this);
+            }
+        }
+
+        template<>
+        void slider<int>::build() {
             auto pCtx = &_pNativeResources->nuklear.context;
             int current = _value;
 
-            nk_property_int(pCtx, _label.c_str(), _min, &_value, _max, _step, _incPerPx);
+            nk_slider_int(pCtx, _min, &_value, _max, _step);
 
             if (_value != current && _onChange) {
                 _onChange(this);
