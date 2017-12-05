@@ -23,7 +23,7 @@ namespace engine {
 
             virtual ~label() {}
 
-            virtual void build();
+            virtual void build(void *);
 
             inline const std::string& getLabel() const;
 

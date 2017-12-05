@@ -21,7 +21,7 @@ namespace engine {
 
             virtual ~slider() {}
 
-            virtual void build();
+            virtual void build(void *);
 
             inline value_t getMax() const;
 
@@ -60,9 +60,9 @@ namespace engine {
         }        
 
         template<>
-        void slider<int>::build();
+        void slider<int>::build(void *);
 
         template<>
-        void slider<float>::build();
+        void slider<float>::build(void *);
     }    
 }

@@ -18,15 +18,19 @@ namespace engine {
 
             virtual ~color_combo_box() {}
 
-            virtual void build();            
+            virtual void build(void *);            
 
             inline color4ub getColor() const;
 
-            virtual void setOnChange(const std::function<void(const color_combo_box *)>& callback);
+            inline void setOnChange(const std::function<void(const color_combo_box *)>& callback);
         };
 
         color4ub color_combo_box::getColor() const {
             return _color;
+        }
+
+        void color_combo_box::setOnChange(const std::function<void(const color_combo_box *)>& callback) {
+            _onChange = callback;
         }
     }
 }

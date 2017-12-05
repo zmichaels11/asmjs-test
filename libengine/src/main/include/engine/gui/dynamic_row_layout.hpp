@@ -14,7 +14,7 @@ namespace engine {
 
             virtual ~dynamic_row_layout() {}
 
-            virtual void build();
+            virtual void build(void *);
 
             inline float getHeight() const;
 

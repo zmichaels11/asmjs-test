@@ -30,7 +30,7 @@ namespace engine {
 
             virtual ~option_group() {}
 
-            virtual void build();
+            virtual void build(void *);
 
             inline const option * getSelected() const;
 

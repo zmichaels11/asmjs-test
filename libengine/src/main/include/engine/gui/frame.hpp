@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "engine/gui/component.hpp"
+#include "engine/gui/container.hpp"
 #include "engine/gui/frame_opts.hpp"
 
 namespace engine {
@@ -38,7 +38,7 @@ namespace engine {
                 _w(w), _h(h),
                 _children() {}
 
-            virtual void build();
+            virtual void build(void * ctx);
 
             inline void setChildren(const std::vector<std::shared_ptr<component>>& children);
 

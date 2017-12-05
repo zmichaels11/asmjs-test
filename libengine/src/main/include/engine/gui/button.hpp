@@ -18,12 +18,16 @@ namespace engine {
 
             virtual ~button() {}
 
-            virtual void build();
+            virtual void build(void * ctx);
 
-            void setOnAction(const std::function<void(const button *)>& callback);
+            inline void setOnAction(const std::function<void(const button *)>& callback);
 
             inline const std::string& getLabel() const;
         };
+
+        void button::setOnAction(const std::function<void(const button *)>& callback) {
+            _onAction = callback;
+        }
 
         const std::string& button::getLabel() const {
             return _label;

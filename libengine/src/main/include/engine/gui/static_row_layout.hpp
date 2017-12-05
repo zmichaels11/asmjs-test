@@ -17,7 +17,7 @@ namespace engine {
 
             virtual ~static_row_layout() {}
 
-            virtual void build();
+            virtual void build(void *);
 
             inline int getHeight() const;
 

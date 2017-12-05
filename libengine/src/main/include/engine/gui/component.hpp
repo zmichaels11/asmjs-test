@@ -4,7 +4,7 @@ namespace engine {
     namespace gui {
         class component {
         public:                        
-            virtual void build() = 0;
+            virtual void build(void * ctx) = 0;
         };
     }
 }
