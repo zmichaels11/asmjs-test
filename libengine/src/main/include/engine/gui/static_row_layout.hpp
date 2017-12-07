@@ -1,10 +1,10 @@
 #pragma once
 
-#include "engine/gui/component.hpp"
+#include "engine/gui/widget.hpp"
 
 namespace engine {
     namespace gui {
-        class static_row_layout : public virtual component {
+        class static_row_layout : public virtual widget {
             int _height;
             int _cols;
             int _itemWidth;
@@ -19,23 +19,11 @@ namespace engine {
 
             virtual void build(void *);
 
-            inline int getHeight() const;
+            virtual int getHeight() const;
 
-            inline int getColumns() const;
+            virtual int getColumns() const;
 
-            inline int getItemWidth() const;
-        };
-
-        int static_row_layout::getHeight() const {
-            return _height;
-        }
-
-        int static_row_layout::getItemWidth() const {
-            return _itemWidth;
-        }
-
-        int static_row_layout::getColumns() const {
-            return _cols;
-        }
+            virtual int getItemWidth() const;
+        };        
     }
 }

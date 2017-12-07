@@ -5,6 +5,9 @@
 #include <functional>
 #include <memory>
 #include <string>
+#include <vector>
+
+#include "engine/gui/window.hpp"
 
 namespace engine {
     struct button_state {
@@ -34,6 +37,8 @@ namespace engine {
 
         double getTime();
 
-        void setGUI(gui::component * pComponents, std::size_t count);
+        void add(const std::shared_ptr<engine::gui::window>& window);
+        
+        void addAll(const std::vector<std::shared_ptr<engine::gui::window>>& windows);
     }
 }

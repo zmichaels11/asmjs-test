@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "engine/gui/component.hpp"
+#include "engine/gui/widget.hpp"
 
 namespace engine {
     namespace gui {
@@ -15,7 +15,7 @@ namespace engine {
             const void * userData;
         };
 
-        class option_group : public virtual component {
+        class option_group : public virtual widget {
             std::vector<const option *> _pOptions;
             std::function<void(const option_group*)> _onChange;
             int _selectedIdx;
@@ -32,40 +32,15 @@ namespace engine {
 
             virtual void build(void *);
 
-            inline const option * getSelected() const;
+            virtual const option * getSelected() const;
 
-            inline int getSelectedIndex() const;
+            virtual int getSelectedIndex() const;
 
-            inline void setSelectedIndex(int idx);
+            virtual void setSelectedIndex(int idx);
 
-            inline void setSelected(const option * opt);
+            virtual void setSelected(const option * opt);
 
-            inline void setOnChange(const std::function<void(const option_group *)>& callback);
-        };
-
-        const option * option_group::getSelected() const {
-            return _pOptions[_selectedIdx];
-        }
-
-        int option_group::getSelectedIndex() const {
-            return _selectedIdx;
-        }
-
-        void option_group::setSelectedIndex(int idx) {
-            _selectedIdx = idx;
-        }
-
-        void option_group::setSelected(const option * opt) {
-            for (int i = 0; i < _pOptions.size(); i++) {
-                if (_pOptions[i] == opt) {
-                    _selectedIdx = i;
-                    break;
-                }
-            }
-        }
-
-        void option_group::setOnChange(const std::function<void(const option_group *)>& callback) {
-            _onChange = callback;
-        }
+            virtual void setOnChange(const std::function<void(const option_group *)>& callback);
+        };        
     }
 }

@@ -1,12 +1,12 @@
 #pragma once
 
-#include "engine/gui/component.hpp"
+#include "engine/gui/widget.hpp"
 
 namespace engine {
     namespace gui {
-        class dynamic_row_layout : public virtual component {
-            float _height;            
-            int _cols;
+        class dynamic_row_layout : public virtual widget {
+            const float _height;            
+            const int _cols;
         public:
             dynamic_row_layout(float height, int cols) :
                 _height(height),
@@ -16,17 +16,9 @@ namespace engine {
 
             virtual void build(void *);
 
-            inline float getHeight() const;
+            virtual float getHeight() const;
 
-            inline int getColumns() const;
-        };
-
-        float dynamic_row_layout::getHeight() const {
-            return _height;
-        }
-
-        int dynamic_row_layout::getColumns() const {
-            return _cols;
-        }
+            virtual int getColumns() const;
+        };        
     }
 }

@@ -9,5 +9,17 @@ namespace engine {
 
             nk_layout_row_static(&nk->context, _height, _itemWidth, _cols);
         }
+
+        int static_row_layout::getHeight() const {
+            return _height;
+        }
+
+        int static_row_layout::getItemWidth() const {
+            return _itemWidth;
+        }
+
+        int static_row_layout::getColumns() const {
+            return _cols;
+        }
     }
 }

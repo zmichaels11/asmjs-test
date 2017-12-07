@@ -19,7 +19,7 @@
 #include <string>
 #include <vector>
 
-#include "engine/gui/component.hpp"
+#include "engine/gui/window.hpp"
 #include "nuklear/nk_ctx.hpp"
 
 namespace {    
@@ -57,8 +57,7 @@ namespace {
     std::function<void(void*)> _onFrame;
     std::shared_ptr<void> _pUserData;
 
-    engine::gui::component * _pComponents;
-    std::size_t _numComponents;
+    std::vector<std::shared_ptr<engine::gui::window>> _windows;
 
     double _time;            
 }
@@ -77,9 +76,14 @@ namespace engine {
             return _time;
         }
 
-        void setGUI(gui::component * pComponents, std::size_t count) {
-            _pComponents = pComponents;
-            _numComponents = count;
+        void add(const std::shared_ptr<gui::window>& window) {
+            _windows.push_back(window);
+        }
+
+        void addAll(const std::vector<std::shared_ptr<gui::window>>& windows) {
+            for (auto&& window : windows) {
+                add(window);
+            }
         }
 
         void start(const std::shared_ptr<void>& pUserData) {
@@ -152,17 +156,17 @@ namespace {
         glfwPollEvents();
         _time = glfwGetTime();
 
-        if (_pComponents && _numComponents) {
+        if (_windows.size()) {
             _pNativeResources->nuklear->newFrame();
 
-            for (auto it = _pComponents; it != (_pComponents + _numComponents); it++) {
-                it->build(_pNativeResources->nuklear.get());
+            for (auto&& window : _windows) {
+                window->build(_pNativeResources->nuklear.get());
             }
         }
 
         _onFrame(_pUserData.get());
 
-        if (_pComponents && _numComponents) {
+        if (_windows.size()) {
             _pNativeResources->nuklear->render();
         }
 

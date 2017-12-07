@@ -9,5 +9,13 @@ namespace engine {
 
             nk_layout_row_dynamic(&nk->context, _height, _cols);
         }
+
+        float dynamic_row_layout::getHeight() const {
+            return _height;
+        }
+
+        int dynamic_row_layout::getColumns() const {
+            return _cols;
+        }
     }
 }

@@ -2,8 +2,8 @@
 
 namespace engine {
     namespace gui {
-        class component {
-        public:                        
+        class contextual_widget {
+        public:
             virtual void build(void * ctx) = 0;
         };
     }

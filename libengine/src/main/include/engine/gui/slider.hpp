@@ -2,12 +2,12 @@
 
 #include <functional>
 
-#include "engine/gui/component.hpp"
+#include "engine/gui/widget.hpp"
 
 namespace engine {
     namespace gui {
         template<typename value_t>
-        class slider : public virtual component {
+        class slider : public virtual widget {
             std::function<void(const slider<value_t>*)> _onChange;
             value_t _min, _max, _value, _step;
 
@@ -23,15 +23,15 @@ namespace engine {
 
             virtual void build(void *);
 
-            inline value_t getMax() const;
+            virtual value_t getMax() const;
 
-            inline value_t getMin() const;
+            virtual value_t getMin() const;
 
-            inline value_t getStep() const;
+            virtual value_t getStep() const;
 
-            inline value_t getValue() const;
+            virtual value_t getValue() const;
 
-            inline void setOnChange(const std::function<void(const slider<value_t>*)>& callback);
+            virtual void setOnChange(const std::function<void(const slider<value_t>*)>& callback);
         };
 
         template<typename value_t>

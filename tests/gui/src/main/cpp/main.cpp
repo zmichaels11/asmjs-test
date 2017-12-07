@@ -2,11 +2,11 @@
 
 #include "engine/gui/button.hpp"
 #include "engine/gui/color.hpp"
-#include "engine/gui/color_combo_box.hpp"
-#include "engine/gui/component.hpp"
+#include "engine/gui/combobox.hpp"
+#include "engine/gui/widget.hpp"
 #include "engine/gui/dynamic_row_layout.hpp"
-#include "engine/gui/frame.hpp"
-#include "engine/gui/frame_opts.hpp"
+#include "engine/gui/window.hpp"
+#include "engine/gui/window_info.hpp"
 #include "engine/gui/slider.hpp"
 #include "engine/gui/label.hpp"
 #include "engine/gui/option_group.hpp"
@@ -20,7 +20,6 @@
 #include <vector>
 
 struct AppData {
-    std::shared_ptr<engine::gui::frame> root;
     engine::gui::color4ub background = {28, 48, 62, 255};
 
     engine::gui::option options[2] = {
@@ -42,23 +41,22 @@ int main(int argc, char** argv) {
     _userData = std::make_shared<AppData>();    
 
     {
-        _userData->root = std::make_shared<engine::gui::frame> (
-            engine::gui::frame_opts::BORDER | engine::gui::frame_opts::MOVABLE | engine::gui::frame_opts::SCALABLE 
-            | engine::gui::frame_opts::MINIMIZABLE | engine::gui::frame_opts::TITLE,
-            50, 50, 230, 250,
-            "Demo");
-
-        std::vector<std::shared_ptr<engine::gui::component>> children;
+        auto root = std::make_shared<engine::gui::window> (
+            engine::gui::window_info {
+                "Demo", "hDemo",
+                engine::gui::window_flag::BORDER | engine::gui::window_flag::MOVABLE | engine::gui::window_flag::SCALABLE 
+                    | engine::gui::window_flag::MINIMIZABLE | engine::gui::window_flag::TITLE,
+            {50, 50, 230, 250}});
 
         {            
-            auto btn = std::make_shared<engine::gui::button>("Say Hello");
+            auto btn = engine::gui::createButton(engine::gui::button_label_info{"Say Hello"});
 
             btn->setOnAction([](auto p) {
-                std::cout << "Hello from: " << p->getLabel() << std::endl;
+                std::cout << "Hello!" << std::endl;
             });
 
-            children.push_back(std::make_shared<engine::gui::static_row_layout>(30, 80, 1));
-            children.push_back(btn);
+            root->add(std::make_shared<engine::gui::static_row_layout>(30, 80, 1));
+            root->add(btn);
         }
 
         {            
@@ -68,8 +66,8 @@ int main(int argc, char** argv) {
                 std::cout << "Mode changed to: " << p->getSelected()->label << std::endl;
             });
 
-            children.push_back(std::make_shared<engine::gui::dynamic_row_layout>(30, 2));
-            children.push_back(optMode);
+            root->add(std::make_shared<engine::gui::dynamic_row_layout>(30, 2));
+            root->add(optMode);
         }
 
         {
@@ -79,29 +77,27 @@ int main(int argc, char** argv) {
                 std::cout << "Compression changed to: " << p->getValue() << std::endl;
             });
 
-            children.push_back(std::make_shared<engine::gui::dynamic_row_layout>(25, 1));
-            children.push_back(std::make_shared<engine::gui::label>("Compression:"));            
-            children.push_back(slider);
+            root->add(std::make_shared<engine::gui::dynamic_row_layout>(25, 1));
+            root->add(std::make_shared<engine::gui::label>("Compression:"));            
+            root->add(slider);
         }
 
         {
-            children.push_back(std::make_shared<engine::gui::dynamic_row_layout>(20, 1));
-            children.push_back(std::make_shared<engine::gui::label>("background:"));
-            children.push_back(std::make_shared<engine::gui::dynamic_row_layout>(25, 1));
+            root->add(std::make_shared<engine::gui::dynamic_row_layout>(20, 1));
+            root->add(std::make_shared<engine::gui::label>("background:"));
+            root->add(std::make_shared<engine::gui::dynamic_row_layout>(25, 1));
 
-            auto picker = std::make_shared<engine::gui::color_combo_box>(_userData->background);
+            auto picker = std::make_shared<engine::gui::color_combobox>(_userData->background);
 
             picker->setOnChange([=](auto p) {
                 _userData->background = picker->getColor();
                 updateBackground();
             });
 
-            children.push_back(picker);
+            root->add(picker);
         }
 
-        _userData->root->setChildren(children);
-
-        engine::application::setGUI(_userData->root.get(), 1);
+        engine::application::add(root);
     }
 
     updateBackground();

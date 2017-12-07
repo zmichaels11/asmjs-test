@@ -406,8 +406,6 @@ namespace nk {
 
             glGenTextures(1, &_pIMPL->device.gl.fontTexture);
 
-            std::cout << "Texture: " << _pIMPL->device.gl.fontTexture << std::endl;
-
             glBindTexture(GL_TEXTURE_2D, _pIMPL->device.gl.fontTexture);
             
             glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

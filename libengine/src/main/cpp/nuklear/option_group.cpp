@@ -27,5 +27,30 @@ namespace engine {
             _onChange = nullptr;
             _selectedIdx = 0;
         }
+
+        const option * option_group::getSelected() const {
+            return _pOptions[_selectedIdx];
+        }
+
+        int option_group::getSelectedIndex() const {
+            return _selectedIdx;
+        }
+
+        void option_group::setSelectedIndex(int idx) {
+            _selectedIdx = idx;
+        }
+
+        void option_group::setSelected(const option * opt) {
+            for (int i = 0; i < _pOptions.size(); i++) {
+                if (_pOptions[i] == opt) {
+                    _selectedIdx = i;
+                    break;
+                }
+            }
+        }
+
+        void option_group::setOnChange(const std::function<void(const option_group *)>& callback) {
+            _onChange = callback;
+        }
     }
 }
