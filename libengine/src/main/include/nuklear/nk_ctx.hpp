@@ -16,8 +16,13 @@
 namespace nk {
     constexpr std::size_t MAX_TEXT = 1024;
 
-    struct nk_ctx {
-        nk_context context;
+    struct nk_ctx;
+
+    nk_ctx * getContext();
+
+    struct nk_ctx {        
+        bool requestNewFrame;
+        nk_context context;        
 
         struct size_t {
             int width, height;
@@ -74,6 +79,8 @@ namespace nk {
         ~nk_ctx();
 
         void render();
+
+        void renderPrevious();
 
         void newFrame();
     };

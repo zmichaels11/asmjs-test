@@ -17,9 +17,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <vector>
 
-#include "engine/gui/window.hpp"
 #include "nuklear/nk_ctx.hpp"
 
 namespace {    
@@ -54,16 +52,25 @@ namespace {
 
 namespace {
     std::unique_ptr<native_resources> _pNativeResources;
-    std::function<void(void*)> _onFrame;
+    std::function<void(void*)> _onFrame(nullptr);
+    std::function<void(void*)> _onUpdate(nullptr);
     std::shared_ptr<void> _pUserData;
-
-    std::vector<std::shared_ptr<engine::gui::window>> _windows;
 
     double _time;            
 }
 
+namespace nk {
+    nk_ctx * getContext() {
+        return _pNativeResources->nuklear.get();
+    }
+}
+
 namespace engine {
     namespace application {
+        void setOnUpdate(const std::function<void(void*)>& callback) {
+            _onUpdate = callback;
+        }
+
         void setOnFrame(const std::function<void(void*)>& callback) {
             _onFrame = callback;
         }
@@ -74,16 +81,6 @@ namespace engine {
 
         double getTime() {
             return _time;
-        }
-
-        void add(const std::shared_ptr<gui::window>& window) {
-            _windows.push_back(window);
-        }
-
-        void addAll(const std::vector<std::shared_ptr<gui::window>>& windows) {
-            for (auto&& window : windows) {
-                add(window);
-            }
         }
 
         void start(const std::shared_ptr<void>& pUserData) {
@@ -156,20 +153,18 @@ namespace {
         glfwPollEvents();
         _time = glfwGetTime();
 
-        if (_windows.size()) {
-            _pNativeResources->nuklear->newFrame();
+        auto& nk = _pNativeResources->nuklear;
 
-            for (auto&& window : _windows) {
-                window->build(_pNativeResources->nuklear.get());
-            }
+        if (_onUpdate) {
+            nk->newFrame();
+            _onUpdate(_pUserData.get());        
         }
 
-        _onFrame(_pUserData.get());
-
-        if (_windows.size()) {
-            _pNativeResources->nuklear->render();
-        }
-
+        if (_onFrame) {
+            _onFrame(_pUserData.get());                        
+            nk->render();
+        }        
+        
         glfwSwapBuffers(_pNativeResources->glfw.pWindow);    
     }
 }
