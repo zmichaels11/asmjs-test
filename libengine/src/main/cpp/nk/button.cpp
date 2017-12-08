@@ -3,13 +3,15 @@
 #include "nuklear/nk_ctx.hpp"
 
 namespace nk {
-    button_label::button_label(const char * title) {
+    bool button_label(const char* title) {
         auto ctx = nk::getContext();
 
-        _success = nk_button_label(&ctx->context, title);
+        return nk_button_label(&ctx->context, title);
     }
+    
+    bool button_text(const char* title, int len) {
+        auto ctx = nk::getContext();
 
-    button_label::operator bool() const {
-        return _success;
+        return nk_button_text(&ctx->context, title, len);
     }
 }

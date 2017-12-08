@@ -28,19 +28,18 @@ struct AppData {
     graphics::viewport_state_info viewportState;
 };
 
-std::shared_ptr<AppData> _userData;
-
 int main(int argc, char** argv) {
     engine::application::init("GUI Test", 640, 480);
 
-    _userData = std::make_shared<AppData>();
-    _userData->clearState.buffers = graphics::clear_buffer::COLOR;	
-    _userData->clearState.color = {0.1F, 0.25F, 0.4F, 1.0F};
-    _userData->viewportState.x = 0;
-    _userData->viewportState.y = 0;
-    _userData->viewportState.width = 640;
-    _userData->viewportState.height = 480;
-    _userData->mode = setting::EASY;
+    auto userData = std::make_shared<AppData>();
+    
+    userData->clearState.buffers = graphics::clear_buffer::COLOR;	    
+    userData->clearState.color = {0.1F, 0.25F, 0.4F, 1.0F};
+    userData->viewportState.x = 0;
+    userData->viewportState.y = 0;
+    userData->viewportState.width = 640;
+    userData->viewportState.height = 480;
+    userData->mode = setting::EASY;
     
     engine::application::setOnUpdate([](auto userData) {
         auto appData = reinterpret_cast<AppData *> (userData);
@@ -95,5 +94,5 @@ int main(int argc, char** argv) {
         graphics::apply(appData->clearState);
     });
 
-    engine::application::start(_userData);
+    engine::application::start(userData);
 }

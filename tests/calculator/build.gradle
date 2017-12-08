@@ -1,0 +1,36 @@
+model {
+    components {
+        calculator(NativeExecutableSpec) {
+            targetPlatform 'asmjs'
+            targetPlatform 'binaryen'
+            targetPlatform 'x86_64'
+
+            sources {
+                cpp {
+                    lib project: ':libaudio', library: 'audio', linkage: 'static'
+                    lib project: ':libgraphics', library: 'graphics', linkage: 'static'
+                    lib project: ':libengine', library: 'engine', linkage: 'static'
+
+                    source {
+                        srcDir 'src/main/cpp'
+                        include '**/*.cpp'
+                    }
+
+                    exportedHeaders {
+                        srcDirs '../share/src/main/include', 'src/main/include'
+                        include '**/*.hpp'
+                    }
+                }
+            }
+
+            binaries.all {                
+                if (toolChain.name == 'emscripten') {
+                    cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
+                    linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
+                } else {
+                    linker.args '-lopenal', '-lGL', '-lglfw'                    
+                }
+            }
+        }
+    }
+}

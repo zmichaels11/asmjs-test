@@ -1,12 +1,7 @@
 #pragma once
 
-namespace nk {
-    class button_label {
-        bool _success;
+namespace nk {    
+    bool button_label(const char* title);
 
-    public:
-        button_label(const char * title);
-
-        explicit operator bool() const;
-    };
+    bool button_text(const char* title, int len);
 }
