@@ -22,4 +22,8 @@ namespace nk {
     constexpr window_flag operator& (window_flag lhs, window_flag rhs) {
         return static_cast<window_flag> (static_cast<unsigned int> (lhs) & static_cast<unsigned int> (rhs));
     }
+
+    constexpr window_flag& operator|= (window_flag& lhs, window_flag rhs) {
+        return (lhs = lhs | rhs);
+    }
 }

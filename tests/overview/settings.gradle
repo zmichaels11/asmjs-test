@@ -1,0 +1,6 @@
+include ':libaudio', ':libgraphics', ':libengine'
+
+project(':libaudio').projectDir = new File(settingsDir, '../../libaudio')
+project(':libgraphics').projectDir = new File(settingsDir, '../../libgraphics')
+project(':libengine').projectDir = new File(settingsDir,'../../libengine')
+
