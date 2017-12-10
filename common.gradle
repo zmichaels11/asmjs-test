@@ -17,9 +17,23 @@ model {
 		asmjs {
 			architecture "asmjs"
 		}
+
+		win64 {
+			operatingSystem "windows"
+			architecture "x86_64"
+		}
 	}
 
 	toolChains {
+		mingw (Gcc) {
+			target("win64") {
+				cppCompiler.executable = 'x86_64-w64-mingw32-g++'
+                linker.executable = 'x86_64-w64-mingw32-g++'
+                assembler.executable = 'x86_64-w64-mingw32-as'
+                staticLibArchiver.executable = 'x86_64-w64-mingw32-ar'
+			}
+		}
+
 		gcc (Gcc) {
 			target("x86_64") {				
 				cppCompiler.withArguments { args -> 
@@ -95,5 +109,16 @@ model {
 			}
 		}
 	}	
+
+	repositories {
+		libs (PrebuiltLibraries) {
+			glfw3 {
+				headers.srcDir file(projectDir.path + '/lib/glfw3/win64/include')
+				binaries.withType(SharedLibraryBinary) {
+					sharedLibraryFile = file(projectDir.path + '/lib/glfw3/win64/glfw3.dll')
+				}
+			}
+		}
+	}
 }
 	
