@@ -3,7 +3,7 @@ model {
         calculator(NativeExecutableSpec) {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
-            targetPlatform 'x86_64'
+            targetPlatform 'linux64'
 
             sources {
                 cpp {
@@ -27,7 +27,7 @@ model {
                 if (toolChain.name == 'emscripten') {
                     cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
                     linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
-                } else {
+                } else if (targetPlatform.operatingSystem.linux) {
                     linker.args '-lopenal', '-lGL', '-lglfw'                    
                 }
             }

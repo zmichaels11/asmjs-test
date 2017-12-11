@@ -6,36 +6,30 @@ task wrapper(type: Wrapper) {
 
 model {
 	platforms {
-		x86_64 {
+		linux64 {
+			operatingSystem "linux"
 			architecture "x86_64"
 		}
 
 		binaryen {
+			operatingSystem "webassembly"
 			architecture "binaryen"
 		}
 
 		asmjs {
+			operatingSystem "webassembly"
 			architecture "asmjs"
 		}
 
-		win64 {
+		windows64 {
 			operatingSystem "windows"
 			architecture "x86_64"
 		}
 	}
 
 	toolChains {
-		mingw (Gcc) {
-			target("win64") {
-				cppCompiler.executable = 'x86_64-w64-mingw32-g++'
-                linker.executable = 'x86_64-w64-mingw32-g++'
-                assembler.executable = 'x86_64-w64-mingw32-as'
-                staticLibArchiver.executable = 'x86_64-w64-mingw32-ar'
-			}
-		}
-
 		gcc (Gcc) {
-			target("x86_64") {				
+			eachPlatform {
 				cppCompiler.withArguments { args -> 
 					args.add(0, "$CXX_STD")
 					args.add(0, "$CXX_OPT")
@@ -45,6 +39,20 @@ model {
 				linker.withArguments { args -> 
 					args.add(0, "$CXX_OPT")
 				}
+			}
+
+			target("linux64") {
+				cppCompiler.executable = 'x86_64-linux-gnu-g++'
+				linker.executable = 'x86_64-linux-gnu-g++'
+				assembler.executable = 'x86_64-linux-gnu-as'
+				staticLibArchiver.executable = 'x86_64-linux-gnu-ar'
+			}
+
+			target("windows64") {
+				cppCompiler.executable = 'x86_64-w64-mingw32-g++'
+                linker.executable = 'x86_64-w64-mingw32-g++'
+                assembler.executable = 'x86_64-w64-mingw32-as'
+                staticLibArchiver.executable = 'x86_64-w64-mingw32-ar'
 			}
 		}
 

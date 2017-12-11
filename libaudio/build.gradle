@@ -3,7 +3,7 @@ model {
         audio(NativeLibrarySpec) {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
-            targetPlatform 'x86_64'
+            targetPlatform 'linux64'
 
             sources {
                 cpp {
@@ -16,12 +16,6 @@ model {
                         srcDirs '../share/src/main/include', 'src/main/include'
                         include '**/*.hpp'
                     }
-                }
-            }
-
-            binaries.all {
-                if (toolChain.name != 'emscripten') {
-                    linker.args '-lopenal'
                 }
             }
         }

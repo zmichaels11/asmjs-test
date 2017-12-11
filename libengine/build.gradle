@@ -3,7 +3,7 @@ model {
         engine(NativeLibrarySpec) {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
-            targetPlatform 'x86_64'
+            targetPlatform 'linux64'
 
             sources {
                 cpp {
