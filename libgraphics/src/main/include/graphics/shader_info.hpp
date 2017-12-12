@@ -6,7 +6,7 @@
 
 namespace graphics {
     struct shader_info {
-        shader_type type;
+        graphics::shader_type type;
         std::string src;
     };
 }

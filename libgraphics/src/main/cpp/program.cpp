@@ -21,8 +21,8 @@ namespace graphics {
         _info = info;
         _handle = glCreateProgram();
 
-        for (auto it = info.pShaders; it != (info.pShaders + info.shaderCount); it++) {
-            glAttachShader(_handle, it->_handle);
+        for (int i = 0; i < info.shaderCount; i++) {
+            glAttachShader(_handle, info.ppShaders[i]->_handle);
         }
 
         for (auto it = info.pAttributeStates; it != (info.pAttributeStates + info.attributeCount); it++) {
@@ -30,6 +30,10 @@ namespace graphics {
         }
 
         glLinkProgram(_handle);
+
+        for (int i = 0; i < info.shaderCount; i++) {
+            glDetachShader(_handle, info.ppShaders[i]->_handle);
+        }
 
         auto linkStatus = GL_FALSE;
 

@@ -6,12 +6,12 @@
 namespace graphics {
     struct depth_stencil_state_info {
         bool depthTestEnabled;
-        compare_op depthCompareOp;
+        graphics::compare_op depthCompareOp;
         bool depthWriteEnable;
         bool stencilTestEnable;
-        stencil_op_state_info front;
-        stencil_op_state_info back;
+        graphics::stencil_op_state_info front;
+        graphics::stencil_op_state_info back;
     };
 
-    void apply(const depth_stencil_state_info& info);
+    void apply(const graphics::depth_stencil_state_info& info);
 }

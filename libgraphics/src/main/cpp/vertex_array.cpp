@@ -80,14 +80,22 @@ namespace graphics {
         }
 
         static vertex_binding_description * _findBinding(const vertex_array_info& info, unsigned int binding) {
-            for (auto it = info.pBindings; it != (info.pBindings + info.bindingCount); it++) {
-                if (it->binding == binding) {
-                    return it;
+            for (int i = 0; i < info.bindingCount; i++) {
+                auto pCurrent = info.ppBindings[i];
+
+                if (pCurrent && pCurrent->binding == binding) {
+                    return pCurrent;
                 }
-            }
+            }            
 
             return nullptr;
         }
+    }
+
+    const vertex_array& vertex_array::getDefault() {
+        static vertex_array instance;
+
+        return instance;
     }
 
     vertex_array::vertex_array(const vertex_array_info& info) {
@@ -99,15 +107,20 @@ namespace graphics {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, info.pIndexBuffer->_handle);
         }
 
-        for (auto it = info.pAttributes; it != (info.pAttributes + info.attributeCount); it++) {
-            vertex_binding_description * pBinding = _findBinding(info, it->binding);
+        for (int i = 0; i < info.attributeCount; i++) {
+            auto pCurrent = info.ppAttributes[i];            
+            auto pBinding = _findBinding(info, pCurrent->binding);
 
             glBindBuffer(GL_ARRAY_BUFFER, pBinding->buffer->_handle);
-            glEnableVertexAttribArray(it->location);
+            glEnableVertexAttribArray(pCurrent->location);
 
-            auto strideAdjust = pBinding->stride - _bytes(it->format);
+            auto strideAdjust = pBinding->stride;// - _bytes(pCurrent->format);
+            auto size = _size(pCurrent->format);
+            auto type = _type(pCurrent->format);
+            auto normalized = _normalized(pCurrent->format);
+            auto offset = reinterpret_cast<const void *> (pBinding->offset + pCurrent->offset);
 
-            glVertexAttribPointer(it->location, _size(it->format), _type(it->format), _normalized(it->format), strideAdjust, reinterpret_cast<const void *> (pBinding->offset));
+            glVertexAttribPointer(pCurrent->location, size, type, normalized, strideAdjust, offset);
         }
     }
 
@@ -117,5 +130,9 @@ namespace graphics {
 
     void vertex_array::bind() const {
         glBindVertexArray(_handle);
+    }
+
+    const graphics::vertex_array_info& vertex_array::getInfo() const {
+        return _info;
     }
 }

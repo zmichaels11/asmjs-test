@@ -17,8 +17,8 @@ namespace graphics {
 
         virtual std::size_t getSize() const = 0;
 
-        virtual pixel_format getFormat() const = 0;
+        virtual graphics::pixel_format getFormat() const = 0;
 
-        virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimg) = 0;
+        virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const graphics::image& subimg) = 0;
     };
 }

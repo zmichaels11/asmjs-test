@@ -31,7 +31,9 @@ namespace graphics {
                 glBindTexture(GL_TEXTURE_2D_ARRAY, _handle);
                 glTexStorage3D(GL_TEXTURE_2D_ARRAY, info.levels, internalFormat, info.extent.width, info.extent.height, info.layers);
             } else {
-                _onError("Unsupported info!");
+                _target = GL_TEXTURE_2D;
+                glBindTexture(GL_TEXTURE_2D, _handle);
+                glTexStorage2D(GL_TEXTURE_2D, info.levels, internalFormat, info.extent.width, info.extent.height);
             }
         } else if (info.layers > 1) {
             _target = GL_TEXTURE_2D;

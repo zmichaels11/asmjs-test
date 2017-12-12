@@ -6,7 +6,7 @@ namespace graphics {
 
     struct attachment_info {
         int level;
-        renderbuffer * pRenderbuffer;
-        texture * pTexture;
+        graphics::renderbuffer * pRenderbuffer;
+        graphics::texture * pTexture;
     };
 }

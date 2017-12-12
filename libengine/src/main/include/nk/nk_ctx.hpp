@@ -13,6 +13,11 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #include "nk/nuklear.hpp"
 
+#include "graphics/buffer.hpp"
+#include "graphics/program.hpp"
+#include "graphics/texture.hpp"
+#include "graphics/vertex_array.hpp"
+
 namespace nk {
     constexpr std::size_t MAX_TEXT = 1024;
 
@@ -50,13 +55,13 @@ namespace nk {
             
             struct gl_objs_t {
                 struct buffers_t {
-                    unsigned int vbo;
-                    unsigned int ebo;
+                    graphics::buffer vbo;
+                    graphics::buffer ebo;
                 } buffers;
 
-                unsigned int vao;
-                unsigned int program;
-                unsigned int fontTexture;
+                graphics::vertex_array vao;
+                graphics::program program;
+                graphics::texture fontTexture;
 
                 struct attrib_t {
                     int position;

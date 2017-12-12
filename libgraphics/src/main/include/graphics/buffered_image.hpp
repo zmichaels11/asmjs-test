@@ -14,7 +14,7 @@ namespace graphics {
 
         unsigned int _width;
         unsigned int _height;
-        pixel_format _format;
+        graphics::pixel_format _format;
         unsigned int _pixelSize;
 
         buffered_image(const buffered_image&) = delete;
@@ -36,7 +36,7 @@ namespace graphics {
 
         virtual std::size_t getSize() const;
 
-        virtual pixel_format getFormat() const;
+        virtual graphics::pixel_format getFormat() const;
 
         virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimg) = 0;
     };

@@ -7,11 +7,11 @@ namespace graphics {
         STENCIL = 0x00000400
     };
 
-    inline clear_buffer operator| (clear_buffer lhs, clear_buffer rhs) {
+    constexpr graphics::clear_buffer operator| (graphics::clear_buffer lhs, graphics::clear_buffer rhs) {
         return static_cast<clear_buffer> (static_cast<unsigned int> (lhs) | static_cast<unsigned int> (rhs));
     }
 
-    inline clear_buffer operator& (clear_buffer lhs, clear_buffer rhs) {
+    constexpr graphics::clear_buffer operator& (graphics::clear_buffer lhs, graphics::clear_buffer rhs) {
         return static_cast<clear_buffer> (static_cast<unsigned int> (lhs) & static_cast<unsigned int> (rhs));
     }
 }

@@ -14,5 +14,5 @@ namespace graphics {
         } pack, unpack;
     };
 
-    void apply(const pixel_store_state_info& info);
+    void apply(const graphics::pixel_store_state_info& info);
 }

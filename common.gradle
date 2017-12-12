@@ -68,6 +68,7 @@ model {
                     args.remove '-rcs'
                     args.add(0, "$CXX_OPT")
                     args.add(0, '-emit-llvm')
+					
 
                     int outputIdx;                    
                     for (outputIdx = 0; outputIdx < args.size(); outputIdx++) {
@@ -93,7 +94,9 @@ model {
 						args[i] = args[i].replace('.a', '.bc')
                         
                         if (args[i] == '-o') {
-                            args[i+1] += '.html'
+							if (!(args[i+1].endsWith('.so'))) {
+								args[i+1] += '.html'
+							}                            
                         }
 					}
 				}

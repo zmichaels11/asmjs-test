@@ -8,6 +8,12 @@
 #include "graphics/buffer_target.hpp"
 
 namespace graphics {
+    const buffer& buffer::getDefault() {
+        static buffer instance;
+
+        return instance;
+    }
+
     buffer::buffer(const buffer_info& info) {
         _info = info;
         

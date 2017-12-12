@@ -3,17 +3,17 @@
 #include "graphics/blend_equation.hpp"
 #include "graphics/blend_function.hpp"
 
-namespace graphics {
+namespace graphics {    
     struct blend_state_info {
         bool blendEnabled;
-        blend_equation colorBlendOp;
-        blend_equation alphaBlendOp;
-        blend_function srcColorBlend;
-        blend_function dstColorBlend;
-        blend_function srcAlphaBlend;
-        blend_function dstAlphaBlend;
+        graphics::blend_equation colorBlendOp;
+        graphics::blend_equation alphaBlendOp;
+        graphics::blend_function srcColorBlend;
+        graphics::blend_function dstColorBlend;
+        graphics::blend_function srcAlphaBlend;
+        graphics::blend_function dstAlphaBlend;
         unsigned int colorWriteMask;
     };
 
-    void apply(const blend_state_info& info);
+    void apply(const graphics::blend_state_info& info);
 }

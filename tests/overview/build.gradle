@@ -7,9 +7,9 @@ model {
 
             sources {
                 cpp {
-                    lib project: ':libaudio', library: 'audio', linkage: 'static'
-                    lib project: ':libgraphics', library: 'graphics', linkage: 'static'
+                    lib project: ':libaudio', library: 'audio', linkage: 'static'                    
                     lib project: ':libengine', library: 'engine', linkage: 'static'
+                    lib project: ':libgraphics', library: 'graphics', linkage: 'static'
 
                     source {
                         srcDir 'src/main/cpp'

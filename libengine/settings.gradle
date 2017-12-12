@@ -1,0 +1,4 @@
+include ':libgraphics'
+
+project(':libgraphics').projectDir = new File(settingsDir, '../libgraphics')
+

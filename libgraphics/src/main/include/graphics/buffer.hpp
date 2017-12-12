@@ -4,10 +4,9 @@
 
 #include "graphics/buffer_info.hpp"
 #include "graphics/buffer_target.hpp"
+#include "graphics/vertex_array.hpp"
 
 namespace graphics {
-    class vertex_array;
-
     class buffer {
         unsigned int _handle;
         buffer_info _info;
@@ -42,6 +41,12 @@ namespace graphics {
 
         void bindRange(unsigned int index, long offset, std::size_t size) const;
 
-        const buffer_info& getInfo() const;
+        const graphics::buffer_info& getInfo() const;
+
+        inline operator int() const {
+            return _handle;
+        }
+
+        static const buffer& getDefault();
     };
 }
