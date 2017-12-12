@@ -7,6 +7,9 @@
 #include <string>
 #include <vector>
 
+#include "renderer/scene.hpp"
+#include "renderer/scene_info.hpp"
+
 namespace engine {
     struct button_state {
         double value;
@@ -32,6 +35,12 @@ namespace engine {
         void setOnFrame(const std::function<void(void*)>& callback);
 
         void setOnUpdate(const std::function<void(void*)>& callback);
+
+        void setScene(const std::shared_ptr<renderer::scene>& scene);
+
+        void setScene(const renderer::scene_info& sceneInfo);
+
+        renderer::scene * getScene();
 
         void start(const std::shared_ptr<void>& pUserData);
 

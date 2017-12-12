@@ -11,6 +11,10 @@
 #include "graphics/clear_state_info.hpp"
 #include "graphics/viewport_state_info.hpp"
 
+#include "renderer/layer_type.hpp"
+#include "renderer/scene.hpp"
+#include "renderer/scene_layer_info.hpp"
+
 #include "nk/button.hpp"
 #include "nk/edit.hpp"
 #include "nk/layout.hpp"
@@ -23,24 +27,23 @@ struct AppData {
         double a, b;
         double * current;        
     } calculator;
-
-    graphics::clear_state_info clearState;
-    graphics::viewport_state_info viewportState;
 };
 
 std::shared_ptr<AppData> _userData;
 
 int main(int argc, char** argv) {
-    engine::application::init("Calculator", 640, 480);
+    engine::application::init("Calculator", 640, 480);    
+
+    auto sceneInfo = renderer::scene_info();
+
+    renderer::scene_layer_info layerInfos[] {
+        {renderer::layer_type::GUI, nullptr}
+    };
+
+    engine::application::setScene({layerInfos, 1, {{0.1F, 0.25F, 0.4F, 1.0F}, 1.0F}});
 
     auto userData = std::make_shared<AppData>();
-
-    userData->clearState.buffers = graphics::clear_buffer::COLOR;
-    userData->clearState.color = {0.1F, 0.25F, 0.4F, 1.0F};
-    userData->viewportState.x = 0;
-    userData->viewportState.y = 0;
-    userData->viewportState.width = 640;
-    userData->viewportState.height = 480;
+    
     userData->calculator.current = &userData->calculator.a;
 
     engine::application::setOnUpdate([](auto userData) {
@@ -137,10 +140,7 @@ int main(int argc, char** argv) {
     });
 
     engine::application::setOnFrame([](auto userData) {
-        auto appData = reinterpret_cast<AppData*> (userData);
-
-        graphics::apply(appData->viewportState);
-        graphics::apply(appData->clearState);
+        
     });
 
     engine::application::start(userData);

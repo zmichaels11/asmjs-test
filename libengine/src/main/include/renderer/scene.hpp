@@ -2,23 +2,37 @@
 
 #include <cstddef>
 
+#include <memory>
+#include <vector>
+
+#include "renderer/layer.hpp"
 #include "renderer/scene_info.hpp"
 
 namespace renderer {
+    struct scene_res {
+        virtual ~scene_res() {}        
+    };
+
     class scene {
-    public:
+        scene_info _info;
+        std::vector<std::shared_ptr<renderer::layer>> _layers;
+        std::shared_ptr<scene_res> _resources;      
+
+    public:        
+        scene(const scene_info& info);
+
         virtual ~scene() {}
 
-        virtual void onFrameStart() = 0;
+        void update(double timestep);
 
-        virtual void onFrameEnd() = 0;
+        void doFrame(double timestep);
 
-        virtual const renderer::scene_info& getInfo() const = 0;
+        const renderer::scene_info& getInfo() const;
 
-        virtual renderer::layer * getLayer(int id) const = 0;
+        const renderer::layer * getLayer(int id) const;
 
-        virtual std::size_t getLayerCount() const = 0;
+        std::size_t getLayerCount() const;
 
-        virtual layer_type getLayerType(int id) const = 0;
+        layer_type getLayerType(int id) const;
     };
 }

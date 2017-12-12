@@ -4,9 +4,13 @@
 
 namespace renderer {
     class gui_layer : public virtual layer {
-    public:
+    public:        
         virtual ~gui_layer() {}
 
-        
+        virtual void update(double timestep);
+
+        virtual void doFrame(double timestep);
+
+        virtual void setProjection(const float * proj);
     };
 }

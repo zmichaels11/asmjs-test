@@ -18,6 +18,7 @@
 #include <memory>
 #include <string>
 
+#include "renderer/scene.hpp"
 #include "nk/nk_ctx.hpp"
 
 namespace {    
@@ -51,12 +52,13 @@ namespace {
 }
 
 namespace {
-    std::unique_ptr<native_resources> _pNativeResources;
+    std::shared_ptr<renderer::scene> _scene(nullptr);
+    std::unique_ptr<native_resources> _pNativeResources(nullptr);
     std::function<void(void*)> _onFrame(nullptr);
     std::function<void(void*)> _onUpdate(nullptr);
     std::shared_ptr<void> _pUserData;
 
-    double _time;            
+    double _time(0.0);            
 }
 
 namespace nk {
@@ -67,6 +69,18 @@ namespace nk {
 
 namespace engine {
     namespace application {
+        renderer::scene * getScene() {
+            return _scene.get();
+        }
+        
+        void setScene(const std::shared_ptr<renderer::scene>& scene) {
+            _scene = scene;
+        }
+
+        void setScene(const renderer::scene_info& sceneInfo) {
+            _scene = std::make_shared<renderer::scene> (sceneInfo);
+        }
+
         void setOnUpdate(const std::function<void(void*)>& callback) {
             _onUpdate = callback;
         }
@@ -153,17 +167,23 @@ namespace {
         glfwPollEvents();
         _time = glfwGetTime();
 
-        auto& nk = _pNativeResources->nuklear;
+        auto& nk = _pNativeResources->nuklear;        
 
-        if (_onUpdate) {
-            nk->newFrame();
+        if (_onUpdate) {            
             _onUpdate(_pUserData.get());        
         }
 
+        if (_scene) {
+            _scene->update(_time);
+        }
+
         if (_onFrame) {
-            _onFrame(_pUserData.get());                        
-            nk->render();
+            _onFrame(_pUserData.get());            
         }        
+
+        if (_scene) {
+            _scene->doFrame(_time);
+        }
         
         glfwSwapBuffers(_pNativeResources->glfw.pWindow);    
     }
