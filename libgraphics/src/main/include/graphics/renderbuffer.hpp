@@ -1,12 +1,11 @@
 #pragma once
 
+#include "graphics/framebuffer.hpp"
 #include "graphics/renderbuffer_info.hpp"
 
-namespace graphics {
-    class framebuffer;
-    
+namespace graphics {    
     class renderbuffer {
-        renderbuffer_info _info;
+        graphics::renderbuffer_info _info;
         unsigned int _handle;
 
         renderbuffer(const renderbuffer&) = delete;
@@ -26,6 +25,6 @@ namespace graphics {
 
         renderbuffer& operator=(renderbuffer&&) = default;
 
-        const renderbuffer_info& getInfo() const;
+        const graphics::renderbuffer_info& getInfo() const;
     };
 }

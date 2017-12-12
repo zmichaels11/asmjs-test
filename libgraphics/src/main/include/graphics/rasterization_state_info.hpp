@@ -6,9 +6,9 @@
 
 namespace graphics {
     struct rasterization_state_info {
-        front_face frontFace;
+        graphics::front_face frontFace;
         float lineWidth;
-        cull_mode cullMode;
+        graphics::cull_mode cullMode;
         
         struct polygon_offset_T {
             bool enabled;
@@ -16,8 +16,8 @@ namespace graphics {
             float units;
         } polygonOffset;
 
-        polygon_mode polygonMode;
+        graphics::polygon_mode polygonMode;
     };
 
-    void apply (const rasterization_state_info& info);
+    void apply (const graphics::rasterization_state_info& info);
 }

@@ -1,10 +1,9 @@
 #pragma once
 
+#include "graphics/buffer.hpp"
 #include "graphics/vertex_array_info.hpp"
 
 namespace graphics {
-    class buffer;
-
     class vertex_array {
         vertex_array_info _info;
         unsigned int _handle;
@@ -29,6 +28,10 @@ namespace graphics {
         inline operator int() const {
             return _handle;
         }
+
+        const graphics::vertex_array_info& getInfo() const;
+
+        static const vertex_array& getDefault();
     };
 
 }

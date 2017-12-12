@@ -23,10 +23,10 @@ namespace graphics {
 
         framebuffer& operator=(framebuffer&&) = default;
 
-        const framebuffer_info& getInfo() const;
+        const graphics::framebuffer_info& getInfo() const;
 
         void bind() const;
 
-        static void readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info);
+        static void readPixels(int x, int y, std::size_t width, std::size_t height, graphics::pixel_info& info);
     };
 }

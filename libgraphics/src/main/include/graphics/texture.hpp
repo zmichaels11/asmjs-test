@@ -1,14 +1,13 @@
 #pragma once
 
+#include "graphics/framebuffer.hpp"
 #include "graphics/pixel_info.hpp"
 #include "graphics/texture_info.hpp"
 
 namespace graphics {
-    class framebuffer;
-
     class texture {
         unsigned int _handle;
-        texture_info _info;
+        graphics::texture_info _info;
         unsigned int _target;
 
         texture(const texture&) = delete;
@@ -28,7 +27,7 @@ namespace graphics {
 
         texture& operator=(texture&&) = default;
 
-        const texture_info& getInfo() const;
+        const graphics::texture_info& getInfo() const;
 
         void generateMipmap() const;
 

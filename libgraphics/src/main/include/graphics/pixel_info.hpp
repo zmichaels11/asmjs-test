@@ -7,8 +7,8 @@
 
 namespace graphics {
     struct pixel_info {
-        pixel_type type;
-        pixel_format format;
+        graphics::pixel_type type;
+        graphics::pixel_format format;
         void * pData;
     };
 }

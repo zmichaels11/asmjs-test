@@ -2,11 +2,11 @@
 
 #include <cstddef>
 
-namespace graphics {
-    struct attachment_info;
+#include "graphics/attachment_info.hpp"
 
+namespace graphics {
     struct framebuffer_info {
-        attachment_info * pAttachments;
+        graphics::attachment_info * pAttachments;
         std::size_t attachmentCount;
     };
 }

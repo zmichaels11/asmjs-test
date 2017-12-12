@@ -14,7 +14,9 @@
 #include "nk/nuklear.hpp"
 
 #include "graphics/buffer.hpp"
+#include "graphics/program.hpp"
 #include "graphics/texture.hpp"
+#include "graphics/vertex_array.hpp"
 
 namespace nk {
     constexpr std::size_t MAX_TEXT = 1024;
@@ -57,8 +59,8 @@ namespace nk {
                     graphics::buffer ebo;
                 } buffers;
 
-                unsigned int vao;
-                unsigned int program;
+                graphics::vertex_array vao;
+                graphics::program program;
                 graphics::texture fontTexture;
 
                 struct attrib_t {

@@ -4,7 +4,7 @@
 
 namespace graphics {
     struct clear_state_info {
-        clear_buffer buffers;
+        graphics::clear_buffer buffers;
         struct clear_color_t {
             float r, g, b, a;
         } color;
@@ -12,5 +12,5 @@ namespace graphics {
         unsigned int stencil;
     };
 
-    void apply(const clear_state_info& info);
+    void apply(const graphics::clear_state_info& info);
 }

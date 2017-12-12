@@ -6,7 +6,7 @@
 
 namespace graphics {
     class program {
-        program_info _info;
+        graphics::program_info _info;
         unsigned int _handle;
 
         program(const program&) = delete;
@@ -30,6 +30,10 @@ namespace graphics {
 
         void use() const;
 
-        const program_info& getInfo() const;
+        const graphics::program_info& getInfo() const;
+
+        inline operator int() const {
+            return _handle;
+        }
     };
 }

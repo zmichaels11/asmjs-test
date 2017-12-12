@@ -32,8 +32,12 @@
 #include "graphics/mag_filter.hpp"
 #include "graphics/min_filter.hpp"
 
+#include "graphics/program.hpp"
+#include "graphics/shader.hpp"
+
 #include "graphics/texture.hpp"
 #include "graphics/texture_info.hpp"
+#include "graphics/uniform.hpp"
 
 namespace nk {
     namespace {
@@ -128,10 +132,6 @@ namespace nk {
         nk_free(&context);
         nk_buffer_free(&device.cmds);        
 
-        glDeleteVertexArrays(1, &device.gl.vao);
-
-        glDeleteProgram(device.gl.program);
-
         _pWIN = nullptr;
         _pIMPL = nullptr;        
     }
@@ -197,8 +197,8 @@ namespace nk {
                 double xpos, ypos;
 
                 glfwGetCursorPos(_pWIN, &xpos, &ypos);
-                x = static_cast<int> (xpos);
-                y = static_cast<int> (ypos);
+                x = static_cast<decltype(x)> (xpos);
+                y = static_cast<decltype(y)> (ypos);
             }            
 
             nk_input_motion(&context, x, y);
@@ -232,9 +232,9 @@ namespace nk {
         glEnable(GL_SCISSOR_TEST);
         glActiveTexture(GL_TEXTURE0);
 
-        glUseProgram(device.gl.program);
-        glUniform1i(device.gl.uniforms.texture, 0);
-        glUniformMatrix4fv(device.gl.uniforms.projection, 1, GL_FALSE, ortho);
+        device.gl.program.use();
+        graphics::uniform::setUniform1(device.gl.uniforms.texture, 0);
+        graphics::uniform::setUniformMatrix4(device.gl.uniforms.projection, 1, ortho);
 
         glViewport(0, 0, static_cast<GLsizei> (size.displayWidth), static_cast<GLsizei> (size.displayHeight));
 
@@ -264,7 +264,7 @@ namespace nk {
                 nk_convert(&context, &device.cmds, &vbuf, &ebuf, &config);
             }
 
-            glBindVertexArray(device.gl.vao);
+            device.gl.vao.bind();
                     
             device.gl.buffers.vbo.invalidate();
             device.gl.buffers.vbo.subData(0, vertices.get(), MAX_VERTEX_BUFFER);
@@ -304,90 +304,45 @@ namespace nk {
             nk_buffer_init_default(&_pIMPL->device.cmds);
 
             {
-                auto vsh = glCreateShader(GL_VERTEX_SHADER);
-                auto fsh = glCreateShader(GL_FRAGMENT_SHADER);
+                auto vsh = graphics::shader({graphics::shader_type::VERTEX, VERTEX_SHADER});
+                auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, FRAGMENT_SHADER});
 
-                glShaderSource(vsh, 1, &VERTEX_SHADER, nullptr);
-                glShaderSource(fsh, 1, &FRAGMENT_SHADER, nullptr);
+                graphics::shader* shaders[] = {&vsh, &fsh};
 
-                glCompileShader(vsh);
-                glCompileShader(fsh);
+                graphics::attribute_state_info attribs[] = {
+                    {"Position", 0},
+                    {"TexCoord", 1},
+                    {"Color", 2}};
 
-                GLint status;
+                auto program = graphics::program({shaders, 2, attribs, 3});                
+                
+                _pIMPL->device.gl.attributes = {0, 1, 2};
 
-                glGetShaderiv(vsh, GL_COMPILE_STATUS, &status);
-
-                if (status != GL_TRUE) {
-                    _onError("Unable to compile vertex shader!");
-                }
-
-                glGetShaderiv(fsh, GL_COMPILE_STATUS, &status);
-
-                if (status != GL_TRUE) {
-                    _onError("Unable to compile fragment shader!");
-                }
-
-                auto prog = glCreateProgram();
-
-                glAttachShader(prog, vsh);
-                glAttachShader(prog, fsh);
-
-                glLinkProgram(prog);
-
-                glDetachShader(prog, fsh);
-                glDetachShader(prog, vsh);
-
-                glDeleteShader(fsh);
-                glDeleteShader(vsh);
-
-                glGetProgramiv(prog, GL_LINK_STATUS, &status);
-
-                if (status != GL_TRUE) {
-                    _onError("Unable to link program!");
-                }
-
-                if ((_pIMPL->device.gl.attributes.position = glGetAttribLocation(prog, "Position")) < 0) {
-                    _onError("Unable to find position vertex attribute");
-                }
-
-                if ((_pIMPL->device.gl.attributes.texCoord = glGetAttribLocation(prog, "TexCoord")) < 0) {
-                    _onError("Unable to find texcoord vertex attribute!");
-                }
-
-                if ((_pIMPL->device.gl.attributes.color = glGetAttribLocation(prog, "Color")) < 0) {
-                    _onError("Unable to find color vertex attribute!");
-                }
-
-                if ((_pIMPL->device.gl.uniforms.texture = glGetUniformLocation(prog, "Texture")) < 0) {
+                if ((_pIMPL->device.gl.uniforms.texture = program.getUniformLocation("Texture")) < 0) {
                     _onError("Unable to find texture uniform!");
                 }
 
-                if ((_pIMPL->device.gl.uniforms.projection = glGetUniformLocation(prog, "ProjMtx")) < 0) {
+                if ((_pIMPL->device.gl.uniforms.projection = program.getUniformLocation("ProjMtx")) < 0) {
                     _onError("Unable to find projection matrix uniform!");
                 }
                 
-                _pIMPL->device.gl.program = prog;
+                std::swap(_pIMPL->device.gl.program, program);
             }
 
-            {
-                GLuint vao;
+            {                
+                auto vbo = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_VERTEX_BUFFER}});
+                auto ebo = graphics::buffer({graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_ELEMENT_BUFFER}});
 
-                graphics::buffer vbo({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_VERTEX_BUFFER}});
-                graphics::buffer ebo({graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_ELEMENT_BUFFER}});
+                graphics::vertex_attribute_description aPosition = {0, graphics::vertex_format::VEC2, 0, 0};
+                graphics::vertex_attribute_description aTexCoord = {1, graphics::vertex_format::VEC2, 8, 0};
+                graphics::vertex_attribute_description aColor = {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0};
 
-                glGenVertexArrays(1, &vao);
+                graphics::vertex_binding_description binding = {0, 20, 0, &vbo, 0};                
 
-                glBindVertexArray(vao);
-                vbo.bind();
-                ebo.bind();
+                graphics::vertex_attribute_description* attribs[] = {&aPosition, &aTexCoord, &aColor};
+                graphics::vertex_binding_description* bindings[] = {&binding};
 
-                glEnableVertexAttribArray(static_cast<GLuint> (_pIMPL->device.gl.attributes.position));
-                glEnableVertexAttribArray(static_cast<GLuint> (_pIMPL->device.gl.attributes.texCoord));
-                glEnableVertexAttribArray(static_cast<GLuint> (_pIMPL->device.gl.attributes.color));
-
-                glVertexAttribPointer(static_cast<GLuint> (_pIMPL->device.gl.attributes.position), 2, GL_FLOAT, GL_FALSE, 20, reinterpret_cast<const void *> (0));
-                glVertexAttribPointer(static_cast<GLuint> (_pIMPL->device.gl.attributes.texCoord), 2, GL_FLOAT, GL_FALSE, 20, reinterpret_cast<const void *> (8));
-                glVertexAttribPointer(static_cast<GLuint> (_pIMPL->device.gl.attributes.color), 4, GL_UNSIGNED_BYTE, GL_TRUE, 20, reinterpret_cast<const void *> (16));
+                auto vao = graphics::vertex_array({attribs, 3, bindings, 1, &ebo});
 
                 if (glGetError() != GL_NO_ERROR) {
                     _onError("Error preparing Vertex Array Object!");
@@ -395,11 +350,11 @@ namespace nk {
 
                 std::swap(_pIMPL->device.gl.buffers.vbo, vbo);
                 std::swap(_pIMPL->device.gl.buffers.ebo, ebo);
-                _pIMPL->device.gl.vao = vao;
+                std::swap(_pIMPL->device.gl.vao, vao);
 
-                glBindVertexArray(0);                
-                glBindBuffer(GL_ARRAY_BUFFER, 0);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
+                graphics::vertex_array::getDefault().bind();
+                graphics::buffer::getDefault().bind(graphics::buffer_target::ARRAY);
+                graphics::buffer::getDefault().bind(graphics::buffer_target::ELEMENT);
             }          
         }
 

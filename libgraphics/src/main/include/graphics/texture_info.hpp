@@ -16,7 +16,7 @@ namespace graphics {
         std::size_t layers;
         std::size_t levels;
 
-        sampler_info samplerInfo;
-        internal_format format;
+        graphics::sampler_info samplerInfo;
+        graphics::internal_format format;
     };
 }

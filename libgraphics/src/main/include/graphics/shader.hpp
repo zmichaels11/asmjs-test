@@ -1,12 +1,11 @@
 #pragma once
 
+#include "graphics/program.hpp"
 #include "graphics/shader_info.hpp"
 
 namespace graphics {
-    class program;
-
     class shader {
-        shader_info _info;
+        graphics::shader_info _info;
         unsigned int _handle;
 
         shader(const shader&) = delete;
@@ -26,6 +25,6 @@ namespace graphics {
 
         shader& operator=(shader&&) = default;
 
-        const shader_info& getInfo() const;
+        const graphics::shader_info& getInfo() const;
     };
 }

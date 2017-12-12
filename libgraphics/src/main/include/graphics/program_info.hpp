@@ -2,14 +2,15 @@
 
 #include <cstddef>
 
+#include "graphics/attribute_state_info.hpp"
+
 namespace graphics {
     class shader;
-    class attribute_state_info;
 
     struct program_info {
-        shader * pShaders;
+        graphics::shader ** ppShaders;
         std::size_t shaderCount;
-        attribute_state_info * pAttributeStates;
+        graphics::attribute_state_info * pAttributeStates;
         std::size_t attributeCount;
     };
 }
