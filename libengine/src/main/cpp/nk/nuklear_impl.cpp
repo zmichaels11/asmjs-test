@@ -21,9 +21,19 @@
 #define NK_IMPLEMENTATION
 #include "nk/nuklear.hpp"
 
+#include "graphics/address_mode.hpp"
+
 #include "graphics/buffer.hpp"
+#include "graphics/buffer_info.hpp"
 #include "graphics/buffer_target.hpp"
 #include "graphics/buffer_usage.hpp"
+
+#include "graphics/internal_format.hpp"
+#include "graphics/mag_filter.hpp"
+#include "graphics/min_filter.hpp"
+
+#include "graphics/texture.hpp"
+#include "graphics/texture_info.hpp"
 
 namespace nk {
     namespace {
@@ -121,8 +131,6 @@ namespace nk {
         glDeleteVertexArrays(1, &device.gl.vao);
 
         glDeleteProgram(device.gl.program);
-
-        glDeleteTextures(1, &device.gl.fontTexture);
 
         _pWIN = nullptr;
         _pIMPL = nullptr;        
@@ -401,26 +409,27 @@ namespace nk {
         }
 
         void _nkUploadAtlas(const void * image, int width, int height) {
-            if (_pIMPL->device.gl.fontTexture) {
-                glDeleteTextures(1, &_pIMPL->device.gl.fontTexture);
-            }
+            graphics::texture fontTexture({
+                {static_cast<std::size_t> (width), static_cast<std::size_t> (height), 1},
+                1, 1,
+                {
+                    {graphics::mag_filter::NEAREST, graphics::min_filter::NEAREST},
+                    {graphics::address_mode::CLAMP_TO_EDGE, graphics::address_mode::CLAMP_TO_EDGE, graphics::address_mode::CLAMP_TO_EDGE},
+                    {-1000.0F, 1000.0F}
+                },
+                graphics::internal_format::RGBA8
+            });
 
-            glGenTextures(1, &_pIMPL->device.gl.fontTexture);
-
-            glBindTexture(GL_TEXTURE_2D, _pIMPL->device.gl.fontTexture);
-            
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);            
-
-            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, static_cast<GLsizei> (width), static_cast<GLsizei> (height), 0, GL_RGBA, GL_UNSIGNED_BYTE, image);
-
-            glBindTexture(GL_TEXTURE_2D, 0);
+            fontTexture.subImage(0, 0, 0, 0, width, height, 1, {
+                graphics::pixel_type::UNSIGNED_BYTE,
+                graphics::pixel_format::RGBA,
+                const_cast<void*> (image)});
 
             if (glGetError() != GL_NO_ERROR) {
                 _onError("Error preparing Font Atlas!");
             }
+
+            std::swap(_pIMPL->device.gl.fontTexture, fontTexture);
         }
 
         void _nkFontStashBegin(nk_font_atlas ** ppAtlas) {
@@ -436,7 +445,7 @@ namespace nk {
 
             _nkUploadAtlas(image, w, h);
 
-            nk_font_atlas_end(&_pIMPL->device.atlas, nk_handle_id((int)_pIMPL->device.gl.fontTexture), &_pIMPL->device.null);  
+            nk_font_atlas_end(&_pIMPL->device.atlas, nk_handle_id(_pIMPL->device.gl.fontTexture), &_pIMPL->device.null);  
 
             if (_pIMPL->device.atlas.default_font) {                
                 nk_style_set_font(&_pIMPL->context, &_pIMPL->device.atlas.default_font->handle);

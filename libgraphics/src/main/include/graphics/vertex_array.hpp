@@ -25,6 +25,10 @@ namespace graphics {
         vertex_array& operator=(vertex_array&&) = default;        
 
         void bind() const;
+
+        inline operator int() const {
+            return _handle;
+        }
     };
 
 }

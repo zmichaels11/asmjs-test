@@ -43,5 +43,9 @@ namespace graphics {
         void bindRange(unsigned int index, long offset, std::size_t size) const;
 
         const buffer_info& getInfo() const;
+
+        inline operator int() const {
+            return _handle;
+        }
     };
 }

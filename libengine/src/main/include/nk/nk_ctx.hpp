@@ -14,6 +14,7 @@
 #include "nk/nuklear.hpp"
 
 #include "graphics/buffer.hpp"
+#include "graphics/texture.hpp"
 
 namespace nk {
     constexpr std::size_t MAX_TEXT = 1024;
@@ -58,7 +59,7 @@ namespace nk {
 
                 unsigned int vao;
                 unsigned int program;
-                unsigned int fontTexture;
+                graphics::texture fontTexture;
 
                 struct attrib_t {
                     int position;

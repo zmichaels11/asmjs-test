@@ -34,6 +34,10 @@ namespace graphics {
 
         void bind(unsigned int unit) const;
 
-        void subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const;
+        void subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const;        
+
+        inline operator int() const {
+            return _handle;
+        }
     };
 }
