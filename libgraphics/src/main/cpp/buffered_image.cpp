@@ -62,17 +62,16 @@ namespace graphics {
     }
 
     void buffered_image::setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimage) {
-        const auto scale = _pixelSize;
-        const auto lineSize = w * scale;
-
+        auto scale = _pixelSize;
+        auto lineSize = w * scale;
         auto src = reinterpret_cast<const unsigned char *> (subimage.getData());
         auto dst = _data.get();
 
         for (int i = 0; i < h; i++) {
-            const auto srcOff = i * subimage.getWidth();
-            const auto dstOff = (y + i) * getWidth() + x;
-            const auto lineSrc = src + srcOff * scale;
-            const auto lineDst = dst + dstOff * scale;
+            auto srcOff = i * subimage.getWidth();
+            auto dstOff = (y + i) * getWidth() + x;
+            auto lineSrc = src + srcOff * scale;
+            auto lineDst = dst + dstOff * scale;
 
             std::memcpy(lineDst, lineSrc, lineSize);
         }

@@ -58,7 +58,7 @@ namespace graphics {
 
         for (auto it = info.pAttachments; it != (info.pAttachments + info.attachmentCount); it++) {
             if (it->pRenderbuffer != nullptr) {
-                const auto rbInfo = it->pRenderbuffer->getInfo();                
+                auto rbInfo = it->pRenderbuffer->getInfo();                
                 GLenum attachId;                
 
                 if (_isDepth(rbInfo.format)) {

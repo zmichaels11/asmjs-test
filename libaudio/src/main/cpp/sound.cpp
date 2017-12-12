@@ -41,21 +41,21 @@ namespace audio {
             return;
         }
 
-        std::vector<buffer> ready;
-        bool eof;
+        auto ready = std::vector<buffer>();
+        auto eof = false;
 
         if (!_source.unqueueBuffers(ready)) {
             return;
         }
 
         for (auto&& buffer: ready) {
-            char transfer[_bufferSize];                        
+            auto transfer = std::make_unique<char[]> (_bufferSize);
 
             if (_state == sound_state::PLAYING) {
-                std::size_t size = _bufferSize;
-                bool eof = !_channel->read(transfer, size);
+                auto size = _bufferSize;
+                auto eof = !_channel->read(transfer.get(), size);
                 
-                buffer.setData(_format, transfer, size, _sampleRate);
+                buffer.setData(_format, transfer.get(), size, _sampleRate);
                 _source.queueBuffer(buffer);
 
                 if (eof) {
@@ -63,11 +63,11 @@ namespace audio {
                     break;
                 }
             } else {
-                char * pTfr = transfer;
-                char * end = transfer + _bufferSize;
+                auto pTfr = transfer.get();
+                auto end = transfer.get() + _bufferSize;
 
                 while (pTfr != end) {
-                    std::size_t remaining = end - pTfr;
+                    auto remaining = static_cast<std::size_t> (end - pTfr);
 
                     if (!_channel->read(pTfr, remaining)) {
                         _channel->seek(_loopSample);
@@ -77,7 +77,7 @@ namespace audio {
                     }
                 }
 
-                buffer.setData(_format, transfer, _bufferSize, _sampleRate);
+                buffer.setData(_format, transfer.get(), _bufferSize, _sampleRate);
                 _source.queueBuffer(buffer);
             }
         }
@@ -109,11 +109,11 @@ namespace audio {
 
     void sound::play() {                
         for (int i = 0; i < 3; i++) {
-            char transfer[_bufferSize];
-            std::size_t size = _bufferSize;
-            bool eof = !_channel->read(transfer, size);
+            auto transfer = std::make_unique<char[]> (_bufferSize);
+            auto size = _bufferSize;
+            auto eof = !_channel->read(transfer.get(), size);
 
-            _buffers[i].setData(_format, transfer, size, _sampleRate);
+            _buffers[i].setData(_format, transfer.get(), size, _sampleRate);
             _source.queueBuffer(_buffers[i]);
 
             if (eof) {
@@ -127,12 +127,12 @@ namespace audio {
 
     void sound::loop() {
         for (int i = 0; i < 3; i++) {
-            char transfer[_bufferSize];
-            char * pTfr = transfer;
-            char * end = transfer + _bufferSize;
+            auto transfer = std::make_unique<char[]> (_bufferSize);
+            auto pTfr = transfer.get();
+            auto end = transfer.get() + _bufferSize;
             
             while (pTfr != end) {
-                std::size_t remaining = end - pTfr;
+                auto remaining = static_cast<std::size_t> (end - pTfr);
 
                 if (!_channel->read(pTfr, remaining)) {
                     _channel->seek(_loopSample);
@@ -142,7 +142,7 @@ namespace audio {
                 }
             }
 
-            _buffers[i].setData(_format, transfer, _bufferSize, _sampleRate);
+            _buffers[i].setData(_format, transfer.get(), _bufferSize, _sampleRate);
             _source.queueBuffer(_buffers[i]);
         }
 

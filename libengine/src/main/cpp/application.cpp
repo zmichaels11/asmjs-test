@@ -37,7 +37,7 @@ namespace {
             ALCdevice * pDevice;
             ALCcontext * pContext;
         } oal;
-
+        
         std::unique_ptr<nk::nk_ctx> nuklear;     
 
         native_resources() {}

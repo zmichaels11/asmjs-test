@@ -38,7 +38,7 @@ namespace audio {
     }
 
     int source::getBuffersQueued() const {
-        int out = 0;
+        int out;
 
         alGetSourcei(_handle, AL_BUFFERS_QUEUED, &out);
 
@@ -46,7 +46,7 @@ namespace audio {
     }
 
     int source::unqueueBuffers(std::vector<buffer>& out) const {
-        int nbuffers = 0;
+        int nbuffers;
 
         alGetSourcei(_handle, AL_BUFFERS_PROCESSED, &nbuffers);
 

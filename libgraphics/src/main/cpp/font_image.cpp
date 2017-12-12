@@ -32,7 +32,7 @@ namespace graphics {
             unsigned int _height;
 
             font_resources_impl(const font_info& info) {
-                const auto fontData = util::readAll(info.fontFile);
+                auto fontData = util::readAll(info.fontFile);
 
                 stbtt_InitFont(&_fontInfo, reinterpret_cast<const unsigned char *> (fontData.get()), 0);
                 _scale = stbtt_ScaleForPixelHeight(&_fontInfo, info.charHeight);
@@ -46,8 +46,8 @@ namespace graphics {
                 _lineSpacing = _ascent - _descent + _lineGap;
                 _cdata = std::make_unique<stbtt_bakedchar[]> (info.charCount);
 
-                const auto neededArea = info.charCount * info.charHeight * info.charHeight;
-                bool flipflop = false;
+                auto neededArea = info.charCount * info.charHeight * info.charHeight;
+                auto flipflop = false;
                 int w = 1;
                 int h = 1;
 

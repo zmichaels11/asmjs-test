@@ -3,6 +3,7 @@
 #include <GLES3/gl3.h>
 
 #include <iostream>
+#include <memory>
 #include <string>
 
 #include "graphics/shader_info.hpp"
@@ -19,8 +20,8 @@ namespace graphics {
         _info = info;
         _handle = glCreateShader(static_cast<GLenum> (info.type));
 
-        const char * src = info.src.c_str();
-        int len = info.src.length();
+        auto src = reinterpret_cast<const GLchar*> (info.src.c_str());
+        auto len = static_cast<GLint> (info.src.length());
 
         glShaderSource(_handle, 1, &src, &len);
         glCompileShader(_handle);
@@ -30,14 +31,14 @@ namespace graphics {
         glGetShaderiv(_handle, GL_COMPILE_STATUS, &compileStatus);
 
         if (compileStatus != GL_TRUE) {
-            int infoLogLen = 0;
+            int infoLogLen;
 
             glGetShaderiv(_handle, GL_INFO_LOG_LENGTH, &infoLogLen);
 
-            char infoLog[infoLogLen];
+            auto infoLog = std::make_unique<char[]> (infoLogLen);
 
-            glGetShaderInfoLog(_handle, infoLogLen, nullptr, infoLog);
-            _onError(infoLog);
+            glGetShaderInfoLog(_handle, infoLogLen, nullptr, infoLog.get());
+            _onError(infoLog.get());
         }
     }
 

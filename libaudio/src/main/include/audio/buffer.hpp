@@ -1,14 +1,12 @@
 #pragma once
 
-#include <AL/al.h>
-
 #include "audio/format.hpp"
 
 namespace audio {
     class source;
 
     class buffer {
-        ALuint _handle;
+        unsigned int _handle;
         bool _transient;
         friend class source;
 
@@ -19,7 +17,7 @@ namespace audio {
     public:
         buffer();
 
-        buffer(ALuint handle) : 
+        buffer(unsigned int handle) : 
             _handle(handle), 
             _transient(true) {}        
 

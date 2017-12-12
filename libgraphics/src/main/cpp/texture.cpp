@@ -19,7 +19,7 @@ namespace graphics {
     texture::texture(const texture_info& info) {
         glGenTextures(1, &_handle);
         
-        const auto internalFormat = static_cast<GLenum> (info.format);
+        auto internalFormat = static_cast<GLenum> (info.format);
 
         if (info.extent.height > 1) {
             if (info.extent.depth > 1) {

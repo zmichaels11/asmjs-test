@@ -1,14 +1,12 @@
 #pragma once
 
-#include <AL/al.h>
-
 #include <vector>
 
 #include "audio/buffer.hpp"
 
 namespace audio {
     class source {
-        ALuint _handle;
+        unsigned int _handle;
 
         source(const source&) = delete;
 

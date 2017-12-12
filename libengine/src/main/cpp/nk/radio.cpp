@@ -5,7 +5,7 @@
 namespace nk {
     bool radio_label(const char* title, bool* pActive) {
         auto ctx = nk::getContext();
-        int active = *pActive;
+        auto active = static_cast<int> (*pActive);
         auto out =  nk_radio_label(&ctx->context, title, &active);
 
         *pActive = active;

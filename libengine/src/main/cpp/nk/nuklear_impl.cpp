@@ -145,7 +145,7 @@ namespace nk {
 
         nk_input_begin(&context);
 
-        for (decltype(device.textLen) i = 0; i < device.textLen; i++) {
+        for (int i = 0; i < device.textLen; i++) {
             nk_input_unicode(&context, device.text[i]);
         }
 
@@ -157,8 +157,8 @@ namespace nk {
         nk_input_key(&context, NK_KEY_DOWN, glfwGetKey(_pWIN, GLFW_KEY_DOWN) == GLFW_PRESS);
 
         {
-            bool home = glfwGetKey(_pWIN, GLFW_KEY_HOME) == GLFW_PRESS;
-            bool end = glfwGetKey(_pWIN, GLFW_KEY_END) == GLFW_PRESS;
+            auto home = glfwGetKey(_pWIN, GLFW_KEY_HOME) == GLFW_PRESS;
+            auto end = glfwGetKey(_pWIN, GLFW_KEY_END) == GLFW_PRESS;
 
             nk_input_key(&context, NK_KEY_TEXT_START, home);
             nk_input_key(&context, NK_KEY_TEXT_END, end);
@@ -283,10 +283,10 @@ namespace nk {
 
             glBindTexture(GL_TEXTURE_2D, static_cast<GLuint> (cmd->texture.id));                
 
-            auto sx = (GLint) (cmd->clip_rect.x * size.scaleW);
-            auto sy = (GLint) ((size.height - (GLint)(cmd->clip_rect.y + cmd->clip_rect.h)) * size.scaleH);
-            auto sw = (GLint) (cmd->clip_rect.w * size.scaleW);
-            auto sh = (GLint) (cmd->clip_rect.h * size.scaleH);
+            auto sx = static_cast<GLint>(cmd->clip_rect.x * size.scaleW);
+            auto sy = static_cast<GLint>((size.height - static_cast<GLint>(cmd->clip_rect.y + cmd->clip_rect.h)) * size.scaleH);
+            auto sw = static_cast<GLint>(cmd->clip_rect.w * size.scaleW);
+            auto sh = static_cast<GLint>(cmd->clip_rect.h * size.scaleH);
 
             glScissor(sx, sy, sw, sh);
             glDrawElements(GL_TRIANGLES, cmd->elem_count, GL_UNSIGNED_SHORT, offset);
@@ -307,7 +307,7 @@ namespace nk {
                 auto vsh = graphics::shader({graphics::shader_type::VERTEX, VERTEX_SHADER});
                 auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, FRAGMENT_SHADER});
 
-                graphics::shader* shaders[] = {&vsh, &fsh};
+                decltype(&vsh) shaders[] = {&vsh, &fsh};
 
                 graphics::attribute_state_info attribs[] = {
                     {"Position", 0},
@@ -364,7 +364,7 @@ namespace nk {
         }
 
         void _nkUploadAtlas(const void * image, int width, int height) {
-            graphics::texture fontTexture({
+            auto fontTexture = graphics::texture({
                 {static_cast<std::size_t> (width), static_cast<std::size_t> (height), 1},
                 1, 1,
                 {
@@ -378,11 +378,7 @@ namespace nk {
             fontTexture.subImage(0, 0, 0, 0, width, height, 1, {
                 graphics::pixel_type::UNSIGNED_BYTE,
                 graphics::pixel_format::RGBA,
-                const_cast<void*> (image)});
-
-            if (glGetError() != GL_NO_ERROR) {
-                _onError("Error preparing Font Atlas!");
-            }
+                const_cast<void*> (image)});            
 
             std::swap(_pIMPL->device.gl.fontTexture, fontTexture);
         }
@@ -396,7 +392,7 @@ namespace nk {
 
         void _nkFontStashEnd() {
             int w, h;
-            const auto image = nk_font_atlas_bake(&_pIMPL->device.atlas, &w, &h, NK_FONT_ATLAS_RGBA32);                        
+            auto image = nk_font_atlas_bake(&_pIMPL->device.atlas, &w, &h, NK_FONT_ATLAS_RGBA32);                        
 
             _nkUploadAtlas(image, w, h);
 
@@ -422,7 +418,7 @@ namespace nk {
         }
 
         void _nkClipboardPaste(nk_handle user, nk_text_edit * edit) {
-            const auto text = glfwGetClipboardString(_pWIN);
+            auto text = glfwGetClipboardString(_pWIN);
 
             if (text) {
                 nk_textedit_paste(edit, text, nk_strlen(text));

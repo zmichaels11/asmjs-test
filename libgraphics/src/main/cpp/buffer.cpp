@@ -19,8 +19,8 @@ namespace graphics {
         
         glGenBuffers(1, &_handle);
 
-        const auto tgt = static_cast<GLenum> (info.target);
-        const auto usage = static_cast<GLenum> (info.usage);
+        auto tgt = static_cast<GLenum> (info.target);
+        auto usage = static_cast<GLenum> (info.usage);
 
         glBindBuffer(tgt, _handle);
         glBufferData(tgt, info.initialData.size, info.initialData.pData, usage);
@@ -40,7 +40,7 @@ namespace graphics {
     }
 
     void buffer::subData(long offset, const void * src, std::size_t size) const {
-        const auto tgt = static_cast<GLenum> (_info.target);
+        auto tgt = static_cast<GLenum> (_info.target);
 
         glBindBuffer(tgt, _handle);
         glBufferSubData(tgt, offset, size, src);
