@@ -42,6 +42,7 @@ model {
 			}
 
 			target("linux64") {
+				cCompiler.executable = 'x86_64-linux-gnu-gcc'
 				cppCompiler.executable = 'x86_64-linux-gnu-g++'
 				linker.executable = 'x86_64-linux-gnu-g++'
 				assembler.executable = 'x86_64-linux-gnu-as'
@@ -49,6 +50,7 @@ model {
 			}
 
 			target("windows64") {
+				cCompiler.executable = 'x86_64-w64-mingw32-gcc'
 				cppCompiler.executable = 'x86_64-w64-mingw32-g++'
                 linker.executable = 'x86_64-w64-mingw32-g++'
                 assembler.executable = 'x86_64-w64-mingw32-as'
@@ -118,9 +120,37 @@ model {
 		}
 	}	
 
-	repositories {
+	repositories {		
 		libs (PrebuiltLibraries) {
-			glfw3 {
+			linux64_lmdb {
+				headers.srcDir file(projectDir.path + '/liblmdb')
+				binaries.withType(StaticLibraryBinary) {
+					staticLibraryFile = file(projectDir.path, '/liblmdb/build/linux64/liblmdb.a')
+				}
+			}
+
+			asmjs_lmdb {
+				headers.srcDir file(projectDir.path + '/liblmdb')
+				binaries.withType(StaticLibraryBinary) {
+					staticLibraryFile = file(projectDir.path, '/liblmdb/build/asmjs/liblmdb.bc')
+				}
+			}
+
+			binaryen_lmdb {
+				headers.srcDir file(projectDir.path + '/liblmdb')
+				binaries.withType(StaticLibraryBinary) {
+					staticLibraryFile = file(projectDir.path, '/liblmdb/build/binaryen/liblmdb.bc')
+				}
+			}
+
+			windows64_lmdb {
+				headers.srcDir file(projectDir.path + '/liblmdb/windows64/include')
+				binaries.withType(SharedLibraryBinary) {
+					sharedLibraryFile = file(projectDir.path + '/liblmdb/build/windows64/liblmdb.a')
+				}
+			}
+			
+			windows64_glfw3 {
 				headers.srcDir file(projectDir.path + '/lib/glfw3/win64/include')
 				binaries.withType(SharedLibraryBinary) {
 					sharedLibraryFile = file(projectDir.path + '/lib/glfw3/win64/glfw3.dll')
