@@ -1,6 +1,6 @@
 #include "nk/property.hpp"
 
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 namespace nk {
     void property(const char* name, int min, int* pValue, int max, int step, float incPerPixel) {

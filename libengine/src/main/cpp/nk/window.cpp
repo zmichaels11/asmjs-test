@@ -1,6 +1,6 @@
 #include "nk/window.hpp"
 
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 namespace nk {    
     window::window(const window_info& info) {

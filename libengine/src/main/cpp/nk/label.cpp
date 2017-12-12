@@ -1,7 +1,7 @@
 #include "nk/label.hpp"
 #include "nk/text_align.hpp"
 
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 namespace nk {
     void label(const char* title, text_align align) {

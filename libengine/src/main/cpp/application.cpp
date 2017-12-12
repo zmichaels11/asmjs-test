@@ -18,7 +18,7 @@
 #include <memory>
 #include <string>
 
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 namespace {    
     void _onError(const std::string& msg) {

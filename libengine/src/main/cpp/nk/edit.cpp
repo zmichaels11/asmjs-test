@@ -1,6 +1,6 @@
 #include "nk/edit.hpp"
 
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 namespace nk {
     namespace {

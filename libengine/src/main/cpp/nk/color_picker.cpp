@@ -1,7 +1,7 @@
 #include "nk/color_picker.hpp"
 
 #include "nk/color.hpp"
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 namespace nk {
     nk::color color_picker(const nk::color& color) {

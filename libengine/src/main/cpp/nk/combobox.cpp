@@ -1,6 +1,6 @@
 #include "nk/combobox.hpp"
 
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 namespace nk {
     combobox_color::combobox_color(const combobox_color_info& info) {

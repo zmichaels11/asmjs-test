@@ -3,7 +3,7 @@
 #include "nk/rect.hpp"
 #include "nk/vec2.hpp"
 
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 namespace nk {
     namespace widget {

@@ -1,4 +1,4 @@
-#include "nuklear/nk_ctx.hpp"
+#include "nk/nk_ctx.hpp"
 
 #include <cstddef>
 #include <cstring>
@@ -18,7 +18,7 @@
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
-#include "nuklear/nuklear.hpp"
+#include "nk/nuklear.hpp"
 
 namespace nk {
     namespace {
