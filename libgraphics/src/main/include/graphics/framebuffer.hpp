@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graphics/framebuffer_info.hpp"
+#include "graphics/pixel_info.hpp"
 
 namespace graphics {
     class framebuffer {
@@ -25,5 +26,7 @@ namespace graphics {
         const framebuffer_info& getInfo() const;
 
         void bind() const;
+
+        static void readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info);
     };
 }

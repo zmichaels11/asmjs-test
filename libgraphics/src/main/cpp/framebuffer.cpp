@@ -108,4 +108,8 @@ namespace graphics {
     const framebuffer_info& framebuffer::getInfo() const {
         return _info;
     }
+
+    void framebuffer::readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info) {
+        glReadPixels(x, y, width, height, static_cast<GLenum> (info.format), static_cast<GLenum> (info.type), info.pData);
+    }
 }

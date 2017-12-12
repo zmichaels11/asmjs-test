@@ -26,13 +26,13 @@ namespace graphics {
 
         buffer(buffer&&) = default;
 
-        buffer& operator=(buffer&&) = default;
+        buffer& operator=(buffer&&) = default;        
+
+        void bind(buffer_target target) const;
 
         inline void bind() const {
             bind(_info.target);
         }
-
-        void bind(buffer_target target) const;
 
         void invalidate() const;
 
