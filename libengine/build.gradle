@@ -7,6 +7,8 @@ model {
 
             sources {
                 cpp {
+                    lib project: ':libgraphics', library: 'graphics', linkage: 'static'
+                    
                     source {
                         srcDir 'src/main/cpp'
                         include '**/*.cpp'
