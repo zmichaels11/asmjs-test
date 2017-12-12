@@ -53,7 +53,7 @@ namespace nk {
             {NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8, 16},
             {NK_VERTEX_LAYOUT_END}};
 
-        static const GLchar * VERTEX_SHADER =
+        static const GLchar * VERTEX_SHADER_ES300 =
             "#version 300 es\n"
             "uniform mat4 ProjMtx;\n"
             "in vec2 Position;\n"
@@ -67,7 +67,7 @@ namespace nk {
             "   gl_Position = ProjMtx * vec4(Position, 0, 1);\n"
             "}\n";
 
-        static const GLchar * FRAGMENT_SHADER =
+        static const GLchar * FRAGMENT_SHADER_ES300 =
             "#version 300 es\n"
             "precision mediump float;\n"
             "uniform sampler2D Texture;\n"
@@ -75,7 +75,8 @@ namespace nk {
             "in vec4 Frag_Color;\n"
             "out vec4 Out_Color;\n"
             "void main(){\n"
-            "   Out_Color = Frag_Color * texture(Texture, Frag_UV.st);\n"            
+            "   vec4 color = Frag_Color * texture(Texture, Frag_UV.st);\n"            
+            "   Out_Color = vec4(color.rgb * color.a, color.a);\n"            
             "}\n";
 
         nk_ctx * _pIMPL;
@@ -226,7 +227,7 @@ namespace nk {
         //TODO: switch to premultiplied alpha
         glEnable(GL_BLEND);
         glBlendEquation(GL_FUNC_ADD);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_SCISSOR_TEST);
@@ -304,8 +305,8 @@ namespace nk {
             nk_buffer_init_default(&_pIMPL->device.cmds);
 
             {
-                auto vsh = graphics::shader({graphics::shader_type::VERTEX, VERTEX_SHADER});
-                auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, FRAGMENT_SHADER});
+                auto vsh = graphics::shader({graphics::shader_type::VERTEX, VERTEX_SHADER_ES300});
+                auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, FRAGMENT_SHADER_ES300});
 
                 decltype(&vsh) shaders[] = {&vsh, &fsh};
 
