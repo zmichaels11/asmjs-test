@@ -7,7 +7,7 @@ model {
 
             sources {
                 cpp {
-                    lib project: ':libgraphics', library: 'graphics', linkage: 'static'
+                    lib project: ':libgraphics', library: 'graphics'
                     
                     source {
                         srcDir 'src/main/cpp'
@@ -19,6 +19,10 @@ model {
                         include '**/*.hpp'
                     }
                 }
+            }
+
+            binaries.withType(SharedLibraryBinary) { binary -> 
+                buildable = false
             }
         }
     }

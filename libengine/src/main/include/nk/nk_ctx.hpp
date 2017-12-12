@@ -13,6 +13,8 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #include "nk/nuklear.hpp"
 
+#include "graphics/buffer.hpp"
+
 namespace nk {
     constexpr std::size_t MAX_TEXT = 1024;
 
@@ -50,8 +52,8 @@ namespace nk {
             
             struct gl_objs_t {
                 struct buffers_t {
-                    unsigned int vbo;
-                    unsigned int ebo;
+                    graphics::buffer vbo;
+                    graphics::buffer ebo;
                 } buffers;
 
                 unsigned int vao;

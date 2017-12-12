@@ -6,6 +6,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 
 #define GLFW_INCLUDE_ES3
 #include <GLFW/glfw3.h>
@@ -19,6 +20,10 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
 #include "nk/nuklear.hpp"
+
+#include "graphics/buffer.hpp"
+#include "graphics/buffer_target.hpp"
+#include "graphics/buffer_usage.hpp"
 
 namespace nk {
     namespace {
@@ -111,10 +116,7 @@ namespace nk {
     nk_ctx::~nk_ctx() {
         nk_font_atlas_clear(&device.atlas);
         nk_free(&context);
-        nk_buffer_free(&device.cmds);
-
-        glDeleteBuffers(1, &device.gl.buffers.vbo);
-        glDeleteBuffers(1, &device.gl.buffers.ebo);
+        nk_buffer_free(&device.cmds);        
 
         glDeleteVertexArrays(1, &device.gl.vao);
 
@@ -255,14 +257,12 @@ namespace nk {
             }
 
             glBindVertexArray(device.gl.vao);
-        
-            glBindBuffer(GL_ARRAY_BUFFER, device.gl.buffers.vbo);
-            glBufferData(GL_ARRAY_BUFFER, MAX_VERTEX_BUFFER, nullptr, GL_STREAM_DRAW);
-            glBufferSubData(GL_ARRAY_BUFFER, 0, MAX_VERTEX_BUFFER, vertices.get());
-
-            glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, device.gl.buffers.ebo);
-            glBufferData(GL_ELEMENT_ARRAY_BUFFER, MAX_ELEMENT_BUFFER, nullptr, GL_STREAM_DRAW);
-            glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, MAX_ELEMENT_BUFFER, elements.get());    
+                    
+            device.gl.buffers.vbo.invalidate();
+            device.gl.buffers.vbo.subData(0, vertices.get(), MAX_VERTEX_BUFFER);
+            
+            device.gl.buffers.ebo.invalidate();
+            device.gl.buffers.ebo.subData(0, elements.get(), MAX_ELEMENT_BUFFER);
         }            
 
         const nk_draw_command * cmd;
@@ -362,15 +362,16 @@ namespace nk {
             }
 
             {
-                GLuint vbo, ebo, vao;
+                GLuint vao;
 
-                glGenBuffers(1, &vbo);
-                glGenBuffers(1, &ebo);
+                graphics::buffer vbo({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_VERTEX_BUFFER}});
+                graphics::buffer ebo({graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_ELEMENT_BUFFER}});
+
                 glGenVertexArrays(1, &vao);
 
                 glBindVertexArray(vao);
-                glBindBuffer(GL_ARRAY_BUFFER, vbo);
-                glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
+                vbo.bind();
+                ebo.bind();
 
                 glEnableVertexAttribArray(static_cast<GLuint> (_pIMPL->device.gl.attributes.position));
                 glEnableVertexAttribArray(static_cast<GLuint> (_pIMPL->device.gl.attributes.texCoord));
@@ -384,11 +385,11 @@ namespace nk {
                     _onError("Error preparing Vertex Array Object!");
                 }
 
-                _pIMPL->device.gl.buffers.vbo = vbo;
-                _pIMPL->device.gl.buffers.ebo = ebo;
+                std::swap(_pIMPL->device.gl.buffers.vbo, vbo);
+                std::swap(_pIMPL->device.gl.buffers.ebo, ebo);
                 _pIMPL->device.gl.vao = vao;
 
-                glBindVertexArray(0);
+                glBindVertexArray(0);                
                 glBindBuffer(GL_ARRAY_BUFFER, 0);
                 glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
             }          
