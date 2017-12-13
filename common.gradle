@@ -38,6 +38,17 @@ model {
 
 				linker.withArguments { args -> 
 					args.add(0, "$CXX_OPT")
+
+					int dummyIdx = -1;
+					for (int i = 0; i < args.size(); i++) {
+						if (args[i].endsWith('dummy.so') || args[i].endsWith('dummy.dll')) {
+							dummyIdx = i;
+						}
+					}
+					
+					if (dummyIdx != -1) {
+						args.remove(dummyIdx);
+					}
 				}
 			}
 
@@ -90,6 +101,7 @@ model {
 					args.remove '-m64'
 					args.add(0, '-O2')
 
+					int dummyIdx = -1;
 					for (int i = 0; i < args.size(); i++) {
 						args[i] = args[i].replace('.a', '.bc')
                         
@@ -98,6 +110,14 @@ model {
 								args[i+1] += '.html'
 							}                            
                         }
+
+						if (args[i].endsWith('dummy.so')) {
+							dummyIdx = i;
+						}
+					}
+					
+					if (dummyIdx != -1) {
+						args.remove(dummyIdx);
 					}
 				}
 			}
@@ -118,45 +138,6 @@ model {
 				linker.withArguments { args ->					
 					args << "-s"
 					args << "BINARYEN=1"
-				}
-			}
-		}
-	}	
-
-	repositories {		
-		libs (PrebuiltLibraries) {
-			linux64_lmdb {
-				headers.srcDir file(projectDir.path + '/liblmdb')
-				binaries.withType(StaticLibraryBinary) {
-					staticLibraryFile = file(projectDir.path, '/liblmdb/build/linux64/liblmdb.a')
-				}
-			}
-
-			asmjs_lmdb {
-				headers.srcDir file(projectDir.path + '/liblmdb')
-				binaries.withType(StaticLibraryBinary) {
-					staticLibraryFile = file(projectDir.path, '/liblmdb/build/asmjs/liblmdb.bc')
-				}
-			}
-
-			binaryen_lmdb {
-				headers.srcDir file(projectDir.path + '/liblmdb')
-				binaries.withType(StaticLibraryBinary) {
-					staticLibraryFile = file(projectDir.path, '/liblmdb/build/binaryen/liblmdb.bc')
-				}
-			}
-
-			windows64_lmdb {
-				headers.srcDir file(projectDir.path + '/liblmdb/windows64/include')
-				binaries.withType(SharedLibraryBinary) {
-					sharedLibraryFile = file(projectDir.path + '/liblmdb/build/windows64/liblmdb.a')
-				}
-			}
-			
-			windows64_glfw3 {
-				headers.srcDir file(projectDir.path + '/lib/glfw3/win64/include')
-				binaries.withType(SharedLibraryBinary) {
-					sharedLibraryFile = file(projectDir.path + '/lib/glfw3/win64/glfw3.dll')
 				}
 			}
 		}
