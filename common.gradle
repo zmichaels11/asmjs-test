@@ -57,7 +57,7 @@ model {
 				cppCompiler.executable = 'x86_64-linux-gnu-g++'
 				linker.executable = 'x86_64-linux-gnu-g++'
 				assembler.executable = 'x86_64-linux-gnu-as'
-				staticLibArchiver.executable = 'x86_64-linux-gnu-ar'
+				staticLibArchiver.executable = 'x86_64-linux-gnu-ar'				
 			}
 
 			target("windows64") {
@@ -66,15 +66,20 @@ model {
                 linker.executable = 'x86_64-w64-mingw32-g++'
                 assembler.executable = 'x86_64-w64-mingw32-as'
                 staticLibArchiver.executable = 'x86_64-w64-mingw32-ar'
+
+				cppCompiler.withArguments { args ->
+					args << "-DGLFW_DLL"
+					args << "-DUSE_EGL"
+				}
+
+				linker.withArguments { args -> 
+					args << '-static'
+				}
 			}
 		}
 
 		emscripten (Clang) {
-			eachPlatform {
-				cppCompiler.executable = 'em++'
-				linker.executable = 'em++'
-				staticLibArchiver.executable = 'em++'
-
+			eachPlatform {				
 				staticLibArchiver.withArguments { args -> 
                     args.remove '-rcs'
                     args.add(0, "$CXX_OPT")
@@ -122,9 +127,17 @@ model {
 				}
 			}
 
-			target ("asmjs") {}
+			target ("asmjs") {
+				cppCompiler.executable = 'em++'
+				linker.executable = 'em++'
+				staticLibArchiver.executable = 'em++'
+			}
 
 			target("binaryen") {
+				cppCompiler.executable = 'em++'
+				linker.executable = 'em++'
+				staticLibArchiver.executable = 'em++'
+
 				staticLibArchiver.withArguments { args ->
 					args << '-s'
 					args << 'BINARYEN=1'

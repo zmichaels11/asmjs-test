@@ -1,13 +1,31 @@
 model {
+    repositories {
+        libs (PrebuiltLibraries) {
+            openal_soft {
+                headers.srcDir file(projectDir.path + '/../share/src/openal-soft/include')
+                binaries.withType(SharedLibraryBinary) { binary ->
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/openal-soft/OpenAL32.dll')
+                    } else {
+                        sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.so')
+                    }
+                }
+            }
+        }
+    }
+
     components {
         audio(NativeLibrarySpec) {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
             targetPlatform 'linux64'
+            targetPlatform 'windows64'
 
             sources {
                 cpp {
                     source {
+                        lib library: 'openal_soft'
+
                         srcDir 'src/main/cpp'
                         include '**/*.cpp'
                     }

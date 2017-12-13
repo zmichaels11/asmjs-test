@@ -1,13 +1,53 @@
 model {
+    repositories {
+        libs (PrebuiltLibraries) {            
+            angle {
+                binaries.withType(SharedLibraryBinary) { binary -> 
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/angle/libGLESv2.dll')
+                    } else {
+                        sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.so')
+                    }
+                }
+            }
+            
+            glfw3 {
+				headers.srcDir file(projectDir.path + '/../share/src/glfw3/include')
+				binaries.withType(SharedLibraryBinary) { binary ->					
+					if (binary.targetPlatform.operatingSystem.windows) {						
+						sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/glfw3/glfw3.dll')						
+					} else {
+                        sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.so')
+                    }
+				}
+			}
+
+            openal_soft {
+                headers.srcDir file(projectDir.path + '/../share/src/openal-soft/include')
+                binaries.withType(SharedLibraryBinary) { binary ->
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/openal-soft/OpenAL32.dll')
+                    } else {
+                        sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.so')
+                    }
+                }
+            }
+        }
+    }
+    
     components {
         engine(NativeLibrarySpec) {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
             targetPlatform 'linux64'
+            targetPlatform 'windows64'
 
             sources {
                 cpp {
-                    lib project: ':libgraphics', library: 'graphics'
+                    lib library: 'glfw3'
+                    lib library: 'openal_soft'
+                    lib library: 'angle'
+                    lib project: ':libgraphics', library: 'graphics'                    
                     
                     source {
                         srcDir 'src/main/cpp'
@@ -19,10 +59,6 @@ model {
                         include '**/*.hpp'
                     }
                 }
-            }
-
-            binaries.withType(SharedLibraryBinary) { binary -> 
-                buildable = false
             }
         }
     }

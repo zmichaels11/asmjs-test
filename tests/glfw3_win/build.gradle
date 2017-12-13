@@ -1,0 +1,49 @@
+model {
+    repositories {
+        libs (PrebuiltLibraries) {            
+            angle {
+                binaries.withType(SharedLibraryBinary) { binary -> 
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/angle/libGLESv2.dll')
+                    } else {
+                        sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.so')
+                    }
+                }
+            }
+            
+            glfw3 {
+				headers.srcDir file(projectDir.path + '/../../share/src/glfw3/include')
+				binaries.withType(SharedLibraryBinary) { binary ->					
+					if (binary.targetPlatform.operatingSystem.windows) {						
+						sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/glfw3/glfw3.dll')						
+					} else {
+                        sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.so')
+                    }
+				}
+			}
+        }
+    }
+
+    components {
+        glfw3_test(NativeExecutableSpec) {            
+            targetPlatform 'windows64'
+
+            sources {
+                cpp {
+                    lib library: 'glfw3'                    
+                    lib library: 'angle'
+
+                    source {
+                        srcDir 'src/main/cpp'
+                        include '**/*.cpp'
+                    }
+
+                    exportedHeaders {
+                        srcDirs 'src/main/include'
+                        include '**/*.hpp'
+                    }
+                }
+            }            
+        }
+    }
+}
