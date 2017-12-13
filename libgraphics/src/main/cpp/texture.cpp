@@ -10,9 +10,23 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) {
+        void _onError(const std::string& msg) {
             std::cerr << msg << std::endl;
             __builtin_trap();
+        }
+
+        GLenum _getTarget(const texture_info& info) {
+            if (info.extent.height > 1) {
+                if (info.extent.depth > 1) {
+                    return GL_TEXTURE_3D; 
+                } else if (info.layers > 1) {
+                    return GL_TEXTURE_2D_ARRAY;
+                } else {
+                    return GL_TEXTURE_2D;
+                }
+            } else {
+                return GL_TEXTURE_2D;
+            }
         }
     }
 
@@ -20,34 +34,40 @@ namespace graphics {
         glGenTextures(1, &_handle);
         
         auto internalFormat = static_cast<GLenum> (info.format);
+        _target = _getTarget(info);
 
-        if (info.extent.height > 1) {
-            if (info.extent.depth > 1) {
-                _target = GL_TEXTURE_3D;
-                glBindTexture(GL_TEXTURE_3D, _handle);
-                glTexStorage3D(GL_TEXTURE_3D, info.levels, internalFormat, info.extent.width, info.extent.height, info.extent.depth);
-            } else if (info.layers > 1) {
-                _target = GL_TEXTURE_2D_ARRAY;
-                glBindTexture(GL_TEXTURE_2D_ARRAY, _handle);
-                glTexStorage3D(GL_TEXTURE_2D_ARRAY, info.levels, internalFormat, info.extent.width, info.extent.height, info.layers);
-            } else {
-                _target = GL_TEXTURE_2D;
-                glBindTexture(GL_TEXTURE_2D, _handle);
-                glTexStorage2D(GL_TEXTURE_2D, info.levels, internalFormat, info.extent.width, info.extent.height);
-            }
-        } else if (info.layers > 1) {
-            _target = GL_TEXTURE_2D;
-            glBindTexture(GL_TEXTURE_2D, _handle);
-            glTexStorage2D(GL_TEXTURE_2D, info.levels, internalFormat, info.extent.width, info.layers);
-        } else {
-            _target = GL_TEXTURE_2D;
-            glBindTexture(GL_TEXTURE_2D, _handle);
-            glTexStorage2D(GL_TEXTURE_2D, info.levels, internalFormat, info.extent.width, 1);
-        }        
+        glBindTexture(_target, _handle);
+
+        glTexParameteri(_target, GL_TEXTURE_MAG_FILTER, static_cast<GLenum> (info.samplerInfo.filters.mag));
+        glTexParameteri(_target, GL_TEXTURE_MIN_FILTER, static_cast<GLenum> (info.samplerInfo.filters.min));
+        glTexParameteri(_target, GL_TEXTURE_WRAP_S, static_cast<GLenum> (info.samplerInfo.addressing.wrapS));
+        glTexParameteri(_target, GL_TEXTURE_WRAP_T, static_cast<GLenum> (info.samplerInfo.addressing.wrapT));
+        glTexParameteri(_target, GL_TEXTURE_WRAP_R, static_cast<GLenum> (info.samplerInfo.addressing.wrapR));
+        glTexParameterf(_target, GL_TEXTURE_MAX_LOD, info.samplerInfo.lod.max);
+        glTexParameterf(_target, GL_TEXTURE_MIN_LOD, info.samplerInfo.lod.min);
+
+        switch (_target) {
+            case GL_TEXTURE_3D:                
+                glTexStorage3D(_target, info.levels, internalFormat, info.extent.width, info.extent.height, info.extent.depth);                
+                break;
+            case GL_TEXTURE_2D_ARRAY:
+                glTexStorage3D(_target, info.levels, internalFormat, info.extent.width, info.extent.height, info.layers);
+                break;
+            case GL_TEXTURE_2D:
+                glTexStorage2D(_target, info.levels, internalFormat, info.extent.width, info.extent.height);
+                break;
+            default:
+                _onError("Unsupported texture target!");
+        }
+
+        glBindTexture(_target, 0);
     }
 
     texture::~texture() {
-        glDeleteTextures(1, &_handle);
+        if (_handle) {
+            std::cout << "Deleting texture: " << _handle << std::endl;
+            glDeleteTextures(1, &_handle);
+        }
     }
 
     const texture_info& texture::getInfo() const {

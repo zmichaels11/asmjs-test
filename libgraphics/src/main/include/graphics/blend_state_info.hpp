@@ -15,5 +15,14 @@ namespace graphics {
         unsigned int colorWriteMask;
     };
 
+    inline blend_state_info blendStatePremultiplyAlpha() {
+        return {
+            true, 
+            graphics::blend_equation::ADD, graphics::blend_equation::ADD,
+            graphics::blend_function::ONE, graphics::blend_function::ONE_MINUS_SRC_ALPHA,
+            graphics::blend_function::ONE, graphics::blend_function::ONE_MINUS_SRC_ALPHA,
+            0xFFFF};
+    }
+
     void apply(const graphics::blend_state_info& info);
 }

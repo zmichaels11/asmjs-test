@@ -2,6 +2,7 @@ model {
     repositories {
         libs (PrebuiltLibraries) {            
             angle {
+                headers.srcDir file(projectDir.path + '/../share/src/angle/include')
                 binaries.withType(SharedLibraryBinary) { binary -> 
                     if (binary.targetPlatform.operatingSystem.windows) {
                         sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/angle/libGLESv2.dll')

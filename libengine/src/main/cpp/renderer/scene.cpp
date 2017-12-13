@@ -5,8 +5,11 @@
 #include <iostream>
 #include <memory>
 
+#include "graphics/blend_state_info.hpp"
 #include "graphics/clear_state_info.hpp"
 
+#include "renderer/image_layer.hpp"
+#include "renderer/image_layer_info.hpp"
 #include "renderer/gui_layer.hpp"
 #include "renderer/scene_info.hpp"
 
@@ -42,6 +45,17 @@ namespace renderer {
                 case renderer::layer_type::GUI:
                     _layers.push_back(std::make_shared<renderer::gui_layer>());
                     break;
+                case renderer::layer_type::IMAGE:
+                {
+                    auto imageLayerInfo = static_cast<renderer::image_layer_info*> (layerInfo.pInfo);                  
+
+                    if (imageLayerInfo) {
+                        _layers.push_back(std::make_shared<renderer::image_layer> (*imageLayerInfo));
+                    } else {
+                        _onError("image_layer_info cannot be null!");
+                    }
+                    break;
+                }
                 default:
                     _onError("Not implemented yet!");
             }
@@ -55,9 +69,10 @@ namespace renderer {
     }
 
     void scene::doFrame() {
-        auto res = reinterpret_cast<scene_res_impl*> (_resources.get());
+        auto res = dynamic_cast<scene_res_impl*> (_resources.get());
 
         graphics::apply(res->clearInfo);
+        graphics::apply(graphics::blendStatePremultiplyAlpha());
 
         for (auto&& layer : _layers) {
             layer->doFrame();

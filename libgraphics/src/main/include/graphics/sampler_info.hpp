@@ -22,4 +22,14 @@ namespace graphics {
             float max;
         } lod;
     };
+
+    inline void defaults(sampler_info& info) {
+        info.filters.mag = graphics::mag_filter::LINEAR;
+        info.filters.min = graphics::min_filter::LINEAR_MIPMAP_LINEAR;
+        info.addressing.wrapS = graphics::address_mode::REPEAT;
+        info.addressing.wrapT = graphics::address_mode::REPEAT;
+        info.addressing.wrapR = graphics::address_mode::REPEAT;
+        info.lod.min = -1000.0F;
+        info.lod.max = 1000.0F;
+    }
 }

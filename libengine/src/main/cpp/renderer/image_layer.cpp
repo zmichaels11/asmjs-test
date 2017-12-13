@@ -1,15 +1,16 @@
 #include "renderer/image_layer.hpp"
 
 #include <cmath>
+#include <cstdio>
 
 #include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
 
+#include <GLES3/gl3.h>
+
 #include "graphics/address_mode.hpp"
-#include "graphics/blend_state_info.hpp"
-#include "graphics/buffer.hpp"
 #include "graphics/draw.hpp"
 #include "graphics/draw_mode.hpp"
 #include "graphics/mag_filter.hpp"
@@ -17,7 +18,11 @@
 #include "graphics/pixel_format.hpp"
 #include "graphics/pixel_type.hpp"
 #include "graphics/program.hpp"
+#include "graphics/program_info.hpp"
+#include "graphics/shader.hpp"
+#include "graphics/shader_info.hpp"
 #include "graphics/texture.hpp"
+#include "graphics/texture_info.hpp"
 #include "graphics/uniform.hpp"
 #include "graphics/vertex_array.hpp"
 
@@ -25,10 +30,13 @@
 #include "renderer/image_scroll_type.hpp"
 #include "renderer/image_layer_info.hpp"
 
+#include "util.hpp"
+
 
 namespace renderer {
     namespace {
         constexpr float _TO_RADIANS = 3.14159265358F / 180.0F;
+        
         struct image_layer_res_impl : public virtual image_layer_res {
             virtual ~image_layer_res_impl() {}
 
@@ -38,7 +46,6 @@ namespace renderer {
                 int data;
             } uniforms;
 
-            graphics::blend_state_info * pBlendState;
             graphics::program * pProgram;
             graphics::texture image, mask;
             graphics::vertex_array model;
@@ -46,11 +53,11 @@ namespace renderer {
             float uniformData[5 * 4];
         };
 
+        graphics::program _newProgram(const std::string& vsh, const std::string& fsh);
+
         graphics::address_mode _addressMode(image_scroll_type scrollType);
 
         void _onError(const std::string& msg);
-
-        graphics::texture _newTexture(const image_layer_info::sublayer_info_t& info);
 
         graphics::mag_filter _magFilter(image_filter filter);
 
@@ -58,20 +65,66 @@ namespace renderer {
     }
 
     image_layer::image_layer(const image_layer_info& info) {
-        _info = info;
-        
+        _info = info;                
+
         auto pResources = std::make_shared<image_layer_res_impl> ();
 
-        if (info.image.image.data == nullptr) {
+        if (info.image.image.pData == nullptr) {
             _onError("image_layer must define an image!");
         }
 
-        pResources->image = _newTexture(info.image);
+        {
+            auto newImage = graphics::texture({
+                    {info.image.image.width, info.image.image.height, 1},
+                    1, 1,
+                    {
+                        {_magFilter(info.image.magFilter), _minFilter(info.image.minFilter)},
+                        {_addressMode(info.image.hScroll), _addressMode(info.image.vScroll), graphics::address_mode::CLAMP_TO_EDGE},
+                        {-1000.0F, 1000.0F}
+                    },
+                    graphics::internal_format::RGBA8
+                });                        
 
-        if (info.mask.image.data) {
-            pResources->mask = _newTexture(info.mask);
-            pResources->supportsMask = true;
-        }        
+            newImage.subImage(0, 0, 0, 0, info.image.image.width, info.image.image.height, 1, {
+                graphics::pixel_type::UNSIGNED_BYTE,
+                graphics::pixel_format::RGBA,
+                const_cast<void*> (info.image.image.pData)
+            });
+
+            if (info.image.pColorTransform) {
+                //TODO: apply color transform now
+            }                        
+
+            std::swap(pResources->image, newImage);
+        }
+
+        if (info.mask.image.pData) {
+            _onError("Not supported yet!");
+        }
+
+        if (_info.supportsColorTransform) {            
+            _onError("Not supported yet!");
+        } else if (pResources->supportsMask) {
+            _onError("Not supported yet!");
+        } else {
+            static graphics::program PROGRAM;            
+
+            if (PROGRAM == 0) {
+                auto newProgram = _newProgram("data/shaders/image_layer/300_ES.vert", "data/shaders/image_layer/300_ES.frag");
+
+                std::swap(PROGRAM, newProgram);
+            }            
+
+            PROGRAM.use();
+
+            pResources->uniforms = {
+                PROGRAM.getUniformLocation("uImage"),
+                0,
+                PROGRAM.getUniformLocation("uData")
+            };
+
+            pResources->pProgram = &PROGRAM;
+        }
 
         {
             auto newModel = graphics::vertex_array({nullptr, 0, nullptr, 0, nullptr});
@@ -79,7 +132,16 @@ namespace renderer {
             std::swap(pResources->model, newModel);
         }
 
-        _pResources = pResources;
+        pResources->uniformData[0] = 0.0F;
+        pResources->uniformData[1] = 0.0F;
+        pResources->uniformData[2] = 1.0F;
+        pResources->uniformData[3] = 1.0F;
+        pResources->uniformData[4] = 0.0F;
+        pResources->uniformData[5] = 0.0F;
+        pResources->uniformData[6] = 1.0F;
+        pResources->uniformData[7] = 1.0F;
+
+        _pResources = pResources;                
     }
 
     void image_layer::setColorTransform(const renderer::color_transform& ct) {
@@ -131,15 +193,23 @@ namespace renderer {
         auto res = dynamic_cast<image_layer_res_impl*> (_pResources.get());
 
         res->pProgram->use();
-
-        graphics::uniform::setUniform4(res->uniforms.data, 5, res->uniformData);
+                
         graphics::uniform::setUniform1(res->uniforms.image, 0);
 
         res->image.bind(0);
 
         if (res->supportsMask) {
+            if (_info.supportsColorTransform) {
+                graphics::uniform::setUniform4(res->uniforms.data, 5, res->uniformData);
+            } else {
+                graphics::uniform::setUniform4(res->uniforms.data, 2, res->uniformData);
+            }
+
             graphics::uniform::setUniform1(res->uniforms.mask, 1);
             res->mask.bind(1);
+        } else {
+            graphics::uniform::setUniform4(res->uniforms.data, 1, res->uniformData);
+            //graphics::uniform::setUniform4(res->uniforms.data, 0.0F, 0.0F, 1.0F, 1.0F);
         }
 
         res->model.bind();
@@ -189,29 +259,16 @@ namespace renderer {
             }
         }
 
-        graphics::texture _newTexture(const image_layer_info::sublayer_info_t& info) {
-            auto out = graphics::texture({
-                {info.image.width, info.image.height, 1},
-                1, 1,
-                {
-                    {_magFilter(info.magFilter), _minFilter(info.minFilter)},
-                    {_addressMode(info.hScroll), _addressMode(info.vScroll), graphics::address_mode::CLAMP_TO_EDGE},
-                    {-1000.0F, 1000.0F}
-                },
-                graphics::internal_format::RGBA8
-            });
+        graphics::program _newProgram(const std::string& v, const std::string& f) {
+            auto vsrc = util::stringReadAll(v);
+            auto fsrc = util::stringReadAll(f);
+                    
+            auto vsh = graphics::shader({graphics::shader_type::VERTEX, vsrc});
+            auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, fsrc});
 
-            out.subImage(0, 0, 0, 0, info.image.width, info.image.height, 1, {
-                graphics::pixel_type::UNSIGNED_BYTE,
-                graphics::pixel_format::RGBA,
-                info.image.data
-            });
+            decltype(&vsh) shaders[] = {&vsh, &fsh};            
 
-            if (info.pColorTransform) {
-                //TODO: apply color transform now
-            }            
-
-            return out;
+            return graphics::program({shaders, 2, nullptr, 0});
         }
     }
 }

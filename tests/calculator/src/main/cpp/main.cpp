@@ -9,8 +9,11 @@
 #include "engine/application.hpp"
 
 #include "graphics/clear_state_info.hpp"
+#include "graphics/imageio.hpp"
 #include "graphics/viewport_state_info.hpp"
 
+#include "renderer/image.hpp"
+#include "renderer/image_layer_info.hpp"
 #include "renderer/layer_type.hpp"
 #include "renderer/scene.hpp"
 #include "renderer/scene_layer_info.hpp"
@@ -35,12 +38,20 @@ int main(int argc, char** argv) {
     engine::application::init("Calculator", 640, 480);    
 
     auto sceneInfo = renderer::scene_info();
+    auto backgroundImgRes = graphics::image_io::read("data/images/environment.png", 4);    
+    auto backgroundInfo = renderer::image_layer_info{{
+        {backgroundImgRes->getWidth(), backgroundImgRes->getHeight(), renderer::image_format::R8G8B8A8_UNORM, backgroundImgRes->getData()},
+        renderer::image_filter::LINEAR, renderer::image_filter::LINEAR,
+        renderer::image_scroll_type::STATIC, renderer::image_scroll_type::STATIC,
+        nullptr}, 
+        {}};
 
     renderer::scene_layer_info layerInfos[] {
+        {renderer::layer_type::IMAGE, &backgroundInfo},
         {renderer::layer_type::GUI, nullptr}
     };
 
-    engine::application::setScene({layerInfos, 1, {{0.1F, 0.25F, 0.4F, 1.0F}, 1.0F}});
+    engine::application::setScene({layerInfos, 2, {{0.1F, 0.25F, 0.4F, 1.0F}, 1.0F}});
 
     auto userData = std::make_shared<AppData>();
     

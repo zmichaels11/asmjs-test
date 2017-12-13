@@ -11,7 +11,7 @@
 namespace graphics {
     namespace {
         static void _onError(const std::string& msg) {
-            std::cerr << "ERR: " << msg << std::endl;
+            std::cerr << "shader error: " << msg << std::endl;
             __builtin_trap();
         }
     }
@@ -20,7 +20,7 @@ namespace graphics {
         _info = info;
         _handle = glCreateShader(static_cast<GLenum> (info.type));
 
-        auto src = reinterpret_cast<const GLchar*> (info.src.c_str());
+        auto src = static_cast<const GLchar*> (info.src.c_str());
         auto len = static_cast<GLint> (info.src.length());
 
         glShaderSource(_handle, 1, &src, &len);
@@ -38,7 +38,10 @@ namespace graphics {
             auto infoLog = std::make_unique<char[]> (infoLogLen);
 
             glGetShaderInfoLog(_handle, infoLogLen, nullptr, infoLog.get());
-            _onError(infoLog.get());
+
+            auto log = std::string(infoLog.get()) + "\n" + src;
+            
+            _onError(log);
         }
     }
 

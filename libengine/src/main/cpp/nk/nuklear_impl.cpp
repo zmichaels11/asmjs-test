@@ -223,11 +223,10 @@ namespace nk {
             0.0f, 0.0f,-1.0f, 0.0f,
             -1.0f,1.0f, 0.0f, 1.0f
         };
-
-        //TODO: switch to premultiplied alpha
-        glEnable(GL_BLEND);
-        glBlendEquation(GL_FUNC_ADD);
-        glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+        
+        //glEnable(GL_BLEND);
+        //glBlendEquation(GL_FUNC_ADD);
+        //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
         glDisable(GL_CULL_FACE);
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_SCISSOR_TEST);
@@ -296,7 +295,7 @@ namespace nk {
 
         nk_clear(&context);
 
-        glDisable(GL_BLEND);
+        //glDisable(GL_BLEND);
         glDisable(GL_SCISSOR_TEST);
     }
 

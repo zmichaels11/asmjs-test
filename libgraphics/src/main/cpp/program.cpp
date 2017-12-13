@@ -12,7 +12,7 @@
 namespace graphics {
     namespace {
         static void _onError(const std::string& msg) {
-            std::cerr << "ERR: " << msg << std::endl;
+            std::cerr << "program error: " << msg << std::endl;
             __builtin_trap();
         }
     }
@@ -53,7 +53,10 @@ namespace graphics {
     }
 
     program::~program() {
-        glDeleteProgram(_handle);
+        if (_handle) {
+            std::cout << "Deleting " << _handle << std::endl;
+            glDeleteProgram(_handle);
+        }
     }
 
     void program::use() const {
