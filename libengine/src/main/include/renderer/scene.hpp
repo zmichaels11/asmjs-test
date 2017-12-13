@@ -23,9 +23,9 @@ namespace renderer {
 
         virtual ~scene() {}
 
-        void update(double timestep);
+        void update();
 
-        void doFrame(double timestep);
+        void doFrame();
 
         const renderer::scene_info& getInfo() const;
 

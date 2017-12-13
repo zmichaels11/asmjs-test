@@ -6,13 +6,13 @@
 #include "nk/nk_ctx.hpp"
 
 namespace renderer {
-    void gui_layer::update(double timestep) {
+    void gui_layer::update() {
         auto ctx = nk::getContext();
 
         ctx->newFrame();
     }
 
-    void gui_layer::doFrame(double timestep) {
+    void gui_layer::doFrame() {
         auto ctx = nk::getContext();
 
         ctx->render();

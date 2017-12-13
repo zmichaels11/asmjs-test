@@ -7,9 +7,9 @@ namespace renderer {
     public:        
         virtual ~gui_layer() {}
 
-        virtual void update(double timestep);
+        virtual void update();
 
-        virtual void doFrame(double timestep);
+        virtual void doFrame();
 
         virtual void setProjection(const float * proj);
     };

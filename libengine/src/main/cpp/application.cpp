@@ -174,7 +174,7 @@ namespace {
         }
 
         if (_scene) {
-            _scene->update(_time);
+            _scene->update();
         }
 
         if (_onFrame) {
@@ -182,7 +182,7 @@ namespace {
         }        
 
         if (_scene) {
-            _scene->doFrame(_time);
+            _scene->doFrame();
         }
         
         glfwSwapBuffers(_pNativeResources->glfw.pWindow);    

@@ -48,19 +48,19 @@ namespace renderer {
         }
     }
 
-    void scene::update(double timestep) {
+    void scene::update() {
         for (auto&& layer : _layers) {
-            layer->update(timestep);
+            layer->update();
         }
     }
 
-    void scene::doFrame(double timestep) {
+    void scene::doFrame() {
         auto res = reinterpret_cast<scene_res_impl*> (_resources.get());
 
         graphics::apply(res->clearInfo);
 
         for (auto&& layer : _layers) {
-            layer->doFrame(timestep);
+            layer->doFrame();
         }
     }
 
