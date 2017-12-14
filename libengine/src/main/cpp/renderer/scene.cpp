@@ -12,6 +12,8 @@
 #include "renderer/image_layer_info.hpp"
 #include "renderer/gui_layer.hpp"
 #include "renderer/scene_info.hpp"
+#include "renderer/text_layer.hpp"
+#include "renderer/text_layer_info.hpp"
 
 namespace renderer {
     namespace {
@@ -42,20 +44,30 @@ namespace renderer {
             auto& layerInfo = info.pLayerInfos[i];
 
             switch (layerInfo.type) {
+                case renderer::layer_type::TEXT: {
+                    auto textLayerInfo = reinterpret_cast<renderer::text_layer_info*> (layerInfo.pInfo);
+
+                    if (textLayerInfo) {
+                        _layers.push_back(std::make_shared<renderer::text_layer> (*textLayerInfo));
+                    } else {
+                        _onError("text_layer_info cannot be null!");
+                    }
+                }
+                break;
                 case renderer::layer_type::GUI:
                     _layers.push_back(std::make_shared<renderer::gui_layer>());
                     break;
                 case renderer::layer_type::IMAGE:
                 {
-                    auto imageLayerInfo = static_cast<renderer::image_layer_info*> (layerInfo.pInfo);                  
+                    auto imageLayerInfo = reinterpret_cast<renderer::image_layer_info*> (layerInfo.pInfo);                  
 
                     if (imageLayerInfo) {
                         _layers.push_back(std::make_shared<renderer::image_layer> (*imageLayerInfo));
                     } else {
                         _onError("image_layer_info cannot be null!");
-                    }
-                    break;
+                    }                    
                 }
+                break;
                 default:
                     _onError("Not implemented yet!");
             }
@@ -83,7 +95,7 @@ namespace renderer {
         return _info;
     }
 
-    const renderer::layer * scene::getLayer(int id) const {
+    renderer::layer * scene::getLayer(int id) const {
         return _layers[id].get();
     }
 

@@ -30,6 +30,13 @@ namespace math {
             c(cx, cy, cz, cw),
             d(dx, dy, dz, dw) {}
 
+        constexpr void data(float * ptr) {
+            a.data(ptr);
+            b.data(ptr+4);
+            c.data(ptr+8);
+            d.data(ptr+12);
+        }
+
         constexpr vec4& operator[] (std::size_t idx) {
             switch (idx) {
                 case 0:

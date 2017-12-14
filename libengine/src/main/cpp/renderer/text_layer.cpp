@@ -14,18 +14,38 @@
 #include "graphics/draw_mode.hpp"
 #include "graphics/font_image.hpp"
 #include "graphics/program.hpp"
+#include "graphics/shader.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/uniform.hpp"
 #include "graphics/vertex_array.hpp"
+
+#include "util.hpp"
 
 namespace renderer {
     namespace {
         constexpr float PIXELS_PER_INCH = 96.0F;
         constexpr float POINTS_PER_INCH = 72.0F;
         constexpr float PIXELS_PER_POINT = PIXELS_PER_INCH / POINTS_PER_INCH;
-        constexpr unsigned int BYTES_PER_VERTEX = (2 + 2 + 4) * sizeof(float);
+        constexpr unsigned int BYTES_PER_VERTEX = 16;
         constexpr unsigned int VERTICES_PER_CHARACTER = 6;
         constexpr unsigned int BYTES_PER_CHARACTER = BYTES_PER_VERTEX * VERTICES_PER_CHARACTER;
+
+        graphics::program _newProgram(const std::string& v, const std::string& f) {
+            auto vsrc = util::stringReadAll(v);
+            auto fsrc = util::stringReadAll(f);
+            auto vsh = graphics::shader({graphics::shader_type::VERTEX, vsrc});
+            auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, fsrc});
+
+            decltype(&vsh) shaders[] = {&vsh, &fsh};
+
+            graphics::attribute_state_info attribs[] = {
+                {"vPosition", 0},
+                {"vTexCoord", 1},
+                {"vColor", 2}
+            };
+
+            return graphics::program({shaders, 2, attribs, 3});
+        }
 
         void _onError(const std::string& msg) {
             std::cout << msg << std::endl;
@@ -43,26 +63,18 @@ namespace renderer {
         };
 
         struct text_layer_res_impl : public virtual text_layer_res {
-            virtual ~text_layer_res_impl();
+            virtual ~text_layer_res_impl() {}
 
             float projection[16];            
 
-            vertex * vertices;
-            vertex * pBuffer;
+            std::vector<vertex> vertices;
 
             unsigned int bufferSize;
             graphics::texture texture;
             graphics::buffer vtext;
             graphics::vertex_array model;
             graphics::font_image font;
-            unsigned int drawLimit;
         };
-
-        text_layer_res_impl::~text_layer_res_impl() {
-            if (vertices) {
-                delete[] vertices;
-            }
-        }
     }
 
     text_layer::text_layer(const text_layer_info& info) {
@@ -71,10 +83,10 @@ namespace renderer {
         auto bufferSize = info.maxCharacters * BYTES_PER_CHARACTER;
         auto vtext = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, bufferSize}});
 
-        auto binding = graphics::vertex_binding_description {0, 0, 20, &vtext};
+        auto binding = graphics::vertex_binding_description {0, 0, 16, &vtext};
         auto aPosition = graphics::vertex_attribute_description {0, graphics::vertex_format::VEC2, 0, 0};
-        auto aTexCoord = graphics::vertex_attribute_description {1, graphics::vertex_format::VEC2, 8, 0};
-        auto aColor = graphics::vertex_attribute_description {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0};
+        auto aTexCoord = graphics::vertex_attribute_description {1, graphics::vertex_format::X16Y16_UNORM, 8, 0};
+        auto aColor = graphics::vertex_attribute_description {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 12, 0};
         decltype(&aPosition) attribs[] = {&aPosition, &aTexCoord, &aColor};
         decltype(&binding) bindings[] = {&binding};
 
@@ -101,7 +113,6 @@ namespace renderer {
         
         auto pResources = std::make_shared<text_layer_res_impl>();
 
-        pResources->vertices = new vertex[info.maxCharacters];
         pResources->bufferSize = bufferSize;
         std::swap(pResources->vtext, vtext);
         std::swap(pResources->model, model);
@@ -115,19 +126,16 @@ namespace renderer {
         return _info;
     }
 
-    void text_layer::update() {
-        auto res = dynamic_cast<text_layer_res_impl*> (_pResources.get());
-
-        res->drawLimit = 0;
-        res->pBuffer = res->vertices;
-    }
+    void text_layer::update() {}
 
     void text_layer::doFrame() {
         static graphics::program PROGRAM;
         static int uFont, uProjection;
 
         if (PROGRAM == 0) {
-            //TODO: init program
+            auto newProgram = _newProgram("data/shaders/text_layer/300_ES.vert", "data/shaders/text_layer/300_ES.frag");
+            
+            std::swap(PROGRAM, newProgram);
 
             uFont = PROGRAM.getUniformLocation("uFont");
             uProjection = PROGRAM.getUniformLocation("uProjection");
@@ -135,13 +143,15 @@ namespace renderer {
 
         auto res = dynamic_cast<text_layer_res_impl*> (_pResources.get());
 
-        if (res->drawLimit = 0) {
+        if (res->vertices.size() == 0) {
             return;
         }
 
+        auto drawLimit = res->vertices.size();
+
         res->model.bind();
         res->vtext.invalidate();
-        res->vtext.subData(0, res->vertices, res->drawLimit * BYTES_PER_CHARACTER);
+        res->vtext.subData(0, res->vertices.data(), drawLimit * BYTES_PER_VERTEX);
 
         PROGRAM.use();
 
@@ -150,7 +160,9 @@ namespace renderer {
 
         res->texture.bind(0);        
         
-        graphics::draw::arrays(graphics::draw_mode::TRIANGLES, 0, res->drawLimit * 6);
+        graphics::draw::arrays(graphics::draw_mode::TRIANGLES, 0, drawLimit);
+
+        res->vertices.clear();
     }
 
     void text_layer::text(const text_info& info) {
@@ -160,19 +172,15 @@ namespace renderer {
         auto g = static_cast<std::uint8_t> (info.color.green * 255.0F);
         auto b = static_cast<std::uint8_t> (info.color.blue * 255.0F);
         auto a = static_cast<std::uint8_t> (info.color.alpha * 255.0F);
+        auto& vertices = res->vertices;
 
-        for (auto&& glyph : glyphs) {
-            auto vertices = res->pBuffer;
-
-            vertices[0] = {glyph.vertex.x0, glyph.vertex.y0, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t0), r, g, b, a};
-            vertices[1] = {glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a};
-            vertices[2] = {glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a};
-            vertices[3] = {glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a};
-            vertices[4] = {glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a};
-            vertices[5] = {glyph.vertex.x1, glyph.vertex.y1, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t1), r, g, b, a};
-
-            res->pBuffer += 6;
-            res->drawLimit++;
+        for (auto&& glyph : glyphs) {            
+            vertices.push_back({glyph.vertex.x0, glyph.vertex.y0, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t0), r, g, b, a});
+            vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a});
+            vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
+            vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a});
+            vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
+            vertices.push_back({glyph.vertex.x1, glyph.vertex.y1, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t1), r, g, b, a});
         }
     }
 

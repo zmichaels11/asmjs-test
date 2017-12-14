@@ -54,7 +54,6 @@ namespace graphics {
 
     program::~program() {
         if (_handle) {
-            std::cout << "Deleting " << _handle << std::endl;
             glDeleteProgram(_handle);
         }
     }

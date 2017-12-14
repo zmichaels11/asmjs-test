@@ -12,11 +12,15 @@
 #include "graphics/imageio.hpp"
 #include "graphics/viewport_state_info.hpp"
 
+#include "math/mat4.hpp"
+
 #include "renderer/image.hpp"
 #include "renderer/image_layer_info.hpp"
 #include "renderer/layer_type.hpp"
 #include "renderer/scene.hpp"
 #include "renderer/scene_layer_info.hpp"
+#include "renderer/text_layer.hpp"
+#include "renderer/text_layer_info.hpp"
 
 #include "nk/button.hpp"
 #include "nk/edit.hpp"
@@ -46,12 +50,15 @@ int main(int argc, char** argv) {
         nullptr}, 
         {}};
 
+    auto textLayerInfo = renderer::defaults<renderer::text_layer_info>();
+
     renderer::scene_layer_info layerInfos[] {
-        {renderer::layer_type::IMAGE, &backgroundInfo},
-        {renderer::layer_type::GUI, nullptr}
+        {renderer::layer_type::IMAGE, &backgroundInfo},        
+        {renderer::layer_type::GUI, nullptr},
+        {renderer::layer_type::TEXT, &textLayerInfo},
     };
 
-    engine::application::setScene({layerInfos, 2, {{0.1F, 0.25F, 0.4F, 1.0F}, 1.0F}});
+    engine::application::setScene({layerInfos, 3, {{0.1F, 0.25F, 0.4F, 1.0F}, 1.0F}});
 
     auto userData = std::make_shared<AppData>();
     
@@ -60,6 +67,17 @@ int main(int argc, char** argv) {
     engine::application::setOnUpdate([](auto userData) {
         auto appData = reinterpret_cast<AppData*> (userData);
         auto& calc = appData->calculator;
+        auto pScene = engine::application::getScene();
+        auto pTextLayer = dynamic_cast<renderer::text_layer*>(pScene->getLayer(2));
+
+        pTextLayer->text({"Hello World!", {1.0F, 0.0F, 1.0F, 1.0F}, 256, 256});
+
+        auto mproj = math::mat4::ortho(0, 640, 480, 0, 0, 1);
+        float proj[16];
+
+        mproj.data(proj);
+
+        pTextLayer->setProjection(proj);        
 
         std::size_t i = 0;
         int solve = 0;

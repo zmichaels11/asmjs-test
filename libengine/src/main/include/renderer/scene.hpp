@@ -29,7 +29,7 @@ namespace renderer {
 
         const renderer::scene_info& getInfo() const;
 
-        const renderer::layer * getLayer(int id) const;
+        renderer::layer * getLayer(int id) const;
 
         std::size_t getLayerCount() const;
 

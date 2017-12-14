@@ -126,6 +126,8 @@ namespace nk {
         _nkFontStashBegin(&pAtlas);
         //TODO: add fonts here
         _nkFontStashEnd();
+
+        device.textLen = 0;
     }
 
     nk_ctx::~nk_ctx() {

@@ -22,7 +22,7 @@ namespace graphics {
             __builtin_trap();
         }        
 
-        struct font_resources_impl : public font_resources {
+        struct font_resources_impl : public virtual font_resources {
             std::unique_ptr<stbtt_bakedchar[]> _cdata;
             stbtt_fontinfo _fontInfo;
             float _scale;            
@@ -81,7 +81,8 @@ namespace graphics {
                 _height = h;
             }
 
-            virtual ~font_resources_impl() {}
+            virtual ~font_resources_impl() {
+            }
         };
     }
 
@@ -109,8 +110,9 @@ namespace graphics {
         return res->_lineGap;
     }
 
-    font_image::font_image(const font_info& info) {        
-        _resources = std::make_unique<font_resources_impl>(info);
+    font_image::font_image(const font_info& info) {
+        _info = info;
+        _resources = std::make_shared<font_resources_impl>(info);
     }
 
     unsigned int font_image::getWidth() const {
@@ -152,9 +154,10 @@ namespace graphics {
 
         for (int i = 0; i < len; i++) {
             auto c = text[i];
-            auto q = stbtt_aligned_quad{};            
+            auto q = stbtt_aligned_quad{0};            
+            auto codeIndex = c - _info.firstChar;
 
-            stbtt_GetBakedQuad(res->_cdata.get(), res->_width, res->_height, (c - _info.firstChar), &x, &y, &q, true);
+            stbtt_GetBakedQuad(res->_cdata.get(), res->_width, res->_height, codeIndex, &x, &y, &q, true);
 
             out.push_back({{q.s0, q.t0, q.s1, q.t1}, {q.x0, q.y0, q.x1, q.y1}});
         }

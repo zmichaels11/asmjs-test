@@ -27,7 +27,7 @@ namespace graphics {
 
     class font_image : public image {
         font_info _info;
-        std::unique_ptr<font_resources> _resources;
+        std::shared_ptr<font_resources> _resources;
 
         font_image(const font_image&) = delete;
 

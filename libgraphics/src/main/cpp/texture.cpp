@@ -65,7 +65,6 @@ namespace graphics {
 
     texture::~texture() {
         if (_handle) {
-            std::cout << "Deleting texture: " << _handle << std::endl;
             glDeleteTextures(1, &_handle);
         }
     }

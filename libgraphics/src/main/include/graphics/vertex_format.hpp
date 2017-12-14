@@ -6,6 +6,7 @@ namespace graphics {
         VEC2,
         VEC3,
         VEC4,
-        X8Y8Z8W8_UNORM
+        X8Y8Z8W8_UNORM,
+        X16Y16_UNORM
     };
 }

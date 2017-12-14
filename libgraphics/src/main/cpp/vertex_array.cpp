@@ -21,6 +21,8 @@ namespace graphics {
             switch (format) {
                 case vertex_format::X8Y8Z8W8_UNORM:
                     return true;
+                case vertex_format::X16Y16_UNORM:
+                    return true;
                 case vertex_format::FLOAT:                    
                 case vertex_format::VEC2:
                 case vertex_format::VEC3:
@@ -35,6 +37,8 @@ namespace graphics {
             switch (format) {
                 case vertex_format::X8Y8Z8W8_UNORM:
                     return GL_UNSIGNED_BYTE;
+                case vertex_format::X16Y16_UNORM:
+                    return GL_UNSIGNED_SHORT;
                 case vertex_format::FLOAT:                    
                 case vertex_format::VEC2:
                 case vertex_format::VEC3:
@@ -49,6 +53,8 @@ namespace graphics {
             switch (format) {
                 case vertex_format::X8Y8Z8W8_UNORM:
                     return 4;
+                case vertex_format::X16Y16_UNORM:
+                    return 2;
                 case vertex_format::FLOAT:
                     return 1;
                 case vertex_format::VEC2:
@@ -65,6 +71,8 @@ namespace graphics {
         static GLsizei _bytes(vertex_format format) {
             switch (format) {
                 case vertex_format::X8Y8Z8W8_UNORM:
+                    return 4;
+                case vertex_format::X16Y16_UNORM:
                     return 4;
                 case vertex_format::FLOAT:
                     return 4;

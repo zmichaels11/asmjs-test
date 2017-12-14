@@ -11,6 +11,13 @@ namespace math {
 
         constexpr vec4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
+        constexpr void data(float * ptr) {
+            ptr[0] = x;
+            ptr[1] = y;
+            ptr[2] = z;
+            ptr[3] = w;
+        }
+
         constexpr vec4 operator+ (vec4 other) const {
             return vec4(x + other.x, y + other.y, z + other.z, w + other.w);
         }
