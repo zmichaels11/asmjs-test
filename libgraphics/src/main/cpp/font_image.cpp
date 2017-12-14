@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "graphics/font_info.hpp"
 
@@ -19,7 +20,7 @@ namespace graphics {
         static void _onError(const std::string& msg) {
             std::cerr << "Err: " << msg << std::endl;
             __builtin_trap();
-        }
+        }        
 
         struct font_resources_impl : public font_resources {
             std::unique_ptr<stbtt_bakedchar[]> _cdata;
@@ -84,30 +85,54 @@ namespace graphics {
         };
     }
 
+    float font_image::getLineSpacing() const {
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
+
+        return res->_lineSpacing;
+    }
+    
+    float font_image::getAscent() const {
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
+
+        return res->_ascent; 
+    }
+
+    float font_image::getDescent() const {
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
+
+        return res->_descent;
+    }
+
+    float font_image::getLineGap() const {
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
+
+        return res->_lineGap;
+    }
+
     font_image::font_image(const font_info& info) {        
         _resources = std::make_unique<font_resources_impl>(info);
     }
 
     unsigned int font_image::getWidth() const {
-        auto res = reinterpret_cast<font_resources_impl *> (_resources.get());
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_width;
     }
 
     unsigned int font_image::getHeight() const {
-        auto res = reinterpret_cast<font_resources_impl *> (_resources.get());
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_height;
     }
 
     const void * font_image::getData() const {
-        auto res = reinterpret_cast<font_resources_impl *> (_resources.get());
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_data.get();
     }
 
     std::size_t font_image::getSize() const {
-        auto res = reinterpret_cast<font_resources_impl *> (_resources.get());
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_dataSize;
     }
@@ -120,25 +145,18 @@ namespace graphics {
         __builtin_trap();
     }
 
-    std::unique_ptr<char_sprite[]> font_image::encode(float x, float y, const std::string& text) const {
-        auto res = reinterpret_cast<font_resources_impl *> (_resources.get());
+    std::vector<char_sprite> font_image::encode(float x, float y, const std::string& text) const {
+        auto res = dynamic_cast<font_resources_impl *> (_resources.get());
         auto len = text.length();
-        auto out = std::make_unique<char_sprite[]> (len);
+        auto out = std::vector<char_sprite>();
 
         for (int i = 0; i < len; i++) {
             auto c = text[i];
-            stbtt_aligned_quad q;
+            auto q = stbtt_aligned_quad{};            
 
             stbtt_GetBakedQuad(res->_cdata.get(), res->_width, res->_height, (c - _info.firstChar), &x, &y, &q, true);
 
-            out[i].texCoord.s0 = q.s0;
-            out[i].texCoord.s1 = q.s1;
-            out[i].texCoord.t0 = q.t0;
-            out[i].texCoord.t1 = q.t1;
-            out[i].vertex.x0 = q.x0;
-            out[i].vertex.y0 = q.y0;
-            out[i].vertex.x1 = q.x1;
-            out[i].vertex.y1 = q.y1;
+            out.push_back({{q.s0, q.t0, q.s1, q.t1}, {q.x0, q.y0, q.x1, q.y1}});
         }
 
         return out;

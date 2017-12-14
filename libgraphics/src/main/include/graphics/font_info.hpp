@@ -4,7 +4,7 @@
 
 namespace graphics {
     struct font_info {
-        char firstChar;
+        int firstChar;
         unsigned int charCount;
         std::string fontFile;
         float charHeight;        

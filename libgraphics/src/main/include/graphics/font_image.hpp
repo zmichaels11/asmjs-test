@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "graphics/font_info.hpp"
 #include "graphics/image.hpp"
@@ -32,13 +33,17 @@ namespace graphics {
 
         font_image& operator=(const font_image&) = delete;
     public:
+        font_image() :
+            _info(),
+            _resources(nullptr) {}
+
         font_image(const font_info& info);
 
         font_image(font_image&&) = default;
 
         font_image& operator=(font_image&&) = default;
 
-        virtual std::unique_ptr<char_sprite[]> encode(float x, float y, const std::string& text) const;
+        virtual std::vector<char_sprite> encode(float x, float y, const std::string& text) const;
 
         virtual unsigned int getWidth() const;
 
@@ -51,5 +56,13 @@ namespace graphics {
         virtual pixel_format getFormat() const;
 
         virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimg);
+
+        float getAscent() const;
+
+        float getDescent() const;
+
+        float getLineGap() const;
+
+        float getLineSpacing() const;
     };
 }
