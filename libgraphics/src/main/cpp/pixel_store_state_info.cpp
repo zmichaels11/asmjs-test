@@ -22,4 +22,26 @@ namespace graphics {
         glPixelStorei(GL_UNPACK_SKIP_IMAGES, info.unpack.skipImages);
 //        glPixelStorei(GL_UNPACK_SKIP_ALIGNMENT, info.unpack.alignment);
     }
+
+    template<>
+    pixel_store_state_info defaults() {
+        return {
+                false,
+                false,
+                0,
+                0,
+                0,
+                0,
+                0,
+                4,
+                false,
+                false,
+                0,
+                0,
+                0,
+                0,
+                0,
+                4
+        };
+    }
 }

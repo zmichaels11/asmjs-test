@@ -2,6 +2,7 @@
 
 #include "graphics/cull_mode.hpp"
 #include "graphics/front_face.hpp"
+#include "graphics/info.hpp"
 #include "graphics/polygon_mode.hpp"
 
 namespace graphics {
@@ -20,4 +21,7 @@ namespace graphics {
     };
 
     void apply (const graphics::rasterization_state_info& info);
+
+    template<>
+    rasterization_state_info defaults();
 }

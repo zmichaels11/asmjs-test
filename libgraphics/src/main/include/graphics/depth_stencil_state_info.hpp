@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graphics/compare_op.hpp"
+#include "graphics/info.hpp"
 #include "graphics/stencil_op_state_info.hpp"
 
 namespace graphics {
@@ -14,4 +15,7 @@ namespace graphics {
     };
 
     void apply(const graphics::depth_stencil_state_info& info);
+
+    template<>
+    depth_stencil_state_info defaults();
 }

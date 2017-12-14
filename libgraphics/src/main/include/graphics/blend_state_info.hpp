@@ -2,16 +2,14 @@
 
 #include "graphics/blend_equation.hpp"
 #include "graphics/blend_function.hpp"
+#include "graphics/info.hpp"
 
 namespace graphics {    
     struct blend_state_info {
         bool blendEnabled;
-        graphics::blend_equation colorBlendOp;
-        graphics::blend_equation alphaBlendOp;
-        graphics::blend_function srcColorBlend;
-        graphics::blend_function dstColorBlend;
-        graphics::blend_function srcAlphaBlend;
-        graphics::blend_function dstAlphaBlend;
+        graphics::blend_equation colorBlendOp, alphaBlendOp;
+        graphics::blend_function srcColorBlend, dstColorBlend;
+        graphics::blend_function srcAlphaBlend, dstAlphaBlend;
         unsigned int colorWriteMask;
     };
 
@@ -25,4 +23,7 @@ namespace graphics {
     }
 
     void apply(const graphics::blend_state_info& info);
+
+    template<>
+    blend_state_info defaults();
 }

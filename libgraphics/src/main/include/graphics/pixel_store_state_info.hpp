@@ -1,5 +1,7 @@
 #pragma once
 
+#include "graphics/info.hpp"
+
 namespace graphics {
     struct pixel_store_state_info {
         struct pack_unpack_t {
@@ -15,4 +17,7 @@ namespace graphics {
     };
 
     void apply(const graphics::pixel_store_state_info& info);
+
+    template<>
+    pixel_store_state_info defaults();
 }

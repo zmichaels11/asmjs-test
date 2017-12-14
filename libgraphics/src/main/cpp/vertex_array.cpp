@@ -128,8 +128,8 @@ namespace graphics {
             auto normalized = _normalized(pCurrent->format);
             auto offset = reinterpret_cast<const void *> (pBinding->offset + pCurrent->offset);
 
-            if (info.divisor) {
-                glVertexAttribDivisor(pCurrent->location, info.divisor);
+            if (pBinding->divisor) {
+                glVertexAttribDivisor(pCurrent->location, pBinding->divisor);
             }
 
             glVertexAttribPointer(pCurrent->location, size, type, normalized, strideAdjust, offset);
@@ -137,7 +137,9 @@ namespace graphics {
     }
 
     vertex_array::~vertex_array() {
-        glDeleteVertexArrays(1, &_handle);
+        if (_handle) {
+            glDeleteVertexArrays(1, &_handle);
+        }
     }
 
     void vertex_array::bind() const {

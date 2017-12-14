@@ -1,6 +1,7 @@
 #pragma once
 
 #include "graphics/clear_buffer.hpp"
+#include "graphics/info.hpp"
 
 namespace graphics {
     struct clear_state_info {
@@ -13,4 +14,7 @@ namespace graphics {
     };
 
     void apply(const graphics::clear_state_info& info);
+
+    template<>
+    clear_state_info defaults();
 }
