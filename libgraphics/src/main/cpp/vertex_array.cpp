@@ -122,11 +122,15 @@ namespace graphics {
             glBindBuffer(GL_ARRAY_BUFFER, pBinding->buffer->_handle);
             glEnableVertexAttribArray(pCurrent->location);
 
-            auto strideAdjust = pBinding->stride;// - _bytes(pCurrent->format);
+            auto strideAdjust = pBinding->stride;
             auto size = _size(pCurrent->format);
             auto type = _type(pCurrent->format);
             auto normalized = _normalized(pCurrent->format);
             auto offset = reinterpret_cast<const void *> (pBinding->offset + pCurrent->offset);
+
+            if (info.divisor) {
+                glVertexAttribDivisor(pCurrent->location, info.divisor);
+            }
 
             glVertexAttribPointer(pCurrent->location, size, type, normalized, strideAdjust, offset);
         }

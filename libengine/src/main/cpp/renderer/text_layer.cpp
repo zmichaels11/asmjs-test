@@ -3,6 +3,7 @@
 #include <cstdint>
 
 #include <iostream>
+#include <limits>
 #include <memory>
 #include <string>
 #include <utility>
@@ -53,7 +54,7 @@ namespace renderer {
         }
 
         std::uint16_t _tc(float tc) {
-            return static_cast<std::uint16_t> (tc * 16384);
+            return static_cast<std::uint16_t> (tc * 65535u);
         }
 
         struct vertex {
@@ -83,7 +84,7 @@ namespace renderer {
         auto bufferSize = info.maxCharacters * BYTES_PER_CHARACTER;
         auto vtext = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, bufferSize}});
 
-        auto binding = graphics::vertex_binding_description {0, 0, 16, &vtext};
+        auto binding = graphics::vertex_binding_description {0, 16, 0, &vtext};
         auto aPosition = graphics::vertex_attribute_description {0, graphics::vertex_format::VEC2, 0, 0};
         auto aTexCoord = graphics::vertex_attribute_description {1, graphics::vertex_format::X16Y16_UNORM, 8, 0};
         auto aColor = graphics::vertex_attribute_description {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 12, 0};
@@ -150,7 +151,7 @@ namespace renderer {
         auto drawLimit = res->vertices.size();
 
         res->model.bind();
-        res->vtext.invalidate();
+        res->vtext.invalidate();        
         res->vtext.subData(0, res->vertices.data(), drawLimit * BYTES_PER_VERTEX);
 
         PROGRAM.use();

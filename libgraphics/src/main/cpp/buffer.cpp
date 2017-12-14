@@ -3,6 +3,7 @@
 #include <GLES3/gl3.h>
 
 #include <cstddef>
+#include <iostream>
 
 #include "graphics/buffer_info.hpp"
 #include "graphics/buffer_target.hpp"
@@ -27,7 +28,9 @@ namespace graphics {
     }
 
     buffer::~buffer() {
-        glDeleteBuffers(1, &_handle);
+        if (_handle) {
+            glDeleteBuffers(1, &_handle);
+        }
     }
 
     void buffer::invalidate() const {

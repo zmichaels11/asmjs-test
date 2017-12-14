@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
         auto pScene = engine::application::getScene();
         auto pTextLayer = dynamic_cast<renderer::text_layer*>(pScene->getLayer(2));
 
-        pTextLayer->text({"Hello World!", {1.0F, 0.0F, 1.0F, 1.0F}, 256, 256});
+        pTextLayer->text({"Hello World!", {1.0F, 0.0F, 1.0F, 1.0F}, 16, 32});
 
         auto mproj = math::mat4::ortho(0, 640, 480, 0, 0, 1);
         float proj[16];
