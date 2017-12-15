@@ -4,6 +4,8 @@
 
 #include "renderer/image_view.hpp"
 #include "renderer/layer.hpp"
+#include "renderer/sprite_info.hpp"
+#include "renderer/sprite_layer_info.hpp"
 
 namespace renderer {
     class sprite_layer : public virtual renderer::layer {
@@ -12,9 +14,9 @@ namespace renderer {
 
         virtual const renderer::sprite_layer_info& getInfo() const = 0;
 
-        virtual const renderer::image_view& getSpriteView(int spriteId) const = 0;
+        virtual void * getSpriteView(int spriteId) const = 0;
 
-        virtual const renderer::image_view& getMaskView(int maskId) const = 0;
+        virtual void * getMaskView(int maskId) const = 0;
 
         virtual void clear() = 0;
 

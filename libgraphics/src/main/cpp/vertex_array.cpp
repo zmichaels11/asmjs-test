@@ -12,57 +12,164 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) {
+        void _onError(const std::string& msg) {
             std::cerr << "Err: " << msg << std::endl;
             __builtin_trap();
         }
 
-        static bool _normalized(vertex_format format) {
+        bool _normalized(vertex_format format) {
             switch (format) {
-                case vertex_format::X8Y8Z8W8_UNORM:
-                    return true;
+                case vertex_format::X8_UNORM:
+                case vertex_format::X8_SNORM:
+                case vertex_format::X16_UNORM:
+                case vertex_format::X16_SNORM:
+                case vertex_format::X8Y8_UNORM:
+                case vertex_format::X8Y8_SNORM:
                 case vertex_format::X16Y16_UNORM:
-                    return true;
-                case vertex_format::FLOAT:                    
-                case vertex_format::VEC2:
-                case vertex_format::VEC3:
-                case vertex_format::VEC4:
-                    return false;
+                case vertex_format::X16Y16_SNORM:
+                case vertex_format::X8Y8Z8_UNORM:
+                case vertex_format::X8Y8Z8_SNORM:
+                case vertex_format::X16Y16Z16_UNORM:
+                case vertex_format::X16Y16Z16_SNORM:
+                case vertex_format::X8Y8Z8W8_UNORM:
+                case vertex_format::X8Y8Z8W8_SNORM:
+                case vertex_format::X16Y16Z16W16_UNORM:
+                case vertex_format::X16Y16Z16W16_SNORM:
+                case vertex_format::W2Z10Y10X10_UNORM:
+                case vertex_format::W2Z10Y10X10_SNORM: 
+                    return true;                
                 default:
-                    _onError("Unsupported vertx format!");
+                    return false;
             }
         }
 
         static GLenum _type(vertex_format format) {
             switch (format) {
+                case vertex_format::X8_UNORM:
+                case vertex_format::X8Y8_UNORM:
+                case vertex_format::X8Y8Z8_UNORM:
                 case vertex_format::X8Y8Z8W8_UNORM:
+                case vertex_format::X8_UINT:
+                case vertex_format::X8Y8_UINT:
+                case vertex_format::X8Y8Z8_UINT:
+                case vertex_format::X8Y8Z8W8_UINT:               
                     return GL_UNSIGNED_BYTE;
+                case vertex_format::X8_SNORM:
+                case vertex_format::X8Y8_SNORM:
+                case vertex_format::X8Y8Z8_SNORM:
+                case vertex_format::X8Y8Z8W8_SNORM:
+                case vertex_format::X8_SINT:
+                case vertex_format::X8Y8_SINT:
+                case vertex_format::X8Y8Z8_SINT:
+                case vertex_format::X8Y8Z8W8_SINT:
+                    return GL_BYTE;
+                case vertex_format::X16_UNORM:
                 case vertex_format::X16Y16_UNORM:
+                case vertex_format::X16Y16Z16_UNORM:
+                case vertex_format::X16Y16Z16W16_UNORM:
+                case vertex_format::X16_UINT:
+                case vertex_format::X16Y16_UINT:
+                case vertex_format::X16Y16Z16_UINT:
+                case vertex_format::X16Y16Z16W16_UINT:
                     return GL_UNSIGNED_SHORT;
-                case vertex_format::FLOAT:                    
-                case vertex_format::VEC2:
-                case vertex_format::VEC3:
-                case vertex_format::VEC4:
+                case vertex_format::X16_SNORM:
+                case vertex_format::X16Y16_SNORM:
+                case vertex_format::X16Y16Z16_SNORM:
+                case vertex_format::X16Y16Z16W16_SNORM:
+                case vertex_format::X16_SINT:
+                case vertex_format::X16Y16_SINT:
+                case vertex_format::X16Y16Z16_SINT:
+                case vertex_format::X16Y16Z16W16_SINT:
+                    return GL_SHORT;
+                case vertex_format::X32_UINT:
+                case vertex_format::X32Y32_UINT:
+                case vertex_format::X32Y32Z32_UINT:
+                case vertex_format::X32Y32Z32W32_UINT:
+                    return GL_UNSIGNED_INT;
+                case vertex_format::X32_SINT:
+                case vertex_format::X32Y32_SINT:
+                case vertex_format::X32Y32Z32_SINT:
+                case vertex_format::X32Y32Z32W32_SINT:
+                    return GL_INT;
+                case vertex_format::X16_SFLOAT:
+                case vertex_format::X16Y16_SFLOAT:
+                case vertex_format::X16Y16Z16_SFLOAT:
+                case vertex_format::X16Y16Z16W16_SFLOAT:
+                    return GL_HALF_FLOAT;
+                case vertex_format::X32_SFLOAT:
+                case vertex_format::X32Y32_SFLOAT:
+                case vertex_format::X32Y32Z32_SFLOAT:
+                case vertex_format::X32Y32Z32W32_SFLOAT:
                     return GL_FLOAT;
+                case vertex_format::W2Z10Y10X10_SNORM:
+                    return GL_INT_2_10_10_10_REV;
+                case vertex_format::W2Z10Y10X10_UNORM:
+                    return GL_UNSIGNED_INT_2_10_10_10_REV;
                 default:
                     _onError("Unsupported vertx format!");
             }
         }
 
         static GLint _size(vertex_format format) {
-            switch (format) {
-                case vertex_format::X8Y8Z8W8_UNORM:
+            switch (format) {                
+                case vertex_format::X8Y8Z8W8_SINT:
+                case vertex_format::X8Y8Z8W8_SNORM:
+                case vertex_format::X8Y8Z8W8_UINT:
+                case vertex_format::X8Y8Z8W8_UNORM:                    
+                case vertex_format::X16Y16Z16W16_SFLOAT:
+                case vertex_format::X16Y16Z16W16_SINT:
+                case vertex_format::X16Y16Z16W16_SNORM:
+                case vertex_format::X16Y16Z16W16_UNORM:
+                case vertex_format::X16Y16Z16W16_UINT:                                                    
+                case vertex_format::X32Y32Z32W32_SFLOAT:                
+                case vertex_format::X32Y32Z32W32_SINT:  
+                case vertex_format::X32Y32Z32W32_UINT:                
+                case vertex_format::W2Z10Y10X10_SNORM:
+                case vertex_format::W2Z10Y10X10_UNORM:                
                     return 4;
-                case vertex_format::X16Y16_UNORM:
-                    return 2;
-                case vertex_format::FLOAT:
-                    return 1;
-                case vertex_format::VEC2:
-                    return 2;
-                case vertex_format::VEC3:
+                    
+                case vertex_format::X8Y8Z8_UNORM:
+                case vertex_format::X8Y8Z8_SNORM:
+                case vertex_format::X8Y8Z8_UINT:
+                case vertex_format::X8Y8Z8_SINT:                    
+                case vertex_format::X16Y16Z16_SFLOAT:
+                case vertex_format::X16Y16Z16_SINT:
+                case vertex_format::X16Y16Z16_SNORM:
+                case vertex_format::X16Y16Z16_UINT:
+                case vertex_format::X16Y16Z16_UNORM:   
+                case vertex_format::X32Y32Z32_SFLOAT:
+                case vertex_format::X32Y32Z32_SINT:
+                case vertex_format::X32Y32Z32_UINT:             
                     return 3;
-                case vertex_format::VEC4:
-                    return 4;
+                
+                case vertex_format::X8Y8_SINT:
+                case vertex_format::X8Y8_SNORM:
+                case vertex_format::X8Y8_UINT:
+                case vertex_format::X8Y8_UNORM:
+                case vertex_format::X16Y16_SFLOAT:
+                case vertex_format::X16Y16_SINT:
+                case vertex_format::X16Y16_SNORM:
+                case vertex_format::X16Y16_UINT:
+                case vertex_format::X16Y16_UNORM:
+                case vertex_format::X32Y32_SFLOAT:
+                case vertex_format::X32Y32_SINT:
+                case vertex_format::X32Y32_UINT:
+                    return 2;
+
+                case vertex_format::X8_SINT:
+                case vertex_format::X8_SNORM:
+                case vertex_format::X8_UINT:
+                case vertex_format::X8_UNORM:
+                case vertex_format::X16_SFLOAT:
+                case vertex_format::X16_SINT:
+                case vertex_format::X16_SNORM:
+                case vertex_format::X16_UINT:
+                case vertex_format::X16_UNORM:
+                case vertex_format::X32_SFLOAT:
+                case vertex_format::X32_SINT:
+                case vertex_format::X32_UINT:                
+                    return 1;
+
                 default:
                     _onError("Unsupported vertex format!");
             }
@@ -70,18 +177,72 @@ namespace graphics {
 
         static GLsizei _bytes(vertex_format format) {
             switch (format) {
+                case vertex_format::X8_SINT:
+                case vertex_format::X8_SNORM:
+                case vertex_format::X8_UINT:
+                case vertex_format::X8_UNORM:
+                    return 1;
+
+                case vertex_format::X8Y8_SINT:
+                case vertex_format::X8Y8_SNORM:
+                case vertex_format::X8Y8_UINT:
+                case vertex_format::X8Y8_UNORM:
+                case vertex_format::X16_SFLOAT:
+                case vertex_format::X16_SINT:
+                case vertex_format::X16_SNORM:
+                case vertex_format::X16_UINT:
+                case vertex_format::X16_UNORM:
+                    return 2;
+
+                case vertex_format::X8Y8Z8_SINT:
+                case vertex_format::X8Y8Z8_SNORM:
+                case vertex_format::X8Y8Z8_UINT:
+                case vertex_format::X8Y8Z8_UNORM:
+                    return 3;
+
+                case vertex_format::X8Y8Z8W8_SINT:
+                case vertex_format::X8Y8Z8W8_SNORM:
+                case vertex_format::X8Y8Z8W8_UINT:
                 case vertex_format::X8Y8Z8W8_UNORM:
-                    return 4;
+                case vertex_format::X16Y16_SFLOAT:
+                case vertex_format::X16Y16_SINT:
+                case vertex_format::X16Y16_SNORM:
+                case vertex_format::X16Y16_UINT:
                 case vertex_format::X16Y16_UNORM:
+                case vertex_format::X32_SFLOAT:
+                case vertex_format::X32_SINT:
+                case vertex_format::X32_UINT:
+                case vertex_format::W2Z10Y10X10_SNORM:
+                case vertex_format::W2Z10Y10X10_UNORM:                
                     return 4;
-                case vertex_format::FLOAT:
-                    return 4;
-                case vertex_format::VEC2:
+
+                case vertex_format::X16Y16Z16_SFLOAT:
+                case vertex_format::X16Y16Z16_SINT:
+                case vertex_format::X16Y16Z16_SNORM:
+                case vertex_format::X16Y16Z16_UINT:
+                case vertex_format::X16Y16Z16_UNORM:
+                    return 6;
+
+                case vertex_format::X16Y16Z16W16_SFLOAT:
+                case vertex_format::X16Y16Z16W16_SINT:
+                case vertex_format::X16Y16Z16W16_SNORM:
+                case vertex_format::X16Y16Z16W16_UINT:
+                case vertex_format::X16Y16Z16W16_UNORM:
+                case vertex_format::X32Y32_SFLOAT:
+                case vertex_format::X32Y32_SINT:
+                case vertex_format::X32Y32_UINT:
                     return 8;
-                case vertex_format::VEC3:
+                
+                case vertex_format::X32Y32Z32_SFLOAT:
+                case vertex_format::X32Y32Z32_SINT:
+                case vertex_format::X32Y32Z32_UINT:
                     return 12;
-                case vertex_format::VEC4:
+
+                case vertex_format::X32Y32Z32W32_SFLOAT:
+                case vertex_format::X32Y32Z32W32_SINT:
+                case vertex_format::X32Y32Z32W32_UINT:
                     return 16;
+                                    
                 default:
                     _onError("Unsupported vertex format!");
             }

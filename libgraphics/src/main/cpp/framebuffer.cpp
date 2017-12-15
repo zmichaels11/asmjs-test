@@ -54,12 +54,12 @@ namespace graphics {
         glGenFramebuffers(1, &_handle);
         glBindFramebuffer(GL_FRAMEBUFFER, _handle);
 
-        GLenum colorAttachId = GL_COLOR_ATTACHMENT0;
+        auto colorAttachId = GL_COLOR_ATTACHMENT0;
 
         for (auto it = info.pAttachments; it != (info.pAttachments + info.attachmentCount); it++) {
             if (it->pRenderbuffer != nullptr) {
                 auto rbInfo = it->pRenderbuffer->getInfo();                
-                GLenum attachId;                
+                decltype(colorAttachId) attachId;                
 
                 if (_isDepth(rbInfo.format)) {
                     attachId = GL_DEPTH_ATTACHMENT;
@@ -73,8 +73,8 @@ namespace graphics {
 
                 glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachId, GL_RENDERBUFFER, it->pRenderbuffer->_handle);
             } else if (it->pTexture != nullptr) {
-                const auto txInfo = it->pTexture->getInfo();
-                GLenum attachId;
+                auto txInfo = it->pTexture->getInfo();
+                decltype(colorAttachId) attachId;
 
                 if (_isDepth(txInfo.format)) {
                     attachId = GL_DEPTH_ATTACHMENT;

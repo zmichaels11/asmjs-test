@@ -44,30 +44,30 @@ namespace graphics {
                 int width, height, channels;
 
                 _data = stbi_load(file.c_str(), &width, &height, &channels, forcedComponents);
-                _width = width;
-                _height = height;
+                _width = static_cast<decltype(_width)> (width);
+                _height = static_cast<decltype(_height)> (height);
 
-                unsigned int npixels = _width * _height;
+                auto npixels = _width * _height;
 
                 switch (channels) {
                     case 1:
                         _pixelSize = 1;
-                        _dataSize = npixels;
+                        _dataSize = static_cast<decltype(_dataSize)> (npixels);
                         _format = pixel_format::RED;
                         break;
                     case 2:
                         _pixelSize = 2;
-                        _dataSize = npixels * 2;
+                        _dataSize = static_cast<decltype(_dataSize)> (npixels * 2);
                         _format = pixel_format::RG;
                         break;
                     case 3:
                         _pixelSize = 3;
-                        _dataSize = npixels * 3;
+                        _dataSize = static_cast<decltype(_dataSize)> (npixels * 3);
                         _format = pixel_format::RGB;
                         break;
                     case 4:
                         _pixelSize = 4;
-                        _dataSize = npixels * 4;
+                        _dataSize = static_cast<decltype(_dataSize)> (npixels * 4);
                         _format = pixel_format::RGBA;
                         break;
                     default:

@@ -335,8 +335,8 @@ namespace nk {
                 auto vbo = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_VERTEX_BUFFER}});
                 auto ebo = graphics::buffer({graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_ELEMENT_BUFFER}});
 
-                graphics::vertex_attribute_description aPosition = {0, graphics::vertex_format::VEC2, 0, 0};
-                graphics::vertex_attribute_description aTexCoord = {1, graphics::vertex_format::VEC2, 8, 0};
+                graphics::vertex_attribute_description aPosition = {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
+                graphics::vertex_attribute_description aTexCoord = {1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0};
                 graphics::vertex_attribute_description aColor = {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0};
 
                 graphics::vertex_binding_description binding = {0, 20, 0, &vbo, 0};                

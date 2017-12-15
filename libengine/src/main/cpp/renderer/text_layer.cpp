@@ -85,7 +85,7 @@ namespace renderer {
         auto vtext = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, bufferSize}});
 
         auto binding = graphics::vertex_binding_description {0, 16, 0, &vtext};
-        auto aPosition = graphics::vertex_attribute_description {0, graphics::vertex_format::VEC2, 0, 0};
+        auto aPosition = graphics::vertex_attribute_description {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
         auto aTexCoord = graphics::vertex_attribute_description {1, graphics::vertex_format::X16Y16_UNORM, 8, 0};
         auto aColor = graphics::vertex_attribute_description {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 12, 0};
         decltype(&aPosition) attribs[] = {&aPosition, &aTexCoord, &aColor};

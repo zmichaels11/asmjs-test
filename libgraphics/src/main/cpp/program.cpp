@@ -40,7 +40,7 @@ namespace graphics {
         glGetProgramiv(_handle, GL_LINK_STATUS, &linkStatus);
 
         if (linkStatus != GL_TRUE) {
-            int infoLogLen = 0;
+            int infoLogLen;
 
             glGetProgramiv(_handle, GL_INFO_LOG_LENGTH, &infoLogLen);
 
