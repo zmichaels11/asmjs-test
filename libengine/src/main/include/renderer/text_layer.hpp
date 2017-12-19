@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "renderer/layer.hpp"
+#include "renderer/scissor_rect.hpp"
 #include "renderer/text_info.hpp"
 #include "renderer/text_layer_info.hpp"
 
@@ -12,9 +13,7 @@ namespace renderer {
     };
 
     class text_layer : public virtual layer {
-        struct scissor_t {
-            float x, y, width, height;
-        } scissor;
+        scissor_rect _scissor;
 
         std::shared_ptr<text_layer_res> _pResources;
         renderer::text_layer_info _info;
@@ -34,7 +33,9 @@ namespace renderer {
             return getAscent() - getDescent() + getLineGap();
         }
 
-        void setScissor(float x, float y, float width, float height);
+        virtual void setScissor(const scissor_rect& scissor);
+
+        virtual const scissor_rect& getScissor() const;
 
         void text(const text_info& txt);
 

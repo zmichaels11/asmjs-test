@@ -19,6 +19,7 @@
 #include "graphics/pixel_type.hpp"
 #include "graphics/program.hpp"
 #include "graphics/program_info.hpp"
+#include "graphics/scissor_state_info.hpp"
 #include "graphics/shader.hpp"
 #include "graphics/shader_info.hpp"
 #include "graphics/texture.hpp"
@@ -65,7 +66,8 @@ namespace renderer {
     }
 
     image_layer::image_layer(const image_layer_info& info) {
-        _info = info;                
+        _info = info;   
+        _scissor = renderer::scissor_rect{false};             
 
         auto pResources = std::make_shared<image_layer_res_impl> ();
 
@@ -183,6 +185,14 @@ namespace renderer {
         return _info;
     }
 
+    void image_layer::setScissor(const scissor_rect& scissor) {
+        _scissor = scissor;
+    }
+
+    const scissor_rect& image_layer::getScissor() const {
+        return _scissor;
+    }
+
     void image_layer::setProjection(const float * proj) {
         _onError("image_layer does not support projection matrix!");
     }
@@ -214,7 +224,19 @@ namespace renderer {
 
         res->model.bind();
 
-        graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+        if (_scissor.enabled) {
+            auto left = static_cast<int> (_scissor.x);
+            auto bottom = static_cast<int> (_scissor.y);
+            auto width = static_cast<int> (_scissor.width);
+            auto height = static_cast<int> (_scissor.height);
+            auto scissorInfo = graphics::scissor_state_info{true, left, bottom, width, height};
+
+            graphics::apply(scissorInfo);
+            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+            graphics::apply(graphics::scissor_state_info{false});
+        } else {
+            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+        }
     }
 
     namespace {

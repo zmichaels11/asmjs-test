@@ -5,6 +5,7 @@
 #include "renderer/color_transform.hpp"
 #include "renderer/image_layer_info.hpp"
 #include "renderer/layer.hpp"
+#include "renderer/scissor_rect.hpp"
 
 namespace renderer {
     struct image_layer_res {
@@ -12,6 +13,7 @@ namespace renderer {
     };
 
     class image_layer : public virtual renderer::layer {
+        scissor_rect _scissor;
         image_layer_info _info;
         std::shared_ptr<image_layer_res> _pResources;
 
@@ -25,6 +27,10 @@ namespace renderer {
         virtual void doFrame();
 
         virtual void setProjection(const float * projection);
+
+        virtual void setScissor(const scissor_rect& scissor);
+
+        virtual const scissor_rect& getScissor() const;
 
         void setColorTransform(const renderer::color_transform& ct);
 

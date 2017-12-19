@@ -15,6 +15,7 @@
 #include "graphics/draw_mode.hpp"
 #include "graphics/font_image.hpp"
 #include "graphics/program.hpp"
+#include "graphics/scissor_state_info.hpp"
 #include "graphics/shader.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/uniform.hpp"
@@ -80,6 +81,7 @@ namespace renderer {
 
     text_layer::text_layer(const text_layer_info& info) {
         _info = info;
+        _scissor = {false};
                 
         auto bufferSize = info.maxCharacters * BYTES_PER_CHARACTER;
         auto vtext = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, bufferSize}});
@@ -161,7 +163,20 @@ namespace renderer {
 
         res->texture.bind(0);        
         
-        graphics::draw::arrays(graphics::draw_mode::TRIANGLES, 0, drawLimit);
+        if (_scissor.enabled) {
+            //TODO: bottom = (size.height - (y + height))
+            auto left = static_cast<int> (_scissor.x);
+            auto bottom = static_cast<int> (_scissor.y);
+            auto width = static_cast<int> (_scissor.width);
+            auto height = static_cast<int> (_scissor.height);
+            auto scissorInfo = graphics::scissor_state_info{true, left, bottom, width, height};
+
+            graphics::apply(scissorInfo);
+            graphics::draw::arrays(graphics::draw_mode::TRIANGLES, 0, drawLimit);
+            graphics::apply(graphics::scissor_state_info{false});
+        } else {
+            graphics::draw::arrays(graphics::draw_mode::TRIANGLES, 0, drawLimit);
+        }        
 
         res->vertices.clear();
     }
@@ -183,6 +198,14 @@ namespace renderer {
             vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
             vertices.push_back({glyph.vertex.x1, glyph.vertex.y1, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t1), r, g, b, a});
         }
+    }
+
+    void text_layer::setScissor(const scissor_rect& scissor) {
+        _scissor = scissor;
+    }
+
+    const scissor_rect& text_layer::getScissor() const {
+        return _scissor;
     }
 
     void text_layer::setProjection(const float * projection) {
