@@ -201,11 +201,11 @@ namespace renderer {
     }
 
     void text_layer::setRenderInfo(const render_info& info) {
-        _renderInfo = info;
+        _onError("text_layer does not support render_info!");
     }
 
     const render_info& text_layer::getRenderInfo() const {
-        return _renderInfo;
+        _onError("text_layer does not support render_info!");
     }
 
     void text_layer::setScissor(const scissor_rect& scissor) {
