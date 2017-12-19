@@ -38,4 +38,12 @@ namespace renderer {
     const scissor_rect& gui_layer::getScissor() const {
         _onError("gui_layer does not support scissor_rect!");
     }
+
+    void gui_layer::setRenderInfo(const render_info& info) {
+        _onError("gui_layer does not support render_info!");
+    }
+
+    const render_info& gui_layer::getRenderInfo() const {
+        _onError("gui_layer does not support render_info!");
+    }
 }

@@ -43,12 +43,11 @@ int main(int argc, char** argv) {
 
     auto sceneInfo = renderer::scene_info();
     auto backgroundImgRes = graphics::image_io::read("data/images/environment.png", 4);    
-    auto backgroundInfo = renderer::image_layer_info{{
+    auto backgroundInfo = renderer::image_layer_info{
         {backgroundImgRes->getWidth(), backgroundImgRes->getHeight(), renderer::image_format::R8G8B8A8_UNORM, backgroundImgRes->getData()},
-        renderer::image_filter::LINEAR, renderer::image_filter::LINEAR,
-        renderer::image_scroll_type::STATIC, renderer::image_scroll_type::STATIC,
-        nullptr}, 
-        {}};
+        {renderer::image_filter::LINEAR, renderer::image_filter::LINEAR},
+        {renderer::image_scroll_type::STATIC, renderer::image_scroll_type::STATIC},
+        };
 
     auto textLayerInfo = renderer::defaults<renderer::text_layer_info>();
 

@@ -7,13 +7,15 @@
 
 namespace renderer {
     struct image_layer_info {
-        struct sublayer_info_t {
-            renderer::image image;
-            renderer::image_filter minFilter, magFilter;
-            renderer::image_scroll_type hScroll, vScroll;
-            renderer::color_transform* pColorTransform;
-        } image, mask;
+        renderer::image image;
+        struct filter_t {
+            renderer::image_filter min;
+            renderer::image_filter mag;
+        } filter;     
         
-        bool supportsColorTransform;
+        struct scroll_t {
+            renderer::image_scroll_type horizontal;
+            renderer::image_scroll_type vertical;
+        } scroll;
     };
 }

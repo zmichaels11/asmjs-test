@@ -200,6 +200,14 @@ namespace renderer {
         }
     }
 
+    void text_layer::setRenderInfo(const render_info& info) {
+        _renderInfo = info;
+    }
+
+    const render_info& text_layer::getRenderInfo() const {
+        return _renderInfo;
+    }
+
     void text_layer::setScissor(const scissor_rect& scissor) {
         _scissor = scissor;
     }

@@ -11,6 +11,7 @@
 #include <GLES3/gl3.h>
 
 #include "graphics/address_mode.hpp"
+#include "graphics/clear_state_info.hpp"
 #include "graphics/draw.hpp"
 #include "graphics/draw_mode.hpp"
 #include "graphics/mag_filter.hpp"
@@ -41,16 +42,9 @@ namespace renderer {
         struct image_layer_res_impl : public virtual image_layer_res {
             virtual ~image_layer_res_impl() {}
 
-            struct uniform_t {
-                int image;
-                int mask;
-                int data;
-            } uniforms;
-
-            graphics::program * pProgram;
-            graphics::texture image, mask;
+            graphics::clear_state_info clearInfo;
+            graphics::texture image;
             graphics::vertex_array model;
-            bool supportsMask;
             float uniformData[5 * 4];
         };
 
@@ -67,73 +61,43 @@ namespace renderer {
 
     image_layer::image_layer(const image_layer_info& info) {
         _info = info;   
-        _scissor = renderer::scissor_rect{false};             
+        _scissor = renderer::scissor_rect{false};
+        _renderInfo = renderer::render_info{{renderer::load_op::LOAD}, {renderer::load_op::LOAD}, {renderer::load_op::LOAD}, render_target::COLOR};
 
         auto pResources = std::make_shared<image_layer_res_impl> ();
 
-        if (info.image.image.pData == nullptr) {
+        if (info.image.pData == nullptr) {
             _onError("image_layer must define an image!");
         }
 
         {
             auto newImage = graphics::texture({
-                    {info.image.image.width, info.image.image.height, 1},
+                    {info.image.width, info.image.height, 1},
                     1, 1,
                     {
-                        {_magFilter(info.image.magFilter), _minFilter(info.image.minFilter)},
-                        {_addressMode(info.image.hScroll), _addressMode(info.image.vScroll), graphics::address_mode::CLAMP_TO_EDGE},
+                        {_magFilter(info.filter.mag), _minFilter(info.filter.min)},
+                        {_addressMode(info.scroll.horizontal), _addressMode(info.scroll.vertical), graphics::address_mode::CLAMP_TO_EDGE},
                         {-1000.0F, 1000.0F}
                     },
                     graphics::internal_format::RGBA8
                 });                        
 
-            newImage.subImage(0, 0, 0, 0, info.image.image.width, info.image.image.height, 1, {
+            newImage.subImage(0, 0, 0, 0, info.image.width, info.image.height, 1, {
                 graphics::pixel_type::UNSIGNED_BYTE,
                 graphics::pixel_format::RGBA,
-                const_cast<void*> (info.image.image.pData)
-            });
-
-            if (info.image.pColorTransform) {
-                //TODO: apply color transform now
-            }                        
+                const_cast<void*> (info.image.pData)
+            });                  
 
             std::swap(pResources->image, newImage);
         }
-
-        if (info.mask.image.pData) {
-            _onError("Not supported yet!");
-        }
-
-        if (_info.supportsColorTransform) {            
-            _onError("Not supported yet!");
-        } else if (pResources->supportsMask) {
-            _onError("Not supported yet!");
-        } else {
-            static graphics::program PROGRAM;            
-
-            if (PROGRAM == 0) {
-                auto newProgram = _newProgram("data/shaders/image_layer/300_ES.vert", "data/shaders/image_layer/300_ES.frag");
-
-                std::swap(PROGRAM, newProgram);
-            }            
-
-            PROGRAM.use();
-
-            pResources->uniforms = {
-                PROGRAM.getUniformLocation("uImage"),
-                0,
-                PROGRAM.getUniformLocation("uData")
-            };
-
-            pResources->pProgram = &PROGRAM;
-        }
-
+            
         {
             auto newModel = graphics::vertex_array({nullptr, 0, nullptr, 0, nullptr});
 
             std::swap(pResources->model, newModel);
         }
 
+        pResources->clearInfo = {static_cast<graphics::clear_buffer>(0)};
         pResources->uniformData[0] = 0.0F;
         pResources->uniformData[1] = 0.0F;
         pResources->uniformData[2] = 1.0F;
@@ -185,6 +149,33 @@ namespace renderer {
         return _info;
     }
 
+    void image_layer::setRenderInfo(const render_info& info) {
+        _renderInfo = info;
+
+        auto res = dynamic_cast<image_layer_res_impl*> (_pResources.get());    
+
+        if (info.color.loadOp == load_op::CLEAR) {
+            auto& color = info.color.clearColor;
+
+            res->clearInfo.buffers = graphics::clear_buffer::COLOR;
+            res->clearInfo.color = {color.r, color.g, color.b, color.a};
+        }
+
+        if (info.stencil.loadOp == load_op::CLEAR) {
+            res->clearInfo.buffers |= graphics::clear_buffer::STENCIL;
+            res->clearInfo.stencil = info.stencil.clearStencil;
+        }
+
+        if (info.depth.loadOp == load_op::CLEAR) {
+            res->clearInfo.buffers |= graphics::clear_buffer::DEPTH;
+            res->clearInfo.depth = info.depth.clearDepth;
+        }
+    }
+
+    const render_info& image_layer::getRenderInfo() const {
+        return _renderInfo;
+    }
+
     void image_layer::setScissor(const scissor_rect& scissor) {
         _scissor = scissor;
     }
@@ -197,32 +188,32 @@ namespace renderer {
         _onError("image_layer does not support projection matrix!");
     }
 
-    void image_layer::update() {}
+    void image_layer::update() {}  
 
-    void image_layer::doFrame() {
-        auto res = dynamic_cast<image_layer_res_impl*> (_pResources.get());
+    void image_layer::renderStencil() {
+        auto res = dynamic_cast<image_layer_res_impl*> (_pResources.get());        
 
-        res->pProgram->use();
-                
-        graphics::uniform::setUniform1(res->uniforms.image, 0);
+        {
+            static graphics::program STENCIL_PROGRAM;
+            static int uImage, uData;
 
-        res->image.bind(0);
+            if (STENCIL_PROGRAM == 0) {
+                auto newProgram = _newProgram("data/shaders/image_layer/stencil_300_ES.vert", "data/shaders/image_layer/stencil_300_ES.frag");
 
-        if (res->supportsMask) {
-            if (_info.supportsColorTransform) {
-                graphics::uniform::setUniform4(res->uniforms.data, 5, res->uniformData);
-            } else {
-                graphics::uniform::setUniform4(res->uniforms.data, 2, res->uniformData);
+                uImage = newProgram.getUniformLocation("uImage");
+                uData = newProgram.getUniformLocation("uData");
+
+                std::swap(STENCIL_PROGRAM, newProgram);
             }
 
-            graphics::uniform::setUniform1(res->uniforms.mask, 1);
-            res->mask.bind(1);
-        } else {
-            graphics::uniform::setUniform4(res->uniforms.data, 1, res->uniformData);
-            //graphics::uniform::setUniform4(res->uniforms.data, 0.0F, 0.0F, 1.0F, 1.0F);
-        }
+            STENCIL_PROGRAM.use();
 
+            graphics::uniform::setUniform1(uImage, 0);
+            graphics::uniform::setUniform4(uData, 1, res->uniformData);
+        }
+        
         res->model.bind();
+        res->image.bind(0);
 
         if (_scissor.enabled) {
             auto left = static_cast<int> (_scissor.x);
@@ -232,10 +223,71 @@ namespace renderer {
             auto scissorInfo = graphics::scissor_state_info{true, left, bottom, width, height};
 
             graphics::apply(scissorInfo);
-            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+            graphics::apply(res->clearInfo);
+
+            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);        
+
             graphics::apply(graphics::scissor_state_info{false});
         } else {
+            graphics::apply(res->clearInfo);
             graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+        }
+    }  
+
+    void image_layer::renderColor() {
+        auto res = dynamic_cast<image_layer_res_impl*> (_pResources.get());        
+
+        {
+            static graphics::program COLOR_PROGRAM;
+            static int uImage, uData;            
+
+            if (COLOR_PROGRAM == 0) {
+                auto newProgram = _newProgram("data/shaders/image_layer/color_300_ES.vert", "data/shaders/image_layer/color_300_ES.frag");
+
+                uImage = newProgram.getUniformLocation("uImage");
+                uData = newProgram.getUniformLocation("uData");
+
+                std::swap(COLOR_PROGRAM, newProgram);                
+            }
+
+            COLOR_PROGRAM.use();
+
+            graphics::uniform::setUniform1(uImage, 0);
+            graphics::uniform::setUniform4(uData, 1, res->uniformData);
+        }
+
+        res->model.bind();
+        res->image.bind(0);
+
+        if (_scissor.enabled) {
+            auto left = static_cast<int> (_scissor.x);
+            auto bottom = static_cast<int> (_scissor.y);
+            auto width = static_cast<int> (_scissor.width);
+            auto height = static_cast<int> (_scissor.height);
+            auto scissorInfo = graphics::scissor_state_info{true, left, bottom, width, height};
+
+            graphics::apply(scissorInfo);
+            graphics::apply(res->clearInfo);
+
+            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);        
+
+            graphics::apply(graphics::scissor_state_info{false});
+        } else {
+            graphics::apply(res->clearInfo);
+            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+        }
+    }
+
+    void image_layer::doFrame() {
+        switch (_renderInfo.target) {
+            case render_target::COLOR:
+                renderColor();
+                break;
+            case render_target::STENCIL:
+                renderStencil();
+                break;
+            default:
+                break;      
         }
     }
 

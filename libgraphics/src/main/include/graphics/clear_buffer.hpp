@@ -14,4 +14,12 @@ namespace graphics {
     constexpr graphics::clear_buffer operator& (graphics::clear_buffer lhs, graphics::clear_buffer rhs) {
         return static_cast<clear_buffer> (static_cast<unsigned int> (lhs) & static_cast<unsigned int> (rhs));
     }
+
+    constexpr graphics::clear_buffer& operator|= (graphics::clear_buffer& lhs, graphics::clear_buffer rhs) {
+        return lhs = lhs | rhs;
+    }
+
+    constexpr graphics::clear_buffer& operator&= (graphics::clear_buffer& lhs, graphics::clear_buffer rhs) {
+        return lhs = lhs & rhs;
+    }
 }

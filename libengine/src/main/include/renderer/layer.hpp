@@ -1,5 +1,6 @@
 #pragma once
 
+#include "renderer/render_info.hpp"
 #include "renderer/scissor_rect.hpp"
 
 namespace renderer {
@@ -16,5 +17,9 @@ namespace renderer {
         virtual void setScissor(const scissor_rect& scissor) = 0;
 
         virtual const scissor_rect& getScissor() const = 0;
+
+        virtual void setRenderInfo(const render_info& info) = 0;
+
+        virtual const render_info& getRenderInfo() const = 0;
     };
 }
