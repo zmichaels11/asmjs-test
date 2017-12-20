@@ -35,6 +35,12 @@ model {
             }
         }
     }
+
+    flavors {
+        GLES20
+        GLES30
+        GL45
+    }
     
     components {
         engine(NativeLibrarySpec) {
@@ -48,7 +54,7 @@ model {
                     lib library: 'glfw3'
                     lib library: 'openal_soft'
                     lib library: 'angle'
-                    lib project: ':libgraphics', library: 'graphics'                    
+                    lib project: ':libgraphics', library: 'graphics'
                     
                     source {
                         srcDir 'src/main/cpp'
@@ -59,6 +65,16 @@ model {
                         srcDirs '../share/src/main/include', 'src/main/include'
                         include '**/*.hpp'
                     }
+                }
+            }
+
+            binaries.all {
+                if (flavor == flavors.GLES20) {
+                    cppCompiler.define 'GLES20'
+                } else if (flavor == flavors.GLES30) {
+                    cppCompiler.define 'GLES30'
+                } else if (flavor == flavors.GL45) {
+                    cppCompiler.define 'GL45'
                 }
             }
         }

@@ -10,8 +10,16 @@
 #include <emscripten/emscripten.h>
 #endif
 
+#ifdef GLES20
+#define GLFW_INCLUDE_ES2
+#include <GLFW/glfw3.h>
+#elif GLES30
 #define GLFW_INCLUDE_ES3
 #include <GLFW/glfw3.h>
+#elif GL45
+#include <GL/glew.h>
+#include <GLFW/glfw3.h>
+#endif
 
 #include <functional>
 #include <iostream>
@@ -122,15 +130,35 @@ namespace {
 #ifdef USE_EGL
         glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
 #endif
+
+#ifdef GLES20
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#elif GLES30
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+#elif GL45        
+        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+#endif
+
 
         if ((glfw.pWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr)) == nullptr) {
             _onError("glfwCreateWindow failed!");
         }
 
         glfwMakeContextCurrent(glfw.pWindow);
+
+#ifdef GL45
+        glewExperimental = true;
+        if (glewInit() != GLEW_OK) {
+            _onError("glewInit failed!");
+        }
+#endif
+
         glfwSwapInterval(1);
 
         if ((oal.pDevice = alcOpenDevice(nullptr)) == nullptr) {

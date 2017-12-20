@@ -1,3 +1,5 @@
+#ifdef GLES30
+
 #include "graphics/framebuffer.hpp"
 
 #include <GLES3/gl3.h>
@@ -5,47 +7,19 @@
 #include <iostream>
 #include <string>
 
-#include "graphics/attachment_info.hpp"
-#include "graphics/renderbuffer.hpp"
 #include "graphics/internal_format.hpp"
+#include "graphics/renderbuffer.hpp"
 #include "graphics/texture.hpp"
 
 namespace graphics {
-    namespace {    
-        static void _onError(const std::string& msg) {
-            std::cerr << "Err: " << msg << std::endl;
-            __builtin_trap();
-        }    
+    namespace {
+        void _onError(const std::string& msg);
 
-        static bool _isStencil(internal_format format) {
-            switch (format) {
-                case internal_format::STENCIL_INDEX8:
-                    return true;
-                default:
-                    return false;
-            }
-        }
+        bool _isStencil(internal_format format);
 
-        static bool _isDepthStencil(internal_format format) {
-            switch (format) {
-                case internal_format::DEPTH24_STENCIL8:
-                case internal_format::DEPTH32F_STENCIL8:
-                    return true;
-                default:
-                    return false;
-            }
-        }
+        bool _isDepthStencil(internal_format format);
 
-        static bool _isDepth(internal_format format) {
-            switch (format) {
-                case internal_format::DEPTH_COMPONENT16:
-                case internal_format::DEPTH_COMPONENT24:
-                case internal_format::DEPTH_COMPONENT32F:
-                    return true;
-                default:
-                    return false;
-            }
-        }        
+        bool _isDepth(internal_format format);
     }
 
     framebuffer::framebuffer(const framebuffer_info& info) {
@@ -112,4 +86,43 @@ namespace graphics {
     void framebuffer::readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info) {
         glReadPixels(x, y, width, height, static_cast<GLenum> (info.format), static_cast<GLenum> (info.type), info.pData);
     }
+
+    namespace {
+        void _onError(const std::string& msg) {
+            std::cerr << "Err: " << msg << std::endl;
+            __builtin_trap();
+        }    
+
+        bool _isStencil(internal_format format) {
+            switch (format) {
+                case internal_format::STENCIL_INDEX8:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        bool _isDepthStencil(internal_format format) {
+            switch (format) {
+                case internal_format::DEPTH24_STENCIL8:
+                case internal_format::DEPTH32F_STENCIL8:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        bool _isDepth(internal_format format) {
+            switch (format) {
+                case internal_format::DEPTH_COMPONENT16:
+                case internal_format::DEPTH_COMPONENT24:
+                case internal_format::DEPTH_COMPONENT32F:
+                    return true;
+                default:
+                    return false;
+            }
+        }   
+    }
 }
+
+#endif

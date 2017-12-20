@@ -1,17 +1,33 @@
-model {
+model {    
     repositories {
         libs (PrebuiltLibraries) {            
             angle {
                 headers.srcDir file(projectDir.path + '/../share/src/angle/include')
-                binaries.withType(SharedLibraryBinary) { binary -> 
+                binaries.withType(SharedLibraryBinary) { binary ->                    
                     if (binary.targetPlatform.operatingSystem.windows) {
-                        sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/angle/libGLESv2.dll')
+                        if (binary.flavor == flavors.GLES20 || binary.flavor == flavors.GLES30) {
+                            if (binary.targetPlatform.architecture == 'x86_64') {
+                                sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/angle/libGLESv2.dll')
+                            } else if (binary.targetPlatform.architecture == 'x86') {
+                                sharedLibraryFile = file(projectDir.path + '/../share/bin/windows32/angle/libGLESv2.dll')
+                            } else {
+                                sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.dll')
+                            }
+                        } else {
+                            sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.dll')
+                        }
                     } else {
                         sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.so')
                     }
                 }
             }
         }
+    }
+
+    flavors {
+        GLES20
+        GLES30
+        GL45
     }
 
     components {
@@ -35,6 +51,16 @@ model {
                         srcDirs '../share/src/main/include', 'src/main/include'
                         include '**/*.hpp'
                     }
+                }
+            }
+
+            binaries.all {
+                if (flavor == flavors.GLES20) {
+                    cppCompiler.define 'GLES20'
+                } else if (flavor == flavors.GLES30) {
+                    cppCompiler.define 'GLES30'
+                } else if (flavor == flavors.GL45) {
+                    cppCompiler.define 'GL45'
                 }
             }
         }

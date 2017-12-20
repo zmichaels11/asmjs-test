@@ -1,8 +1,10 @@
+#ifdef GLES30
+
 #include "graphics/draw.hpp"
 
 #include <GLES3/gl3.h>
 
-namespace graphics {    
+namespace graphics {
     void draw::arrays(draw_mode mode, int first, std::size_t count) {
         glDrawArrays(static_cast<GLenum> (mode), first, count);
     }
@@ -23,3 +25,5 @@ namespace graphics {
         glDrawRangeElements(static_cast<GLenum> (mode), start, end, count, static_cast<GLenum> (type), offset);
     }
 }
+
+#endif

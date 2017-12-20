@@ -36,6 +36,12 @@ model {
         }
     }
 
+    flavors {
+        GLES20
+        GLES30
+        GL45
+    }
+
     components {
         calculator(NativeExecutableSpec) {
             targetPlatform 'asmjs'
@@ -69,7 +75,7 @@ model {
                     cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
                     linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
                 } else if (targetPlatform.operatingSystem.linux) {
-                    linker.args '-lopenal', '-lGL', '-lglfw'                    
+                    linker.args '-lopenal', '-lGL', '-lglfw', '-lGLEW'                    
                 }
             }
         }

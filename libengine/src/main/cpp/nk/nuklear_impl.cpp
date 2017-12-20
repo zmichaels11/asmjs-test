@@ -8,8 +8,15 @@
 #include <string>
 #include <utility>
 
+#ifdef GLES20
+#define GLFW_INCLUDE_ES2
+#include <GLFW/glfw3.h>
+#elif GLES30
 #define GLFW_INCLUDE_ES3
 #include <GLFW/glfw3.h>
+#elif GL45
+#include <GLFW/glfw3.h>
+#endif
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -304,10 +311,14 @@ namespace nk {
     namespace {
         void _nkCreateDevice() {
             nk_buffer_init_default(&_pIMPL->device.cmds);
+            
+            if (glGetError() == GL_NO_ERROR) {
+                std::cerr << "For some reason, there already is an error" << std::endl;
+            }
 
             {
                 auto vsh = graphics::shader({graphics::shader_type::VERTEX, VERTEX_SHADER_ES300});
-                auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, FRAGMENT_SHADER_ES300});
+                auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, FRAGMENT_SHADER_ES300});                
 
                 decltype(&vsh) shaders[] = {&vsh, &fsh};
 
@@ -316,8 +327,8 @@ namespace nk {
                     {"TexCoord", 1},
                     {"Color", 2}};
 
-                auto program = graphics::program({shaders, 2, attribs, 3});                
-                
+                auto program = graphics::program({shaders, 2, attribs, 3});                                            
+
                 _pIMPL->device.gl.attributes = {0, 1, 2};
 
                 if ((_pIMPL->device.gl.uniforms.texture = program.getUniformLocation("Texture")) < 0) {
@@ -333,7 +344,7 @@ namespace nk {
 
             {                
                 auto vbo = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_VERTEX_BUFFER}});
-                auto ebo = graphics::buffer({graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_ELEMENT_BUFFER}});
+                auto ebo = graphics::buffer({graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_ELEMENT_BUFFER}});             
 
                 graphics::vertex_attribute_description aPosition = {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
                 graphics::vertex_attribute_description aTexCoord = {1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0};
@@ -344,11 +355,14 @@ namespace nk {
                 graphics::vertex_attribute_description* attribs[] = {&aPosition, &aTexCoord, &aColor};
                 graphics::vertex_binding_description* bindings[] = {&binding};
 
-                auto vao = graphics::vertex_array({attribs, 3, bindings, 1, &ebo});
+                auto err = glGetError();
 
-                if (glGetError() != GL_NO_ERROR) {
-                    _onError("Error preparing Vertex Array Object!");
+                if (err != GL_NO_ERROR) {
+                    std::printf("Uncaught error: %x\n", err);
+                    __builtin_trap();
                 }
+
+                auto vao = graphics::vertex_array({attribs, 3, bindings, 1, &ebo});              
 
                 std::swap(_pIMPL->device.gl.buffers.vbo, vbo);
                 std::swap(_pIMPL->device.gl.buffers.ebo, ebo);

@@ -1,6 +1,8 @@
+#ifdef GL45
+
 #include "graphics/compute.hpp"
 
-#include <GLES3/gl31.h>
+#include <GL/glew.h>
 
 namespace graphics {
     namespace compute {
@@ -9,3 +11,5 @@ namespace graphics {
         }
     }
 }
+
+#endif
