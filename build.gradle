@@ -3,3 +3,42 @@ apply plugin: 'base'
 subprojects {
 	apply from: rootProject.file('common.gradle')
 }
+
+task buildTestsAsmjsGLES30 {
+	dependsOn ':tests:calculator:calculatorAsmjsGLES30Executable'
+}
+
+task buildTestsAsmjs {
+	dependsOn ':buildTestsAsmjsGLES30'
+}
+
+task buildTestsBinaryenGLES30 {
+	dependsOn ':tests:calculator:calculatorBinaryenGLES30Executable'
+}
+
+task buildTestsBinaryen {
+	dependsOn ':buildTestsBinaryenGLES30'
+}
+
+task buildTestsWindows64GLES30 {
+	dependsOn ':tests:calculator:calculatorWindows64GLES30Executable'
+}
+
+task buildTestsWindows64 {
+	dependsOn ':buildTestsWindows64GLES30'
+}
+
+task buildTestsLinux64GLES30 {
+	dependsOn ':tests:calculator:calculatorLinux64GLES30Executable'
+}
+
+task buildTestsLinux64(type=Copy) {
+	dependsOn ':buildTestsLinux64GLES30'
+}
+
+task buildTests {
+	dependsOn ':buildTestsAsmjs'
+	dependsOn ':buildTestsBinaryen'
+	dependsOn ':buildTestsLinux64'
+	dependsOn ':buildTestsWindows64'
+}

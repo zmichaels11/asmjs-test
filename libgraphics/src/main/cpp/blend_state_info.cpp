@@ -8,6 +8,6 @@ namespace graphics {
             graphics::blend_equation::ADD, graphics::blend_equation::ADD,
             graphics::blend_function::ONE, graphics::blend_function::ZERO,
             graphics::blend_function::ONE, graphics::blend_function::ZERO,
-            0xFFFF};
+            {true, true, true, true}};
     }
 }

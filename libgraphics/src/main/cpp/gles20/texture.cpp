@@ -56,10 +56,6 @@ namespace graphics {
         }
     }
 
-    const texture_info& texture::getInfo() const {
-        return _info;
-    }
-
     void texture::generateMipmap() const {
         glBindTexture(_target, _handle);
         glGenerateMipmap(_target);
