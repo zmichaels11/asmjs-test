@@ -52,6 +52,9 @@ namespace graphics {
 
         void _onError(const std::string& msg) {
             std::cerr << "shader error: " << msg << std::endl;
+            std::cerr << "Supported GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
+            std::cerr << "Supported version: " << glGetString(GL_VERSION) << std::endl;
+
             __builtin_trap();
         }
     }

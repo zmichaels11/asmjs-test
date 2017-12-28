@@ -10,7 +10,12 @@ namespace graphics {
         graphics::blend_equation colorBlendOp, alphaBlendOp;
         graphics::blend_function srcColorBlend, dstColorBlend;
         graphics::blend_function srcAlphaBlend, dstAlphaBlend;
-        unsigned int colorWriteMask;
+        struct color_write_mask_info_t {
+            bool red;
+            bool green;
+            bool blue;
+            bool alpha;
+        } colorWrite;
     };
 
     inline blend_state_info blendStatePremultiplyAlpha() {
@@ -19,7 +24,7 @@ namespace graphics {
             graphics::blend_equation::ADD, graphics::blend_equation::ADD,
             graphics::blend_function::ONE, graphics::blend_function::ONE_MINUS_SRC_ALPHA,
             graphics::blend_function::ONE, graphics::blend_function::ONE_MINUS_SRC_ALPHA,
-            0xFFFF};
+            {true, true, true, true}};
     }
 
     void apply(const graphics::blend_state_info& info);

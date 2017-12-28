@@ -4,8 +4,6 @@
 
 #include <GLES3/gl3.h>
 
-#include "graphics/context.hpp"
-
 namespace graphics {
     void apply (const blend_state_info& info) {
         if (info.blendEnabled) {
@@ -18,10 +16,10 @@ namespace graphics {
             glBlendEquationSeparate(static_cast<GLenum> (info.colorBlendOp), static_cast<GLenum> (info.alphaBlendOp));
 
             glColorMask(
-                (info.colorWriteMask & 0x1), 
-                (info.colorWriteMask & 0x2), 
-                (info.colorWriteMask & 0x4), 
-                (info.colorWriteMask & 0x8));
+                static_cast<GLboolean> (info.colorWrite.red), 
+                static_cast<GLboolean> (info.colorWrite.green), 
+                static_cast<GLboolean> (info.colorWrite.blue), 
+                static_cast<GLboolean> (info.colorWrite.alpha));
         } else {
             glDisable(GL_BLEND);
         }

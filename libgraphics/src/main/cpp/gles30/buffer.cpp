@@ -6,12 +6,9 @@
 
 #include "graphics/buffer_info.hpp"
 #include "graphics/buffer_target.hpp"
-#include "graphics/context.hpp"
 
 namespace graphics {
     buffer::buffer(const buffer_info& info) {
-        checkContext();
-
         _info = info;
         
         glGenBuffers(1, &_handle);
