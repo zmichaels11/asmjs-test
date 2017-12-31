@@ -32,7 +32,7 @@ task buildTestsLinux64GLES30 {
 	dependsOn ':tests:calculator:calculatorLinux64GLES30Executable'
 }
 
-task buildTestsLinux64(type=Copy) {
+task buildTestsLinux64 {
 	dependsOn ':buildTestsLinux64GLES30'
 }
 

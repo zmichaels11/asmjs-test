@@ -21,12 +21,28 @@ model {
                     }
                 }
             }
+
+            glfw3 {
+				headers.srcDir file(projectDir.path + '/../share/src/glfw3/include')
+				binaries.withType(SharedLibraryBinary) { binary ->			
+					if (binary.targetPlatform.operatingSystem.windows) {
+                        if (binary.flavor == flavors.GL43 || binary.flavor == flavors.GL45) {					
+						    sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/glfw3/glfw3.dll')
+                        } else {
+                            sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.dll')
+                        }						
+					} else {
+                        sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.so')
+                    }
+				}
+			}
         }
     }
 
     flavors {
         GLES20
         GLES30
+        GL43
         GL45
     }
 
@@ -40,7 +56,7 @@ model {
             sources {
                 cpp {
                     lib library: 'angle'
-                    //lib library: 'glfw3'
+                    lib library: 'glfw3'
 
                     source {
                         srcDir 'src/main/cpp'
@@ -59,6 +75,8 @@ model {
                     cppCompiler.define 'GLES20'
                 } else if (flavor == flavors.GLES30) {
                     cppCompiler.define 'GLES30'
+                } else if (flavor == flavors.GL43) {
+                    cppCompiler.define 'GL43'
                 } else if (flavor == flavors.GL45) {
                     cppCompiler.define 'GL45'
                 }
