@@ -216,7 +216,7 @@ namespace {
         }        
 
         if (_scene) {
-            _scene->doFrame();
+            _scene->render();
         }
         
         glfwSwapBuffers(_pNativeResources->glfw.pWindow);    

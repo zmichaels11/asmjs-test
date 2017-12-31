@@ -1,5 +1,6 @@
 #pragma once
 
+#include "renderer/info.hpp"
 #include "renderer/load_op.hpp"
 #include "renderer/render_target.hpp"
 
@@ -24,4 +25,7 @@ namespace renderer {
         
         renderer::render_target target;
     };
+
+    template<>
+    render_info defaults();
 }

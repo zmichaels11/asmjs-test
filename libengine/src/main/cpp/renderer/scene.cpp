@@ -48,21 +48,21 @@ namespace renderer {
                     auto textLayerInfo = reinterpret_cast<renderer::text_layer_info*> (layerInfo.pInfo);
 
                     if (textLayerInfo) {
-                        _layers.push_back(std::make_shared<renderer::text_layer> (*textLayerInfo));
+                        _layers.push_back({std::make_shared<renderer::text_layer> (*textLayerInfo), layerInfo.renderInfo});
                     } else {
                         _onError("text_layer_info cannot be null!");
                     }
                 }
                 break;
                 case renderer::layer_type::GUI:
-                    _layers.push_back(std::make_shared<renderer::gui_layer>());
+                    _layers.push_back({std::make_shared<renderer::gui_layer>(), layerInfo.renderInfo});
                     break;
                 case renderer::layer_type::IMAGE:
                 {
                     auto imageLayerInfo = reinterpret_cast<renderer::image_layer_info*> (layerInfo.pInfo);                  
 
                     if (imageLayerInfo) {
-                        _layers.push_back(std::make_shared<renderer::image_layer> (*imageLayerInfo));
+                        _layers.push_back({std::make_shared<renderer::image_layer> (*imageLayerInfo), layerInfo.renderInfo});
                     } else {
                         _onError("image_layer_info cannot be null!");
                     }                    
@@ -76,18 +76,18 @@ namespace renderer {
 
     void scene::update() {
         for (auto&& layer : _layers) {
-            layer->update();
+            layer.drawLayer->update();
         }
     }
 
-    void scene::doFrame() {
+    void scene::render() {
         auto res = dynamic_cast<scene_res_impl*> (_resources.get());
 
         graphics::apply(res->clearInfo);
         graphics::apply(graphics::blendStatePremultiplyAlpha());
 
         for (auto&& layer : _layers) {
-            layer->doFrame();
+            layer.drawLayer->render(layer.renderInfo);
         }
     }
 
@@ -96,7 +96,11 @@ namespace renderer {
     }
 
     renderer::layer * scene::getLayer(int id) const {
-        return _layers[id].get();
+        return _layers[id].drawLayer.get();
+    }
+
+    const renderer::render_info& scene::getLayerRenderInfo(int id) const {
+        return _layers[id].renderInfo;
     }
 
     std::size_t scene::getLayerCount() const {

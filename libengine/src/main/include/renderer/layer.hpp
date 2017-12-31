@@ -10,16 +10,12 @@ namespace renderer {
 
         virtual void update() = 0;
 
-        virtual void doFrame() = 0;
+        virtual void render(const render_info& info) = 0;
 
         virtual void setProjection(const float * proj) = 0;
 
         virtual void setScissor(const scissor_rect& scissor) = 0;
 
         virtual const scissor_rect& getScissor() const = 0;
-
-        virtual void setRenderInfo(const render_info& info) = 0;
-
-        virtual const render_info& getRenderInfo() const = 0;
     };
 }

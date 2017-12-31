@@ -39,15 +39,11 @@ namespace renderer {
 
         virtual const scissor_rect& getScissor() const;
 
-        virtual void setRenderInfo(const render_info& info);
-
-        virtual const render_info& getRenderInfo() const;
-
         void text(const text_info& txt);
 
         virtual void update();
 
-        virtual void doFrame();
+        virtual void render(const render_info& info);
 
         virtual void setProjection(const float * proj);
 

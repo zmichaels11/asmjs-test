@@ -312,7 +312,7 @@ namespace nk {
         void _nkCreateDevice() {
             nk_buffer_init_default(&_pIMPL->device.cmds);
             
-            if (glGetError() == GL_NO_ERROR) {
+            if (glGetError() != GL_NO_ERROR) {
                 std::cerr << "For some reason, there already is an error" << std::endl;
             }
 

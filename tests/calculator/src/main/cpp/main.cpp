@@ -17,6 +17,7 @@
 #include "renderer/image.hpp"
 #include "renderer/image_layer_info.hpp"
 #include "renderer/layer_type.hpp"
+#include "renderer/render_info.hpp"
 #include "renderer/scene.hpp"
 #include "renderer/scene_layer_info.hpp"
 #include "renderer/text_layer.hpp"
@@ -50,11 +51,12 @@ int main(int argc, char** argv) {
         };
 
     auto textLayerInfo = renderer::defaults<renderer::text_layer_info>();
+    auto defaultRenderInfo = renderer::defaults<renderer::render_info>();
 
     renderer::scene_layer_info layerInfos[] {
-        {renderer::layer_type::IMAGE, &backgroundInfo},        
-        {renderer::layer_type::GUI, nullptr},
-        {renderer::layer_type::TEXT, &textLayerInfo},
+        {renderer::layer_type::IMAGE, defaultRenderInfo, &backgroundInfo},        
+        {renderer::layer_type::GUI, defaultRenderInfo, nullptr},
+        {renderer::layer_type::TEXT, defaultRenderInfo, &textLayerInfo}
     };
 
     engine::application::setScene({layerInfos, 3, {{0.1F, 0.25F, 0.4F, 1.0F}, 1.0F}});

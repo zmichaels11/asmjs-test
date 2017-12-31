@@ -131,7 +131,7 @@ namespace renderer {
 
     void text_layer::update() {}
 
-    void text_layer::doFrame() {
+    void text_layer::render(const render_info& info) {
         static graphics::program PROGRAM;
         static int uFont, uProjection;
 
@@ -198,14 +198,6 @@ namespace renderer {
             vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
             vertices.push_back({glyph.vertex.x1, glyph.vertex.y1, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t1), r, g, b, a});
         }
-    }
-
-    void text_layer::setRenderInfo(const render_info& info) {
-        _onError("text_layer does not support render_info!");
-    }
-
-    const render_info& text_layer::getRenderInfo() const {
-        _onError("text_layer does not support render_info!");
     }
 
     void text_layer::setScissor(const scissor_rect& scissor) {
