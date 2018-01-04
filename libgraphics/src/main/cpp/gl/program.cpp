@@ -1,8 +1,8 @@
-#ifdef GLES30
+#ifdef GL
 
 #include "graphics/program.hpp"
 
-#include <GLES3/gl3.h>
+#include "GL/glew.h"
 
 #include <iostream>
 #include <string>

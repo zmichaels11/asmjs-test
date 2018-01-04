@@ -1,8 +1,8 @@
-#ifdef GLES30
+#ifdef GL
 
 #include "graphics/framebuffer.hpp"
 
-#include <GLES3/gl3.h>
+#include "GL/glew.h"
 
 #include <iostream>
 #include <string>
@@ -24,11 +24,10 @@ namespace graphics {
 
     framebuffer::framebuffer(const framebuffer_info& info) {
         _info = info;
-        _handle = 0;
         _external = false;
+        _handle = 0;
 
-        glGenFramebuffers(1, &_handle);
-        glBindFramebuffer(GL_FRAMEBUFFER, _handle);
+        glCreateFramebuffers(1, &_handle);
 
         auto colorAttachId = GL_COLOR_ATTACHMENT0;
 
@@ -47,7 +46,7 @@ namespace graphics {
                     attachId = colorAttachId++;
                 }
 
-                glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachId, GL_RENDERBUFFER, it->pRenderbuffer->_handle);
+                glNamedFramebufferRenderbuffer(_handle, attachId, GL_RENDERBUFFER, it->pRenderbuffer->_handle);
             } else if (it->pTexture != nullptr) {
                 auto txInfo = it->pTexture->getInfo();
                 decltype(colorAttachId) attachId;
@@ -62,19 +61,17 @@ namespace graphics {
                     attachId = colorAttachId++;
                 }
 
-                glFramebufferTexture2D(GL_FRAMEBUFFER, attachId, GL_TEXTURE_2D, it->pTexture->_handle, it->level);
+                glNamedFramebufferTexture(_handle, attachId, it->pTexture->_handle, it->level);
             }
         }
 
-        if (glCheckFramebufferStatus(GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
+        if (glCheckNamedFramebufferStatus(_handle, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             _onError("Incomplete framebuffer!");
         }
-
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
     framebuffer::~framebuffer() {
-        if (!_handle && _external) {
+        if (_handle && !_external) {
             glDeleteFramebuffers(1, &_handle);
             _handle = 0;
         }
@@ -88,7 +85,7 @@ namespace graphics {
         return _info;
     }
 
-    void framebuffer::readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info) {
+    void framebuffer::readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info) {        
         glReadPixels(x, y, width, height, static_cast<GLenum> (info.format), static_cast<GLenum> (info.type), info.pData);
     }
 
@@ -129,5 +126,4 @@ namespace graphics {
         }   
     }
 }
-
 #endif

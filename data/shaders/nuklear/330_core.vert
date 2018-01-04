@@ -1,10 +1,10 @@
-#version 330
+#version 330 core
 
 in vec2 Position;
 in vec2 TexCoord;
 in vec4 Color;
 
-out vec4 Frag_UV;
+out vec2 Frag_UV;
 out vec4 Frag_Color;
 
 uniform mat4 ProjMtx;

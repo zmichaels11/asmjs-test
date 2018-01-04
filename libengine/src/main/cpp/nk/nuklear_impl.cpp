@@ -14,8 +14,11 @@
 #elif GLES30
 #define GLFW_INCLUDE_ES3
 #include <GLFW/glfw3.h>
-#elif GL45
+#elif GL
 #include <GLFW/glfw3.h>
+#else
+#include <GLFW/glfw3.h>
+#error No GL specified!
 #endif
 
 #define NK_INCLUDE_FIXED_TYPES
@@ -34,17 +37,22 @@
 #include "graphics/buffer_info.hpp"
 #include "graphics/buffer_target.hpp"
 #include "graphics/buffer_usage.hpp"
-
+#include "graphics/depth_stencil_state_info.hpp"
+#include "graphics/draw.hpp"
 #include "graphics/internal_format.hpp"
 #include "graphics/mag_filter.hpp"
 #include "graphics/min_filter.hpp"
-
 #include "graphics/program.hpp"
+#include "graphics/rasterization_state_info.hpp"
+#include "graphics/scissor_state_info.hpp"
 #include "graphics/shader.hpp"
-
 #include "graphics/texture.hpp"
 #include "graphics/texture_info.hpp"
+#include "graphics/texture_target.hpp"
 #include "graphics/uniform.hpp"
+#include "graphics/viewport_state_info.hpp"
+
+#include "util.hpp"
 
 namespace nk {
     namespace {
@@ -54,37 +62,22 @@ namespace nk {
         constexpr std::size_t MAX_VERTEX_BUFFER = 512 * 1024;
         constexpr std::size_t MAX_ELEMENT_BUFFER = 128 * 1024;
 
+#ifdef GL
+        constexpr const char * VERTEX_SHADER_FILE = "data/shaders/nuklear/330_core.vert";
+        constexpr const char * FRAGMENT_SHADER_FILE = "data/shaders/nuklear/330_core.frag";
+#elif GLES30
+        constexpr const char * VERTEX_SHADER_FILE = "data/shaders/nuklear/300_ES.vert";
+        constexpr const char * FRAGMENT_SHADER_FILE = "data/shaders/nuklear/300_ES.frag";
+#else
+        constexpr const char * VERTEX_SHADER_FILE = "";
+        constexpr const char * FRAGMENT_SHADER_FILE = "";
+#endif
+
         static const nk_draw_vertex_layout_element VERTEX_LAYOUT[] = {
             {NK_VERTEX_POSITION, NK_FORMAT_FLOAT, 0},
             {NK_VERTEX_TEXCOORD, NK_FORMAT_FLOAT, 8},
             {NK_VERTEX_COLOR, NK_FORMAT_R8G8B8A8, 16},
-            {NK_VERTEX_LAYOUT_END}};
-
-        static const GLchar * VERTEX_SHADER_ES300 =
-            "#version 300 es\n"
-            "uniform mat4 ProjMtx;\n"
-            "in vec2 Position;\n"
-            "in vec2 TexCoord;\n"
-            "in vec4 Color;\n"
-            "out vec2 Frag_UV;\n"
-            "out vec4 Frag_Color;\n"
-            "void main() {\n"
-            "   Frag_UV = TexCoord;\n"
-            "   Frag_Color = Color;\n"
-            "   gl_Position = ProjMtx * vec4(Position, 0, 1);\n"
-            "}\n";
-
-        static const GLchar * FRAGMENT_SHADER_ES300 =
-            "#version 300 es\n"
-            "precision mediump float;\n"
-            "uniform sampler2D Texture;\n"
-            "in vec2 Frag_UV;\n"
-            "in vec4 Frag_Color;\n"
-            "out vec4 Out_Color;\n"
-            "void main(){\n"
-            "   vec4 color = Frag_Color * texture(Texture, Frag_UV.st);\n"            
-            "   Out_Color = vec4(color.rgb * color.a, color.a);\n"            
-            "}\n";
+            {NK_VERTEX_LAYOUT_END}};        
 
         nk_ctx * _pIMPL;
         GLFWwindow * _pWIN;
@@ -232,24 +225,22 @@ namespace nk {
             0.0f, 0.0f,-1.0f, 0.0f,
             -1.0f,1.0f, 0.0f, 1.0f
         };
-        
-        //glEnable(GL_BLEND);
-        //glBlendEquation(GL_FUNC_ADD);
-        //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-        glDisable(GL_CULL_FACE);
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_SCISSOR_TEST);
-        glActiveTexture(GL_TEXTURE0);
+
+        static auto rasterStateInfo = graphics::rasterization_state_info{graphics::front_face::CCW, 1.0F, graphics::cull_mode::NONE, {false, 1.0F, 1.0F}, graphics::polygon_mode::FILL};
+        static auto depthStateInfo = graphics::depth_stencil_state_info{false};
+
+        graphics::apply(rasterStateInfo);
+        graphics::apply(depthStateInfo);        
 
         device.gl.program.use();
         graphics::uniform::setUniform1(device.gl.uniforms.texture, 0);
         graphics::uniform::setUniformMatrix4(device.gl.uniforms.projection, 1, ortho);
 
-        glViewport(0, 0, static_cast<GLsizei> (size.displayWidth), static_cast<GLsizei> (size.displayHeight));
+        graphics::apply(graphics::viewport_state_info{0, 0, size.displayWidth, size.displayHeight});
 
         {
-            auto vertices = std::make_unique<GLchar[]> (MAX_VERTEX_BUFFER);
-            auto elements = std::make_unique<GLchar[]> (MAX_ELEMENT_BUFFER);
+            auto vertices = std::make_unique<char[]> (MAX_VERTEX_BUFFER);
+            auto elements = std::make_unique<char[]> (MAX_ELEMENT_BUFFER);
 
             {
                 nk_convert_config config;
@@ -283,29 +274,35 @@ namespace nk {
         }            
 
         const nk_draw_command * cmd;
-        const nk_draw_index * offset = nullptr;
+        nk_draw_index * offset = nullptr;
 
         nk_draw_foreach(cmd, &context, &device.cmds) {
             if (!cmd->elem_count) {
                 continue;
             }
 
-            glBindTexture(GL_TEXTURE_2D, static_cast<GLuint> (cmd->texture.id));                
+            auto texture = graphics::texture(cmd->texture.id, graphics::texture_target::TEXTURE_2D);
 
-            auto sx = static_cast<GLint>(cmd->clip_rect.x * size.scaleW);
-            auto sy = static_cast<GLint>((size.height - static_cast<GLint>(cmd->clip_rect.y + cmd->clip_rect.h)) * size.scaleH);
-            auto sw = static_cast<GLint>(cmd->clip_rect.w * size.scaleW);
-            auto sh = static_cast<GLint>(cmd->clip_rect.h * size.scaleH);
+            texture.bind(0);
 
-            glScissor(sx, sy, sw, sh);
-            glDrawElements(GL_TRIANGLES, cmd->elem_count, GL_UNSIGNED_SHORT, offset);
+            auto sx = static_cast<int>(cmd->clip_rect.x * size.scaleW);
+            auto sy = static_cast<int>((size.height - static_cast<int>(cmd->clip_rect.y + cmd->clip_rect.h)) * size.scaleH);
+            auto sw = static_cast<int>(cmd->clip_rect.w * size.scaleW);
+            auto sh = static_cast<int>(cmd->clip_rect.h * size.scaleH);
+
+            auto scissorState = graphics::scissor_state_info{true, sx, sy, sw, sh};
+            
+            graphics::apply(scissorState);
+            graphics::draw::elements(graphics::draw_mode::TRIANGLES, cmd->elem_count, graphics::index_type::UNSIGNED_SHORT, offset);
+
             offset += cmd->elem_count;
         }
 
         nk_clear(&context);
 
-        //glDisable(GL_BLEND);
-        glDisable(GL_SCISSOR_TEST);
+        static auto scissorStateDefaults = graphics::defaults<graphics::scissor_state_info>();
+
+        graphics::apply(scissorStateDefaults);
     }
 
     namespace {
@@ -316,9 +313,12 @@ namespace nk {
                 std::cerr << "For some reason, there already is an error" << std::endl;
             }
 
-            {
-                auto vsh = graphics::shader({graphics::shader_type::VERTEX, VERTEX_SHADER_ES300});
-                auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, FRAGMENT_SHADER_ES300});                
+            {                
+                auto vsrc = util::stringReadAll(VERTEX_SHADER_FILE);
+                auto fsrc = util::stringReadAll(FRAGMENT_SHADER_FILE);
+
+                auto vsh = graphics::shader({graphics::shader_type::VERTEX, vsrc});
+                auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, fsrc});
 
                 decltype(&vsh) shaders[] = {&vsh, &fsh};
 

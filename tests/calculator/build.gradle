@@ -3,9 +3,29 @@ model {
         libs (PrebuiltLibraries) {            
             angle {
                 headers.srcDir file(projectDir.path + '/../../share/src/angle/include')
-                binaries.withType(SharedLibraryBinary) { binary -> 
+                binaries.withType(SharedLibraryBinary) { binary ->                    
                     if (binary.targetPlatform.operatingSystem.windows) {
-                        sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/angle/libGLESv2.dll')
+                        if (binary.flavor == flavors.GLES20 || binary.flavor == flavors.GLES30) {
+                            switch (binary.targetPlatform.architecture.name) {
+                                case 'x86':
+                                case 'i386':
+                                case 'ia-32':
+                                case 'i686':
+                                    sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows32/angle/libGLESv2.dll')
+                                    break;
+                                case 'x86_64':
+                                case 'amd64':
+                                case 'x64':
+                                case 'x86-64':
+                                    sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/angle/libGLESv2.dll')
+                                    break;
+                                default:
+                                    sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
+                                    break;
+                            }                            
+                        } else {
+                            sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
+                        }
                     } else {
                         sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.so')
                     }
@@ -39,7 +59,7 @@ model {
     flavors {
         GLES20
         GLES30
-        GL45
+        GL
     }
 
     components {
@@ -50,7 +70,7 @@ model {
             targetPlatform 'windows64'
 
             sources {
-                cpp {
+                cpp {                    
                     lib library: 'glfw3'
                     lib library: 'openal_soft'
                     lib library: 'angle'
@@ -76,6 +96,8 @@ model {
                     linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
                 } else if (targetPlatform.operatingSystem.linux) {
                     linker.args '-lopenal', '-lGL', '-lglfw', '-lGLEW'                    
+                } else if (targetPlatform.operatingSystem.windows) {                    
+                    linker.args '-lopengl32'
                 }
             }
         }

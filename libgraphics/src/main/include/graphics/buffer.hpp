@@ -10,6 +10,7 @@ namespace graphics {
     class buffer {
         unsigned int _handle;
         buffer_info _info;
+        bool _external;
 
         buffer(const buffer&) = delete;
 
@@ -17,9 +18,17 @@ namespace graphics {
 
         friend class vertex_array;
     public:
-        buffer() : _handle(0) {}
+        buffer() : 
+            _handle(0),
+            _info(),
+            _external(false) {}
         
         buffer(const buffer_info& info);
+
+        buffer(unsigned int handle) :
+            _handle(handle),
+            _info(),
+            _external(true) {}
 
         ~buffer();
 

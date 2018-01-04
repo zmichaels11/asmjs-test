@@ -16,15 +16,19 @@
 #elif GLES30
 #define GLFW_INCLUDE_ES3
 #include <GLFW/glfw3.h>
-#elif GL45
-#include <GL/glew.h>
+#elif GL
 #include <GLFW/glfw3.h>
+#else
+#include <GLFW/glfw3.h>
+#error No GL version specified!
 #endif
 
 #include <functional>
 #include <iostream>
 #include <memory>
 #include <string>
+
+#include "graphics.hpp"
 
 #include "renderer/scene.hpp"
 #include "nk/nk_ctx.hpp"
@@ -127,22 +131,20 @@ namespace {
 
         glfwDefaultWindowHints();
 
-#ifdef USE_EGL
-        glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
-#endif
-
 #ifdef GLES20
+        glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #elif GLES30
+        glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#elif GL45        
+#elif GL        
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 5);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #else
 #error "No GL version specified!"
 #endif
@@ -154,12 +156,7 @@ namespace {
 
         glfwMakeContextCurrent(glfw.pWindow);
 
-#ifdef GL45
-        glewExperimental = true;
-        if (glewInit() != GLEW_OK) {
-            _onError("glewInit failed!");
-        }
-#endif
+        graphics::init();
 
         glfwSwapInterval(1);
 
@@ -175,7 +172,7 @@ namespace {
             _onError("alcMakeContextCurrent failed!");
         }
 
-        nuklear = std::make_unique<nk::nk_ctx> (glfw.pWindow);
+        nuklear = std::make_unique<nk::nk_ctx> (glfw.pWindow);        
     }
 
     native_resources::~native_resources() {

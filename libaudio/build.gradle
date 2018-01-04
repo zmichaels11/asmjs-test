@@ -17,7 +17,7 @@ model {
     flavors {
         GLES20
         GLES30
-        GL45
+        GL
     }
 
     components {

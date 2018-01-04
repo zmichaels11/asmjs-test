@@ -24,16 +24,26 @@ task buildTestsWindows64GLES30 {
 	dependsOn ':tests:calculator:calculatorWindows64GLES30Executable'
 }
 
+task buildTestsWindows64GL {
+	dependsOn ':tests:calculator:calculatorWindows64GLExecutable'
+}
+
 task buildTestsWindows64 {
 	dependsOn ':buildTestsWindows64GLES30'
+	dependsOn ':buildTestsWindows64GL'
 }
 
 task buildTestsLinux64GLES30 {
 	dependsOn ':tests:calculator:calculatorLinux64GLES30Executable'
 }
 
+task buildTestsLinux64GL {
+	dependsOn ':tests:calculator:calculatorLinux64GLExecutable'
+}
+
 task buildTestsLinux64 {
 	dependsOn ':buildTestsLinux64GLES30'
+	dependsOn ':buildTestsLinux64GL'
 }
 
 task buildTests {

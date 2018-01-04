@@ -10,25 +10,29 @@
 namespace graphics {
     buffer::buffer(const buffer_info& info) {
         _info = info;
-        
-        glGenBuffers(1, &_handle);
+        _handle = 0;
+        _external = false;      
 
         auto tgt = static_cast<GLenum> (info.target);
         auto usage = static_cast<GLenum> (info.usage);
 
+        glGenBuffers(1, &_handle);
         glBindBuffer(tgt, _handle);
         glBufferData(tgt, info.initialData.size, info.initialData.pData, usage);
     }
 
     buffer::~buffer() {
-        if (_handle) {
+        if (_handle && !_external) {
             glDeleteBuffers(1, &_handle);
+            _handle = 0;
         }
     }
 
     void buffer::invalidate() const {
-        glBindBuffer(static_cast<GLenum> (_info.target), _handle);
-        glBufferData(static_cast<GLenum> (_info.target), _info.initialData.size, nullptr, static_cast<GLenum> (_info.usage));
+        auto tgt = static_cast<GLenum> (_info.target);
+
+        glBindBuffer(tgt, _handle);
+        glBufferData(tgt, _info.initialData.size, nullptr, static_cast<GLenum> (_info.usage));
     }
 
     void buffer::bind(buffer_target target) const {

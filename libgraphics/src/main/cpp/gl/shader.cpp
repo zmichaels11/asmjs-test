@@ -1,8 +1,8 @@
-#ifdef GLES30
+#ifdef GL
 
 #include "graphics/shader.hpp"
 
-#include <GLES3/gl3.h>
+#include "GL/glew.h"
 
 #include <iostream>
 #include <memory>
@@ -15,13 +15,14 @@ namespace graphics {
         void _onError(const std::string& msg);
     }
 
-    shader::shader(const shader_info& info) {
+    shader::shader(const shader_info& info) {        
         _info = info;
-        _handle = glCreateShader(static_cast<GLenum> (info.type));
         _external = false;
 
         auto src = static_cast<const GLchar*> (info.src.c_str());
         auto len = static_cast<GLint> (info.src.length());
+
+        _handle = glCreateShader(static_cast<GLenum> (info.type));        
 
         glShaderSource(_handle, 1, &src, &len);
         glCompileShader(_handle);
@@ -46,7 +47,7 @@ namespace graphics {
     }
 
     shader::~shader() {
-        if (!_handle && _external) {
+        if (_handle && !_external) {
             glDeleteShader(_handle);
             _handle = 0;
         }
@@ -56,9 +57,6 @@ namespace graphics {
 
         void _onError(const std::string& msg) {
             std::cerr << "shader error: " << msg << std::endl;
-            std::cerr << "Supported GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-            std::cerr << "Supported version: " << glGetString(GL_VERSION) << std::endl;
-
             __builtin_trap();
         }
     }

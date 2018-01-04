@@ -1,8 +1,8 @@
-#ifdef GLES30
+#ifdef GL
 
 #include "graphics/vertex_array.hpp"
 
-#include <GLES3/gl3.h>
+#include "GL/glew.h"
 
 #include <iostream>
 #include <string>
@@ -27,7 +27,7 @@ namespace graphics {
         vertex_binding_description * _findBinding(const vertex_array_info& info, unsigned int binding);
     }
 
-    vertex_array::vertex_array(const vertex_array_info& info) {
+    vertex_array::vertex_array(const vertex_array_info& info) {        
         _info = info;
         _external = false;
         _handle = 0;
@@ -58,6 +58,8 @@ namespace graphics {
 
             glVertexAttribPointer(pCurrent->location, size, type, normalized, strideAdjust, offset);
         }
+
+        glBindVertexArray(0);        
     }
 
     vertex_array::~vertex_array() {

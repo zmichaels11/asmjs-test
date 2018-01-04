@@ -6,13 +6,23 @@ model {
                 binaries.withType(SharedLibraryBinary) { binary ->                    
                     if (binary.targetPlatform.operatingSystem.windows) {
                         if (binary.flavor == flavors.GLES20 || binary.flavor == flavors.GLES30) {
-                            if (binary.targetPlatform.architecture == 'x86_64') {
-                                sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/angle/libGLESv2.dll')
-                            } else if (binary.targetPlatform.architecture == 'x86') {
-                                sharedLibraryFile = file(projectDir.path + '/../share/bin/windows32/angle/libGLESv2.dll')
-                            } else {
-                                sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.dll')
-                            }
+                            switch (binary.targetPlatform.architecture.name) {
+                                case 'x86':
+                                case 'i386':
+                                case 'ia-32':
+                                case 'i686':
+                                    sharedLibraryFile = file(projectDir.path + '/../share/bin/windows32/angle/libGLESv2.dll')
+                                    break;
+                                case 'x86_64':
+                                case 'amd64':
+                                case 'x64':
+                                case 'x86-64':
+                                    sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/angle/libGLESv2.dll')
+                                    break;
+                                default:
+                                    sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.dll')
+                                    break;
+                            }                            
                         } else {
                             sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.dll')
                         }
@@ -21,29 +31,13 @@ model {
                     }
                 }
             }
-
-            glfw3 {
-				headers.srcDir file(projectDir.path + '/../share/src/glfw3/include')
-				binaries.withType(SharedLibraryBinary) { binary ->			
-					if (binary.targetPlatform.operatingSystem.windows) {
-                        if (binary.flavor == flavors.GL43 || binary.flavor == flavors.GL45) {					
-						    sharedLibraryFile = file(projectDir.path + '/../share/bin/windows64/glfw3/glfw3.dll')
-                        } else {
-                            sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.dll')
-                        }						
-					} else {
-                        sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.so')
-                    }
-				}
-			}
         }
     }
 
     flavors {
         GLES20
         GLES30
-        GL43
-        GL45
+        GL
     }
 
     components {
@@ -55,13 +49,18 @@ model {
             
             sources {
                 cpp {
-                    lib library: 'angle'
-                    lib library: 'glfw3'
+                    lib library: 'angle'  
 
                     source {
                         srcDir 'src/main/cpp'
                         include '**/*.cpp'
                     }
+
+                    
+                    source {
+                        srcDir 'src/main/c'
+                        include '**/*.c'
+                    }                    
 
                     exportedHeaders {
                         srcDirs '../share/src/main/include', 'src/main/include'
@@ -75,10 +74,13 @@ model {
                     cppCompiler.define 'GLES20'
                 } else if (flavor == flavors.GLES30) {
                     cppCompiler.define 'GLES30'
-                } else if (flavor == flavors.GL43) {
-                    cppCompiler.define 'GL43'
-                } else if (flavor == flavors.GL45) {
-                    cppCompiler.define 'GL45'
+                } else if (flavor == flavors.GL) {
+                    cppCompiler.define 'GL'
+                    cppCompiler.define 'GLEW_STATIC'
+
+                    if (targetPlatform.operatingSystem.windows) {
+                        linker.args '-lopengl32'
+                    }
                 }
             }
         }

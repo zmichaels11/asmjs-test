@@ -7,6 +7,7 @@ namespace graphics {
     class renderbuffer {
         graphics::renderbuffer_info _info;
         unsigned int _handle;
+        bool _external;
 
         renderbuffer(const renderbuffer&) = delete;
 
@@ -15,9 +16,17 @@ namespace graphics {
         friend class framebuffer;
 
     public:
-        renderbuffer() : _handle(0) {}
+        renderbuffer() : 
+            _info(),
+            _handle(0),
+            _external(false) {}
         
         renderbuffer(const renderbuffer_info& info);
+
+        renderbuffer(unsigned int handle) :
+            _info(),
+            _handle(handle),
+            _external(true) {}
 
         ~renderbuffer();
 

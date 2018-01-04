@@ -18,6 +18,10 @@ namespace graphics {
     }
 
     texture::texture(const texture_info& info) {
+        _info = info;
+        _external = false;
+        _handle = 0;
+        
         glGenTextures(1, &_handle);
         
         auto internalFormat = static_cast<GLenum> (info.format);
@@ -51,8 +55,9 @@ namespace graphics {
     }
 
     texture::~texture() {
-        if (_handle) {
+        if (_handle && !_external) {
             glDeleteTextures(1, &_handle);
+            _handle = 0;
         }
     }
 
