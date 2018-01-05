@@ -2,74 +2,83 @@
 
 #include <AL/al.h>
 
-#include <cstdio>
+#include <cstddef>
+
 #include <memory>
-#include <vector>
+#include <utility>
 
 #include "audio/buffer.hpp"
 
 namespace audio {
-    source::source() {
+    source::source() noexcept {
         alGenSources(1, &_handle);
     }
 
-    source::~source() {
+    source::~source() noexcept {
         alDeleteSources(1, &_handle);        
     }
 
-    void source::setGain(float value) const {
+    void source::setGain(float value) const noexcept {
         alSourcef(_handle, AL_GAIN, value);
     }
 
-    void source::setPitch(float value) const {
+    void source::setPitch(float value) const noexcept {
         alSourcef(_handle, AL_PITCH, value);
     }
 
-    void source::setPosition(float x, float y, float z) const {
+    void source::setPosition(float x, float y, float z) const noexcept {
         alSource3f(_handle, AL_POSITION, x, y, z);
     }
 
-    void source::setVelocity(float x, float y, float z) const {
+    void source::setVelocity(float x, float y, float z) const noexcept {
         alSource3f(_handle, AL_VELOCITY, x, y, z);
     }
 
-    void source::setDirection(float x, float y, float z) const {
+    void source::setDirection(float x, float y, float z) const noexcept {
         alSource3f(_handle, AL_DIRECTION, x, y, z);
     }
 
-    int source::getBuffersQueued() const {
-        int out;
+    std::size_t source::getBuffersQueued() const noexcept {
+        ALint out = 0;
 
         alGetSourcei(_handle, AL_BUFFERS_QUEUED, &out);
 
-        return out;
+        return static_cast<std::size_t> (out);
     }
 
-    int source::unqueueBuffers(std::vector<buffer>& out) const {
-        int nbuffers;
+    std::size_t source::getBuffersProcessed() const noexcept {
+        ALint out = 0;
 
-        alGetSourcei(_handle, AL_BUFFERS_PROCESSED, &nbuffers);
+        alGetSourcei(_handle, AL_BUFFERS_PROCESSED, &out);
 
-        if (nbuffers > 0) {            
+        return static_cast<std::size_t> (out);
+    }
+
+    void source::unqueueBuffers(buffer * pBuffers, std::size_t nbuffers) const noexcept {
+        if (pBuffers != nullptr && nbuffers > 0) {            
             auto buffers = std::make_unique<ALuint[]> (nbuffers);
         
-            alSourceUnqueueBuffers(_handle, nbuffers, buffers.get());        
+            alSourceUnqueueBuffers(_handle, static_cast<ALsizei> (nbuffers), buffers.get());        
 
             for (int i = 0; i < nbuffers; i++) {
-                out.push_back(buffer(buffers[i]));
+                pBuffers[i] = buffer(buffers[i]);
             }
-        }        
-
-        return nbuffers;
+        }
     }
 
-    void source::queueBuffer(const buffer& buffer) const {
-        auto bufferHandle = buffer._handle;
+    void source::queueBuffers(const buffer * pBuffers, std::size_t nBuffers) const noexcept {
+        if (nBuffers) {
+            auto buffers = std::make_unique<ALuint[]> (nBuffers);
 
-        alSourceQueueBuffers(_handle, 1, &bufferHandle);
+            for (int i = 0; i < nBuffers; i++) {
+                buffers[i] = pBuffers[i]._handle;
+            }
+
+            alSourceQueueBuffers(_handle, static_cast<ALsizei> (nBuffers), buffers.get());
+        }
     }
 
-    void source::play() const {
+    void source::play() const noexcept {
         alSourcePlay(_handle);
     }
 }

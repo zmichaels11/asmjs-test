@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cstddef>
+
 #include "audio/format.hpp"
 
 namespace audio {
@@ -15,18 +17,18 @@ namespace audio {
         buffer& operator=(const buffer&) = delete;
 
     public:
-        buffer();
+        buffer(buffer&&) noexcept = default;
 
-        buffer(unsigned int handle) : 
+        buffer& operator=(buffer&&) noexcept = default;
+
+        buffer() noexcept;
+
+        buffer(unsigned int handle) noexcept: 
             _handle(handle), 
-            _transient(true) {}        
+            _transient(true) {}                
 
-        buffer(buffer&&) = default;
+        virtual ~buffer() noexcept;        
 
-        virtual ~buffer();        
-
-        buffer& operator=(buffer&&) = default;
-
-        void setData(format fmt, const void * data, int size, int freq) const;
+        void setData(format fmt, const void * data, std::size_t size, unsigned int freq) const noexcept;
     };
 }

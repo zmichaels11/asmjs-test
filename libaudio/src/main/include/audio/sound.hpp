@@ -30,30 +30,30 @@ namespace audio {
         sound& operator=(const sound&) = delete;
 
     public: 
-        sound(const std::string& path, float loopOffset = 0.0F);
+        sound(sound&&) noexcept = default;
 
-        sound(sound&&) = default;
+        sound& operator=(sound&&) noexcept = default;
 
-        sound& operator=(sound&&) = default;
+        sound(const std::string& path, float loopOffset = 0.0F) noexcept; 
 
-        void onFrame();
+        void onFrame() noexcept;
 
-        void setPosition(float x, float y, float z);
+        void setPosition(float x, float y, float z) noexcept;
 
-        void setVelocity(float x, float y, float z);
+        void setVelocity(float x, float y, float z) noexcept;
 
-        void setDirection(float x, float y, float z);
+        void setDirection(float x, float y, float z) noexcept;
 
-        void setGain(float value);
+        void setGain(float value) noexcept;
 
-        void setPitch(float value);
+        void setPitch(float value) noexcept;
 
-        sound_state getState() const;
+        sound_state getState() const noexcept;
 
-        void play();
+        void play() noexcept;
 
-        void stop();
+        void stop() noexcept;
 
-        void loop();
+        void loop() noexcept;
     };
 }

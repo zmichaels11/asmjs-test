@@ -13,30 +13,32 @@ namespace audio {
         source& operator=(const source&) = delete;
 
     public:
-        source();
+        source(source&&) noexcept = default;                
 
-        ~source();        
+        source& operator=(source&&) noexcept = default;
 
-        source(source&&) = default;                
+        source() noexcept;
 
-        source& operator=(source&&) = default;
+        ~source() noexcept;          
 
-        void setGain(float value) const;
+        void setGain(float value) const noexcept;
 
-        void setPitch(float value) const;
+        void setPitch(float value) const noexcept;
 
-        void setPosition(float x, float y, float z) const;        
+        void setPosition(float x, float y, float z) const noexcept;
 
-        void setVelocity(float x, float y, float z) const;
+        void setVelocity(float x, float y, float z) const noexcept;
 
-        void setDirection(float x, float y, float z) const;
+        void setDirection(float x, float y, float z) const noexcept;
 
-        int getBuffersQueued() const;
+        std::size_t getBuffersQueued() const noexcept;
 
-        int unqueueBuffers(std::vector<buffer>& out) const;
+        std::size_t getBuffersProcessed() const noexcept;
 
-        void queueBuffer(const buffer& buffer) const;
+        void unqueueBuffers(buffer * pBuffers, std::size_t n) const noexcept;
 
-        void play() const;
+        void queueBuffers(const buffer * pBuffers, std::size_t n = 1) const noexcept;
+
+        void play() const noexcept;
     };
 }

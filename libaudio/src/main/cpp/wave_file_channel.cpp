@@ -7,13 +7,14 @@
 #include <sstream>
 
 namespace audio {    
+    namespace {
+        void _onError(const std::string& msg) {                
+            std::cerr << "Err: " << msg << std::endl;
+            __builtin_trap();        
+        }    
+    }
 
-    static void _onError(const std::string& msg) {                
-        std::cerr << "Err: " << msg << std::endl;
-        __builtin_trap();        
-    }    
-
-    wave_file_channel::wave_file_channel(const std::string& path) {
+    wave_file_channel::wave_file_channel(const std::string& path) noexcept {
         _file.open(path, std::ifstream::binary);
 
         if (!_file) {
@@ -22,6 +23,7 @@ namespace audio {
 
         constexpr std::int32_t RIFF = 0x46464952;
         constexpr std::int32_t WAVE = 0x45564157;
+
         std::int32_t riff = 0;
         std::int32_t wave = 0;
 
@@ -51,42 +53,44 @@ namespace audio {
         _dataStart = _file.tellg();
     }
 
-    void wave_file_channel::seekStart() {
+    void wave_file_channel::seekStart() noexcept {
         _file.seekg(_dataStart);
     }
 
-    void wave_file_channel::seek(unsigned int sample) {
+    void wave_file_channel::seek(unsigned int sample) noexcept {
         auto seekPos = _channels * _bitsPerSample / 8 * sample;
 
         _file.seekg(seekPos, std::ifstream::cur);            
     }
 
-    float wave_file_channel::getLength() const {
+    float wave_file_channel::getLength() const noexcept {
         return float(_size) / float(_byteRate);
     }
 
-    int wave_file_channel::getSampleRate() const {
+    int wave_file_channel::getSampleRate() const noexcept {
         return _sampleRate;
     }
 
-    int wave_file_channel::getChannels() const {
+    int wave_file_channel::getChannels() const noexcept {
         return _channels;
     }
 
-    int wave_file_channel::getBitsPerSample() const {
+    int wave_file_channel::getBitsPerSample() const noexcept {
         return _bitsPerSample;
     }
 
-    int wave_file_channel::getByteRate() const {
+    int wave_file_channel::getByteRate() const noexcept {
         return _byteRate;
     }
 
-    format wave_file_channel::getFormat() const {
+    format wave_file_channel::getFormat() const noexcept {
         return _format;
     }
 
-    bool wave_file_channel::read(char * dst, std::size_t& n) {        
-        if (_file.read(dst, n)) {
+    bool wave_file_channel::read(void * dst, std::size_t& n) noexcept {
+        auto chars = reinterpret_cast<char *> (dst);
+
+        if (_file.read(chars, n)) {
             return true;
         } else {
             n = _file.gcount();
@@ -94,7 +98,7 @@ namespace audio {
         }        
     }
 
-    void wave_file_channel::parseFormatSubchunk(unsigned int chunkSize) {                
+    void wave_file_channel::parseFormatSubchunk(unsigned int chunkSize) noexcept {                
         std::int16_t audioFormat;
 
         _file.read(reinterpret_cast<char *> (&audioFormat), sizeof(audioFormat));
@@ -202,11 +206,11 @@ namespace audio {
         }
     }
 
-    void wave_file_channel::skipSubchunk(unsigned int chunkSize) {        
+    void wave_file_channel::skipSubchunk(unsigned int chunkSize) noexcept {        
         _file.seekg(chunkSize, std::ifstream::cur);
     }
 
-    bool wave_file_channel::parseSubchunk() {        
+    bool wave_file_channel::parseSubchunk() noexcept {
         std::int32_t chunkId;        
         std::int32_t chunkSize;
 

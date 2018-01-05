@@ -24,7 +24,11 @@ namespace audio {
         vorbis_file_channel& operator=(const vorbis_file_channel&) = delete;
 
     public:
-        vorbis_file_channel() :
+        vorbis_file_channel(vorbis_file_channel&&) noexcept = default;
+
+        vorbis_file_channel& operator=(vorbis_file_channel&&) noexcept = default;
+
+        vorbis_file_channel() noexcept:
             _channels(0),
             _sampleRate(0),
             _byteRate(0),
@@ -34,32 +38,26 @@ namespace audio {
             _format(static_cast<format>(0)),
             _handle(nullptr){}
 
-        vorbis_file_channel(const std::string& path);
+        vorbis_file_channel(const std::string& path) noexcept;
 
-        virtual ~vorbis_file_channel();        
+        virtual ~vorbis_file_channel() noexcept;                
 
-        vorbis_file_channel(vorbis_file_channel&&) = default;                
+        virtual void seekStart() noexcept;
 
-        vorbis_file_channel& operator=(vorbis_file_channel&&) = default;
+        virtual void seek(unsigned int sample) noexcept;
 
-        virtual void seekStart();
+        virtual float getLength() const noexcept;
 
-        virtual void seek(unsigned int sample);
+        virtual int getChannels() const noexcept;
 
-        virtual float getLength() const;
+        virtual int getSampleRate() const noexcept;
 
-        virtual int getChannels() const;
+        virtual int getBitsPerSample() const noexcept;
 
-        virtual int getSampleRate() const;
+        virtual int getByteRate() const noexcept;
 
-        virtual int getBitsPerSample() const;
+        virtual format getFormat() const noexcept;
 
-        virtual int getByteRate() const;
-
-        virtual format getFormat() const;
-
-        virtual bool read(float * dst, std::size_t& n);
-
-        virtual bool read(char * dst, std::size_t& n);
+        virtual bool read(void * dst, std::size_t& n) noexcept;
     };
 }

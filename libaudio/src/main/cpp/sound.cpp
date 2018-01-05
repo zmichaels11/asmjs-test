@@ -5,7 +5,6 @@
 #include <iostream>
 #include <memory>
 #include <string>
-#include <vector>
 
 #include "audio/vorbis_file_channel.hpp"
 #include "audio/wave_file_channel.hpp"
@@ -13,20 +12,16 @@
 
 namespace audio {
     namespace {
-        static bool has_suffix(const std::string &str, const std::string &suffix) {
-            return str.size() >= suffix.size() &&
-                str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
-        }
+        void _onError(const std::string& msg) noexcept;
     }
 
-    sound::sound(const std::string& path, float loopOffset) {
-        if (has_suffix(path, "ogg")) {
+    sound::sound(const std::string& path, float loopOffset) noexcept {
+        if (util::hasSuffix(path, "ogg")) {
             _channel = std::make_unique<vorbis_file_channel> (path);
-        } else if (has_suffix(path, "wav")) {
+        } else if (util::hasSuffix(path, "wav")) {
             _channel = std::make_unique<wave_file_channel> (path);
         } else {
-            std::cerr << "Unsupported file type: " << path << std::endl;
-            __builtin_trap();
+            _onError("Unsupported file type: " + path);
         }
 
         _state = sound_state::STOPPED;
@@ -36,27 +31,33 @@ namespace audio {
         _sampleRate = _channel->getSampleRate();
     }
 
-    void sound::onFrame() {
+    void sound::onFrame() noexcept {
         if (_state == sound_state::STOPPED) {
             return;
         }
 
-        auto ready = std::vector<buffer>();
-        auto eof = false;
+        auto readySize = _source.getBuffersProcessed();
 
-        if (!_source.unqueueBuffers(ready)) {
+        if (readySize == 0) {
+            // no buffers are processed
             return;
         }
+        
+        auto ready = std::make_unique<buffer[]> (readySize);
 
-        for (auto&& buffer: ready) {
+        _source.unqueueBuffers(ready.get(), readySize);
+
+        auto eof = false;
+
+        for (auto pBuffer = ready.get(); pBuffer != (ready.get() + readySize); pBuffer++) {
             auto transfer = std::make_unique<char[]> (_bufferSize);
 
             if (_state == sound_state::PLAYING) {
                 auto size = _bufferSize;
                 auto eof = !_channel->read(transfer.get(), size);
                 
-                buffer.setData(_format, transfer.get(), size, _sampleRate);
-                _source.queueBuffer(buffer);
+                pBuffer->setData(_format, transfer.get(), size, _sampleRate);
+                _source.queueBuffers(pBuffer);
 
                 if (eof) {
                     _state = sound_state::STOPPED;
@@ -77,56 +78,60 @@ namespace audio {
                     }
                 }
 
-                buffer.setData(_format, transfer.get(), _bufferSize, _sampleRate);
-                _source.queueBuffer(buffer);
+                pBuffer->setData(_format, transfer.get(), _bufferSize, _sampleRate);
+                _source.queueBuffers(pBuffer);
             }
         }
     }
 
-    void sound::setPosition(float x, float y, float z) {
+    void sound::setPosition(float x, float y, float z) noexcept {
         _source.setPosition(x, y, z);
     }
 
-    void sound::setVelocity(float x, float y, float z) {
+    void sound::setVelocity(float x, float y, float z) noexcept {
         _source.setVelocity(x, y, z);
     }
 
-    void sound::setDirection(float x, float y, float z) {
+    void sound::setDirection(float x, float y, float z) noexcept {
         _source.setDirection(x, y, z);
     }
 
-    void sound::setGain(float value) {
+    void sound::setGain(float value) noexcept {
         _source.setGain(value);
     }
 
-    void sound::setPitch(float value) {
+    void sound::setPitch(float value) noexcept {
         _source.setPitch(value);
     }
 
-    sound_state sound::getState() const {
+    sound_state sound::getState() const noexcept {
         return _state;
     }
 
-    void sound::play() {                
-        for (int i = 0; i < 3; i++) {
+    void sound::play() noexcept {
+        int i = 0;
+
+        for (; i < 3; i++) {
             auto transfer = std::make_unique<char[]> (_bufferSize);
             auto size = _bufferSize;
             auto eof = !_channel->read(transfer.get(), size);
 
-            _buffers[i].setData(_format, transfer.get(), size, _sampleRate);
-            _source.queueBuffer(_buffers[i]);
+            _buffers[i].setData(_format, transfer.get(), size, _sampleRate);            
 
             if (eof) {
                 break;
             }
         }
 
+        _source.queueBuffers(_buffers, i);
         _state = sound_state::PLAYING;
         _source.play();
     }
 
-    void sound::loop() {
-        for (int i = 0; i < 3; i++) {
+    void sound::loop() noexcept {
+        int i;
+
+        for (; i < 3; i++) {
             auto transfer = std::make_unique<char[]> (_bufferSize);
             auto pTfr = transfer.get();
             auto end = transfer.get() + _bufferSize;
@@ -142,16 +147,23 @@ namespace audio {
                 }
             }
 
-            _buffers[i].setData(_format, transfer.get(), _bufferSize, _sampleRate);
-            _source.queueBuffer(_buffers[i]);
+            _buffers[i].setData(_format, transfer.get(), _bufferSize, _sampleRate);            
         }
 
+        _source.queueBuffers(_buffers, i);
         _state = sound_state::LOOPING;
         _source.play();
     }
 
-    void sound::stop() {
+    void sound::stop() noexcept {
         _state = sound_state::STOPPED;
         _source.setGain(0.0F);
+    }
+
+    namespace {
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << "ERR: " << msg << std::endl;
+            __builtin_trap();
+        }
     }
 }

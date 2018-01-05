@@ -20,41 +20,41 @@ namespace audio {
         format _format;
         std::ifstream _file;
 
-        bool parseSubchunk();
+        bool parseSubchunk() noexcept;
 
-        void skipSubchunk(unsigned int chunkSize);
+        void skipSubchunk(unsigned int chunkSize) noexcept;
 
-        void parseFormatSubchunk(unsigned int chunkSize);
+        void parseFormatSubchunk(unsigned int chunkSize) noexcept;
 
-        wave_file_channel(const wave_file_channel&) = delete;
+        wave_file_channel(const wave_file_channel&) noexcept = delete;
 
-        wave_file_channel& operator=(wave_file_channel&&) = default;
+        wave_file_channel& operator=(wave_file_channel&&) noexcept = default;
 
     public:
-        wave_file_channel() {}
+        wave_file_channel(wave_file_channel&&) noexcept = default;
 
-        wave_file_channel(const std::string& path);        
+        wave_file_channel& operator=(const wave_file_channel&) noexcept = delete;        
 
-        wave_file_channel(wave_file_channel&&) = default;
+        wave_file_channel() noexcept {}
 
-        wave_file_channel& operator=(const wave_file_channel&) = delete;        
+        wave_file_channel(const std::string& path) noexcept;
 
-        virtual void seekStart();
+        virtual void seekStart() noexcept;
 
-        virtual void seek(unsigned int sample);
+        virtual void seek(unsigned int sample) noexcept;
 
-        virtual float getLength() const;
+        virtual float getLength() const noexcept;
 
-        virtual int getChannels() const;
+        virtual int getChannels() const noexcept;
 
-        virtual int getSampleRate() const;
+        virtual int getSampleRate() const noexcept;
 
-        virtual int getBitsPerSample() const;
+        virtual int getBitsPerSample() const noexcept;
 
-        virtual int getByteRate() const;
+        virtual int getByteRate() const noexcept;
 
-        virtual format getFormat() const;
+        virtual format getFormat() const noexcept;
 
-        virtual bool read(char * dst, std::size_t& n);
+        virtual bool read(void * dst, std::size_t& n) noexcept;
     };
 }

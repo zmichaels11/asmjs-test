@@ -1,8 +1,6 @@
 #include "audio/vorbis_file_channel.hpp"
-#include <cstdint>
 
 #include <iostream>
-#include <sstream>
 #include <string>
 
 #define STB_VORBIS_HEADER_ONLY
@@ -11,14 +9,17 @@
 #include "stb_vorbis.cpp"
 
 namespace audio {
-    static void _onError(const std::string& msg) {
-        std::cerr << "Err: " << msg << std::endl;
-        __builtin_trap();
+    namespace {
+        void _onError(const std::string& msg) noexcept;
     }
 
-    vorbis_file_channel::vorbis_file_channel(const std::string& path) {
+    vorbis_file_channel::vorbis_file_channel(const std::string& path) noexcept {
         int err;
         auto handle = stb_vorbis_open_filename(path.c_str(), &err, nullptr);
+
+        if (err) {
+            _onError("Unable to open vorbis file: " + path);
+        }
 
         _handle = handle;
 
@@ -34,59 +35,59 @@ namespace audio {
         _byteRate = _sampleRate * _channels * 4;
     }
 
-    vorbis_file_channel::~vorbis_file_channel() {
+    vorbis_file_channel::~vorbis_file_channel() noexcept {
         if (_handle) {
             stb_vorbis_close(reinterpret_cast <stb_vorbis *> (_handle));
         }
     }
 
-    void vorbis_file_channel::seekStart() {
+    void vorbis_file_channel::seekStart() noexcept {
         stb_vorbis_seek_start(reinterpret_cast <stb_vorbis *> (_handle));
     }
 
-    void vorbis_file_channel::seek(unsigned int sample) {
+    void vorbis_file_channel::seek(unsigned int sample) noexcept {
         stb_vorbis_seek(reinterpret_cast <stb_vorbis *> (_handle), sample);
     }
 
-    float vorbis_file_channel::getLength() const {
+    float vorbis_file_channel::getLength() const noexcept {
         return _time;
     }
 
-    int vorbis_file_channel::getChannels() const {
+    int vorbis_file_channel::getChannels() const noexcept {
         return _channels;
     }
 
-    int vorbis_file_channel::getSampleRate() const {
+    int vorbis_file_channel::getSampleRate() const noexcept {
         return _sampleRate;
     }
 
-    int vorbis_file_channel::getByteRate() const {
+    int vorbis_file_channel::getByteRate() const noexcept {
         return _byteRate;
     }
 
-    int vorbis_file_channel::getBitsPerSample() const {
+    int vorbis_file_channel::getBitsPerSample() const noexcept {
         return 32;
     }
 
-    format vorbis_file_channel::getFormat() const {
+    format vorbis_file_channel::getFormat() const noexcept {
         return _format;
     }
 
-    bool vorbis_file_channel::read(float * dst, std::size_t& n) {
-        auto read = stb_vorbis_get_samples_float_interleaved(reinterpret_cast <stb_vorbis *> (_handle), _channels, dst, int(n));
-
-        n = std::size_t(read);
-
-        return (read != 0);
-    }
-
-    bool vorbis_file_channel::read(char * dst, std::size_t& n) {
+    bool vorbis_file_channel::read(void * dst, std::size_t& n) noexcept{
         auto floats = reinterpret_cast<float *> (dst);
         auto numFloats = n / sizeof(float);
-        auto read = stb_vorbis_get_samples_float_interleaved(reinterpret_cast <stb_vorbis *> (_handle), _channels, floats, numFloats);
+        auto handle = reinterpret_cast<stb_vorbis *> (_handle);
+        auto read = stb_vorbis_get_samples_float_interleaved(handle, _channels, floats, numFloats);
 
         n = read * sizeof(float);
 
         return (read != 0);
+    }
+
+    namespace {
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << "Err: " << msg << std::endl;
+            __builtin_trap();
+        }
     }
 }
