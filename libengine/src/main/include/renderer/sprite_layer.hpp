@@ -1,6 +1,8 @@
 #pragma once
 
-#include <vector>
+#include <cstddef>
+
+#include <memory>
 
 #include "renderer/image_view.hpp"
 #include "renderer/layer.hpp"
@@ -10,8 +12,18 @@
 #include "renderer/sprite_layer_info.hpp"
 
 namespace renderer {
+    struct sprite_layer_res {
+        virtual ~sprite_layer_res(){}
+    };
+    
     class sprite_layer : public virtual renderer::layer {
+        scissor_rect _scissor;
+        std::shared_ptr<sprite_layer_res> _pResources;
+        renderer::sprite_layer_info _info;
+        
     public:
+        sprite_layer(const sprite_layer_info& info);
+
         virtual ~sprite_layer() {}
 
         virtual void update();
@@ -28,6 +40,6 @@ namespace renderer {
 
         virtual const image_view& getSpriteView(int spriteId) const;
 
-        virtual bool submit(const std::vector<sprite_info>& sprites);
+        virtual bool submit(const sprite_info * pSprites, std::size_t count = 1);
     };
 }
