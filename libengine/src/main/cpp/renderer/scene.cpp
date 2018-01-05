@@ -48,21 +48,34 @@ namespace renderer {
                     auto textLayerInfo = reinterpret_cast<renderer::text_layer_info*> (layerInfo.pInfo);
 
                     if (textLayerInfo) {
-                        _layers.push_back({std::make_shared<renderer::text_layer> (*textLayerInfo), layerInfo.renderInfo});
+                        auto layerRes = layer_res{nullptr, layerInfo.renderInfo};
+
+                        layerRes.drawLayer.reset(new text_layer(*textLayerInfo));
+
+                        _layers.push_back(std::move(layerRes));
                     } else {
                         _onError("text_layer_info cannot be null!");
                     }
                 }
                 break;
-                case renderer::layer_type::GUI:
-                    _layers.push_back({std::make_shared<renderer::gui_layer>(), layerInfo.renderInfo});
-                    break;
+                case renderer::layer_type::GUI: {
+                    auto layerRes = layer_res{nullptr, layerInfo.renderInfo};
+
+                    layerRes.drawLayer.reset(new gui_layer());
+
+                    _layers.push_back(std::move(layerRes));
+                }                    
+                break;
                 case renderer::layer_type::IMAGE:
                 {
                     auto imageLayerInfo = reinterpret_cast<renderer::image_layer_info*> (layerInfo.pInfo);                  
 
                     if (imageLayerInfo) {
-                        _layers.push_back({std::make_shared<renderer::image_layer> (*imageLayerInfo), layerInfo.renderInfo});
+                        auto layerRes = layer_res{nullptr, layerInfo.renderInfo};
+
+                        layerRes.drawLayer.reset(new image_layer(*imageLayerInfo));
+
+                        _layers.push_back(std::move(layerRes));
                     } else {
                         _onError("image_layer_info cannot be null!");
                     }                    
@@ -70,6 +83,7 @@ namespace renderer {
                 break;
                 default:
                     _onError("Not implemented yet!");
+                    break;
             }
         }
     }

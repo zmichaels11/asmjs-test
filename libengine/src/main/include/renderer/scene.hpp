@@ -14,7 +14,7 @@ namespace renderer {
     };
 
     struct layer_res {
-        std::shared_ptr<renderer::layer> drawLayer;
+        std::unique_ptr<renderer::layer> drawLayer;
         render_info renderInfo;
     };
 

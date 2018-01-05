@@ -18,7 +18,7 @@ namespace renderer {
     
     class sprite_layer : public virtual renderer::layer {
         scissor_rect _scissor;
-        std::shared_ptr<sprite_layer_res> _pResources;
+        std::unique_ptr<sprite_layer_res> _pResources;
         renderer::sprite_layer_info _info;
         
     public:

@@ -6,16 +6,18 @@
 namespace renderer {
     class layer {
     public:
+        layer() {}
+        
         virtual ~layer() {}
 
-        virtual void update() = 0;
+        virtual void update() {}
 
-        virtual void render(const render_info& info) = 0;
+        virtual void render(const render_info& info) {}
 
-        virtual void setProjection(const float * proj) = 0;
+        virtual void setProjection(const float * proj) {}
 
-        virtual void setScissor(const scissor_rect& scissor) = 0;
+        virtual void setScissor(const scissor_rect& scissor) {}
 
-        virtual const scissor_rect& getScissor() const = 0;
+        virtual const scissor_rect& getScissor() const {}
     };
 }

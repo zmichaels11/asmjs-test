@@ -4,7 +4,7 @@
 
 #include "GL/glew.h"
 
-namespace graphics {
+namespace graphics {    
     void draw::arrays(draw_mode mode, int first, std::size_t count) noexcept {
         glDrawArrays(static_cast<GLenum> (mode), first, count);
     }

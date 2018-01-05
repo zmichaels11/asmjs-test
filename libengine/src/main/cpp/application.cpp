@@ -80,47 +80,45 @@ namespace nk {
 }
 
 namespace engine {
-    namespace application {
-        renderer::scene * getScene() noexcept {
-            return _scene.get();
-        }
-        
-        void setScene(const std::shared_ptr<renderer::scene>& scene) noexcept {
-            _scene = scene;
-        }
+    renderer::scene * application::getScene() noexcept {
+        return _scene.get();
+    }
+    
+    void application::setScene(const std::shared_ptr<renderer::scene>& scene) noexcept {
+        _scene = scene;
+    }
 
-        void setScene(const renderer::scene_info& sceneInfo) noexcept {
-            _scene = std::make_shared<renderer::scene> (sceneInfo);
-        }
+    void application::setScene(const renderer::scene_info& sceneInfo) noexcept {
+        _scene = std::make_shared<renderer::scene> (sceneInfo);
+    }
 
-        void setOnUpdate(const std::function<void(void*)>& callback) noexcept {
-            _onUpdate = callback;
-        }
+    void application::setOnUpdate(const std::function<void(void*)>& callback) noexcept {
+        _onUpdate = callback;
+    }
 
-        void setOnFrame(const std::function<void(void*)>& callback) noexcept {
-            _onFrame = callback;
-        }
+    void application::setOnFrame(const std::function<void(void*)>& callback) noexcept {
+        _onFrame = callback;
+    }
 
-        void init(const std::string& name, unsigned int width, unsigned int height) noexcept {
-            _pNativeResources = std::make_unique<native_resources> (name, width, height);            
-        }
+    void application::init(const std::string& name, unsigned int width, unsigned int height) noexcept {
+        _pNativeResources = std::make_unique<native_resources> (name, width, height);            
+    }
 
-        double getTime() noexcept {
-            return _time;
-        }
+    double application::getTime() noexcept {
+        return _time;
+    }
 
-        void start(const std::shared_ptr<void>& pUserData) noexcept {
-            _pUserData = pUserData;
+    void application::start(const std::shared_ptr<void>& pUserData) noexcept {
+        _pUserData = pUserData;
 
 #ifdef __EMSCRIPTEN__
-            emscripten_set_main_loop(doFrame, 0, 1);
+        emscripten_set_main_loop(doFrame, 0, 1);
 #else
-            while (_pNativeResources->isValid()) {
-                doFrame();
-            }
+        while (_pNativeResources->isValid()) {
+            doFrame();
+        }
 #endif
-        }        
-    }
+    }            
 }
 
 namespace {

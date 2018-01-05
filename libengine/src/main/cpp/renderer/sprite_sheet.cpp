@@ -27,7 +27,7 @@ namespace renderer {
     sprite_sheet::sprite_sheet(const sprite_sheet_info& info) {
         _info = info;
 
-        auto pResources = std::make_shared<sprite_sheet_res_impl>();
+        auto pResources = std::make_unique<sprite_sheet_res_impl>();
         
         pResources->spriteRefs.reserve(info.spriteImageCount);
 
@@ -92,7 +92,7 @@ namespace renderer {
 
         std::swap(pResources->texture, texture);
 
-        _pResources = pResources;
+        _pResources.reset(pResources.release());
     }
 
     const sprite_sheet_info& sprite_sheet::getInfo() const {

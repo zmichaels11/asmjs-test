@@ -18,10 +18,7 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
-            __builtin_trap();
-        }        
+        void _onError(const std::string& msg) noexcept;
 
         struct font_resources_impl : public virtual font_resources {
             std::unique_ptr<stbtt_bakedchar[]> _cdata;
@@ -33,54 +30,7 @@ namespace graphics {
             unsigned int _width;
             unsigned int _height;
 
-            font_resources_impl(const font_info& info) noexcept {
-                auto fontData = util::readAll(info.fontFile);
-
-                stbtt_InitFont(&_fontInfo, reinterpret_cast<const unsigned char *> (fontData.get()), 0);
-                _scale = stbtt_ScaleForPixelHeight(&_fontInfo, info.charHeight);
-
-                int ascent, descent, lineGap;
-                stbtt_GetFontVMetrics(&_fontInfo, &ascent, &descent, &lineGap);
-
-                _ascent = _scale * ascent;
-                _descent = _scale * descent;
-                _lineGap = _scale * lineGap;
-                _lineSpacing = _ascent - _descent + _lineGap;
-                _cdata = std::make_unique<stbtt_bakedchar[]> (info.charCount);
-
-                auto neededArea = info.charCount * info.charHeight * info.charHeight;
-                auto flipflop = false;
-                int w = 1;
-                int h = 1;
-
-                while (w * h < neededArea) {
-                    if (flipflop) {
-                        w <<= 1;
-                    } else {
-                        h <<= 1;
-                    }
-
-                    flipflop = !flipflop;
-                }
-                 
-                _dataSize = w * h;
-                _data = std::make_unique<unsigned char[]> (_dataSize);
-
-                while (stbtt_BakeFontBitmap(reinterpret_cast<const unsigned char *> (fontData.get()), 0, info.charHeight, _data.get(), w, h, info.firstChar, info.charCount, _cdata.get()) == 0) {
-                    if (flipflop) {
-                        w <<= 1;
-                    } else {
-                        h <<= 1;
-                    }
-
-                    flipflop = !flipflop;
-                    _dataSize = w * h;
-                    _data = std::make_unique<unsigned char[]> (_dataSize);
-                }
-
-                _width = w;
-                _height = h;
-            }
+            font_resources_impl(const font_info& info) noexcept;
 
             virtual ~font_resources_impl() noexcept {
             }
@@ -113,7 +63,7 @@ namespace graphics {
 
     font_image::font_image(const font_info& info) noexcept {
         _info = info;
-        _resources = std::make_shared<font_resources_impl>(info);
+        _resources.reset(new font_resources_impl(info));
     }
 
     unsigned int font_image::getWidth() const noexcept {
@@ -166,7 +116,59 @@ namespace graphics {
         return out;
     }
 
-    void swap(font_image& a, font_image& b) {
+    namespace {
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << "Err: " << msg << std::endl;
+            __builtin_trap();
+        }
 
+        font_resources_impl::font_resources_impl(const font_info& info) noexcept {
+                auto fontData = util::readAll(info.fontFile);
+
+                stbtt_InitFont(&_fontInfo, reinterpret_cast<const unsigned char *> (fontData.get()), 0);
+                _scale = stbtt_ScaleForPixelHeight(&_fontInfo, info.charHeight);
+
+                int ascent, descent, lineGap;
+                stbtt_GetFontVMetrics(&_fontInfo, &ascent, &descent, &lineGap);
+
+                _ascent = _scale * ascent;
+                _descent = _scale * descent;
+                _lineGap = _scale * lineGap;
+                _lineSpacing = _ascent - _descent + _lineGap;
+                _cdata = std::make_unique<stbtt_bakedchar[]> (info.charCount);
+
+                auto neededArea = info.charCount * info.charHeight * info.charHeight;
+                auto flipflop = false;
+                int w = 1;
+                int h = 1;
+
+                while (w * h < neededArea) {
+                    if (flipflop) {
+                        w <<= 1;
+                    } else {
+                        h <<= 1;
+                    }
+
+                    flipflop = !flipflop;
+                }
+                 
+                _dataSize = w * h;
+                _data = std::make_unique<unsigned char[]> (_dataSize);
+
+                while (stbtt_BakeFontBitmap(reinterpret_cast<const unsigned char *> (fontData.get()), 0, info.charHeight, _data.get(), w, h, info.firstChar, info.charCount, _cdata.get()) == 0) {
+                    if (flipflop) {
+                        w <<= 1;
+                    } else {
+                        h <<= 1;
+                    }
+
+                    flipflop = !flipflop;
+                    _dataSize = w * h;
+                    _data = std::make_unique<unsigned char[]> (_dataSize);
+                }
+
+                _width = w;
+                _height = h;
+            }
     }
 }

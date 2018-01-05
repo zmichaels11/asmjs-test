@@ -14,7 +14,7 @@ namespace renderer {
 
     class sprite_sheet {
         sprite_sheet_info _info;
-        std::shared_ptr<sprite_sheet_res> _pResources;
+        std::unique_ptr<sprite_sheet_res> _pResources;
 
         void * getTexture() const;
 

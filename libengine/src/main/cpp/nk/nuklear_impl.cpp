@@ -29,7 +29,7 @@
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
-#include "nk/nuklear.hpp"
+#include "nuklear.h"
 
 #include "graphics/address_mode.hpp"
 

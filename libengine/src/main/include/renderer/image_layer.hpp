@@ -16,7 +16,7 @@ namespace renderer {
     class image_layer : public virtual renderer::layer {
         scissor_rect _scissor;
         image_layer_info _info;
-        std::shared_ptr<image_layer_res> _pResources;
+        std::unique_ptr<image_layer_res> _pResources;
 
     public:
         image_layer(const image_layer_info& info);

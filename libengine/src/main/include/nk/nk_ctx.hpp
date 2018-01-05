@@ -11,7 +11,7 @@
 #define NK_INCLUDE_VERTEX_BUFFER_OUTPUT
 #define NK_INCLUDE_FONT_BAKING
 #define NK_INCLUDE_DEFAULT_FONT
-#include "nk/nuklear.hpp"
+#include "nuklear.h"
 
 #include "graphics/buffer.hpp"
 #include "graphics/program.hpp"
