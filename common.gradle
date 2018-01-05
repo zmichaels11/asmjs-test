@@ -6,6 +6,11 @@ task wrapper(type: Wrapper) {
 
 model {
 	platforms {
+		linux32 {
+			operatingSystem "linux"
+			architecture "x86"
+		}
+
 		linux64 {
 			operatingSystem "linux"
 			architecture "x86_64"
@@ -19,6 +24,11 @@ model {
 		asmjs {
 			operatingSystem "webassembly"
 			architecture "asmjs"
+		}
+
+		windows32 {
+			operatingSystem "windows"
+			architecture "x86"
 		}
 
 		windows64 {
@@ -58,6 +68,31 @@ model {
 				linker.executable = 'x86_64-linux-gnu-g++'
 				assembler.executable = 'x86_64-linux-gnu-as'
 				staticLibArchiver.executable = 'x86_64-linux-gnu-ar'				
+			}
+
+			target("linux32") {
+				cCompiler.executable = 'i686-linux-gnu-gcc'
+				cppCompiler.executable = 'i686-linux-gnu-g++'
+				linker.executable = 'i686-linux-gnu-g++'
+				assembler.executable = 'i686-linux-gnu-as'
+				staticLibArchiver.executable = 'i686-linux-gnu-ar'
+			}
+
+			target("windows32") {
+				cCompiler.executable = 'i686-w64-mingw32-gcc'
+				cppCompiler.executable = 'i686-w64-mingw32-g++'
+				linker.executable = 'i686-w64-mingw32-g++'
+                assembler.executable = 'i686-w64-mingw32-as'
+                staticLibArchiver.executable = 'i686-w64-mingw32-ar'
+
+				cppCompiler.withArguments { args ->
+					args << "-DGLFW_DLL"
+					args << "-DUSE_EGL"
+				}
+
+				linker.withArguments { args -> 
+					args << '-static'
+				}
 			}
 
 			target("windows64") {
