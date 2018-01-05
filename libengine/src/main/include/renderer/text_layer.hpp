@@ -16,7 +16,6 @@ namespace renderer {
 
     class text_layer : public virtual layer {
         scissor_rect _scissor;
-        render_info _renderInfo;
 
         std::shared_ptr<text_layer_res> _pResources;
         renderer::text_layer_info _info;

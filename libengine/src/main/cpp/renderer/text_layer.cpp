@@ -32,31 +32,9 @@ namespace renderer {
         constexpr unsigned int VERTICES_PER_CHARACTER = 6;
         constexpr unsigned int BYTES_PER_CHARACTER = BYTES_PER_VERTEX * VERTICES_PER_CHARACTER;
 
-        graphics::program _newProgram(const std::string& v, const std::string& f) {
-            auto vsrc = util::stringReadAll(v);
-            auto fsrc = util::stringReadAll(f);
-            auto vsh = graphics::shader({graphics::shader_type::VERTEX, vsrc});
-            auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, fsrc});
+        graphics::program _newProgram(const std::string& v, const std::string& f);
 
-            decltype(&vsh) shaders[] = {&vsh, &fsh};
-
-            graphics::attribute_state_info attribs[] = {
-                {"vPosition", 0},
-                {"vTexCoord", 1},
-                {"vColor", 2}
-            };
-
-            return graphics::program({shaders, 2, attribs, 3});
-        }
-
-        void _onError(const std::string& msg) {
-            std::cout << msg << std::endl;
-            __builtin_trap();
-        }
-
-        std::uint16_t _tc(float tc) {
-            return static_cast<std::uint16_t> (tc * 65535u);
-        }
+        void _onError(const std::string& msg);
 
         struct vertex {
             float x, y;
@@ -181,7 +159,7 @@ namespace renderer {
         res->vertices.clear();
     }
 
-    void text_layer::submit(const text_info * pTexts, std::size_t count) {
+    void text_layer::submit(const text_info * pTexts, std::size_t count) {        
         auto res = dynamic_cast<text_layer_res_impl*> (_pResources.get());
         auto& vertices = res->vertices;
 
@@ -193,12 +171,12 @@ namespace renderer {
             auto a = static_cast<std::uint8_t> (it->color.alpha * 255.0F);            
 
             for (auto&& glyph : glyphs) {            
-                vertices.push_back({glyph.vertex.x0, glyph.vertex.y0, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t0), r, g, b, a});
-                vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a});
-                vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
-                vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a});
-                vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
-                vertices.push_back({glyph.vertex.x1, glyph.vertex.y1, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t1), r, g, b, a});
+                vertices.push_back({glyph.vertex.x0, glyph.vertex.y0, util::unorm<std::uint16_t>(glyph.texCoord.s0), util::unorm<std::uint16_t>(glyph.texCoord.t0), r, g, b, a});
+                vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, util::unorm<std::uint16_t>(glyph.texCoord.s1), util::unorm<std::uint16_t>(glyph.texCoord.t0), r, g, b, a});
+                vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, util::unorm<std::uint16_t>(glyph.texCoord.s0), util::unorm<std::uint16_t>(glyph.texCoord.t1), r, g, b, a});
+                vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, util::unorm<std::uint16_t>(glyph.texCoord.s1), util::unorm<std::uint16_t>(glyph.texCoord.t0), r, g, b, a});
+                vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, util::unorm<std::uint16_t>(glyph.texCoord.s0), util::unorm<std::uint16_t>(glyph.texCoord.t1), r, g, b, a});
+                vertices.push_back({glyph.vertex.x1, glyph.vertex.y1, util::unorm<std::uint16_t>(glyph.texCoord.s1), util::unorm<std::uint16_t>(glyph.texCoord.t1), r, g, b, a});
             }
         }        
     }
@@ -235,5 +213,29 @@ namespace renderer {
         auto res = dynamic_cast<text_layer_res_impl*> (_pResources.get());
 
         return res->font.getLineGap();
+    }
+
+    namespace {
+        graphics::program _newProgram(const std::string& v, const std::string& f) {
+            auto vsrc = util::stringReadAll(v);
+            auto fsrc = util::stringReadAll(f);
+            auto vsh = graphics::shader({graphics::shader_type::VERTEX, vsrc});
+            auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, fsrc});
+
+            decltype(&vsh) shaders[] = {&vsh, &fsh};
+
+            graphics::attribute_state_info attribs[] = {
+                {"vPosition", 0},
+                {"vTexCoord", 1},
+                {"vColor", 2}
+            };
+
+            return graphics::program({shaders, 2, attribs, 3});
+        }
+
+        void _onError(const std::string& msg) {
+            std::cout << msg << std::endl;
+            __builtin_trap();
+        }
     }
 }
