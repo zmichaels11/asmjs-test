@@ -44,6 +44,6 @@ namespace engine {
 
         void start(const std::shared_ptr<void>& pUserData);
 
-        double getTime();        
+        double getTime();                 
     }
 }

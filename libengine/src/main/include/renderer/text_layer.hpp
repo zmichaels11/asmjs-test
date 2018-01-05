@@ -1,5 +1,6 @@
 #pragma once
 
+#include <cstddef>
 #include <memory>
 
 #include "renderer/layer.hpp"
@@ -22,6 +23,8 @@ namespace renderer {
 
     public:
         text_layer(const text_layer_info& info);
+
+        const text_layer_info& getInfo() const;
         
         virtual ~text_layer() {}
 
@@ -39,14 +42,12 @@ namespace renderer {
 
         virtual const scissor_rect& getScissor() const;
 
-        void text(const text_info& txt);
+        void submit(const text_info * pTexts, std::size_t count = 1);
 
         virtual void update();
 
         virtual void render(const render_info& info);
 
         virtual void setProjection(const float * proj);
-
-        const renderer::text_layer_info& getInfo() const;
     };
 }

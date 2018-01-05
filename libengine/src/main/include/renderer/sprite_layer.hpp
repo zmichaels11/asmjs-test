@@ -1,9 +1,11 @@
 #pragma once
 
-#include <cstddef>
+#include <vector>
 
 #include "renderer/image_view.hpp"
 #include "renderer/layer.hpp"
+#include "renderer/render_info.hpp"
+#include "renderer/scissor_rect.hpp"
 #include "renderer/sprite_info.hpp"
 #include "renderer/sprite_layer_info.hpp"
 
@@ -12,14 +14,20 @@ namespace renderer {
     public:
         virtual ~sprite_layer() {}
 
-        virtual const renderer::sprite_layer_info& getInfo() const = 0;
+        virtual void update();
 
-        virtual void * getSpriteView(int spriteId) const = 0;
+        virtual void render(const render_info& info);
 
-        virtual void * getMaskView(int maskId) const = 0;
+        virtual void setProjection(const float* proj);
 
-        virtual void clear() = 0;
+        virtual void setScissor(const scissor_rect& scissor);
 
-        virtual bool submit(const renderer::sprite_info * pSprites, std::size_t count) = 0;
+        virtual const scissor_rect& getScissor() const;
+
+        virtual const renderer::sprite_layer_info& getInfo() const;
+
+        virtual const image_view& getSpriteView(int spriteId) const;
+
+        virtual bool submit(const std::vector<sprite_info>& sprites);
     };
 }

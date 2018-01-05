@@ -181,23 +181,26 @@ namespace renderer {
         res->vertices.clear();
     }
 
-    void text_layer::text(const text_info& info) {
+    void text_layer::submit(const text_info * pTexts, std::size_t count) {
         auto res = dynamic_cast<text_layer_res_impl*> (_pResources.get());
-        auto glyphs = res->font.encode(info.x, info.y, info.text);        
-        auto r = static_cast<std::uint8_t> (info.color.red * 255.0F);
-        auto g = static_cast<std::uint8_t> (info.color.green * 255.0F);
-        auto b = static_cast<std::uint8_t> (info.color.blue * 255.0F);
-        auto a = static_cast<std::uint8_t> (info.color.alpha * 255.0F);
         auto& vertices = res->vertices;
 
-        for (auto&& glyph : glyphs) {            
-            vertices.push_back({glyph.vertex.x0, glyph.vertex.y0, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t0), r, g, b, a});
-            vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a});
-            vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
-            vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a});
-            vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
-            vertices.push_back({glyph.vertex.x1, glyph.vertex.y1, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t1), r, g, b, a});
-        }
+        for (auto it = pTexts; it != (pTexts + count); it++) {
+            auto glyphs = res->font.encode(it->x, it->y, it->text);        
+            auto r = static_cast<std::uint8_t> (it->color.red * 255.0F);
+            auto g = static_cast<std::uint8_t> (it->color.green * 255.0F);
+            auto b = static_cast<std::uint8_t> (it->color.blue * 255.0F);
+            auto a = static_cast<std::uint8_t> (it->color.alpha * 255.0F);            
+
+            for (auto&& glyph : glyphs) {            
+                vertices.push_back({glyph.vertex.x0, glyph.vertex.y0, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t0), r, g, b, a});
+                vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a});
+                vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
+                vertices.push_back({glyph.vertex.x1, glyph.vertex.y0, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t0), r, g, b, a});
+                vertices.push_back({glyph.vertex.x0, glyph.vertex.y1, _tc(glyph.texCoord.s0), _tc(glyph.texCoord.t1), r, g, b, a});
+                vertices.push_back({glyph.vertex.x1, glyph.vertex.y1, _tc(glyph.texCoord.s1), _tc(glyph.texCoord.t1), r, g, b, a});
+            }
+        }        
     }
 
     void text_layer::setScissor(const scissor_rect& scissor) {
