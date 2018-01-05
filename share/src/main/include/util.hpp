@@ -4,6 +4,7 @@
 #include <cstddef>
 
 #include <fstream>
+#include <limits>
 #include <memory>
 #include <streambuf>
 #include <string>
@@ -36,5 +37,26 @@ namespace util {
         in.read(out.get(), len);
     
         return out;
+    }
+
+    template<class T>
+    inline T bestFitPowerOf2(T value) {        
+        auto result = static_cast<T> (0);
+
+        while (result < value) {
+            result <<= 1;
+        }
+
+        return (result >> 1);
+    }
+
+    template<class T>
+    inline T unorm(float value) {
+        return static_cast<T> (value * std::numeric_limits<T>::max());
+    }
+
+    template<class T>
+    inline float normalize(T value) {
+        return static_cast<float> (value) / static_cast<float> (std::numeric_limits<T>::max());
     }
 }
