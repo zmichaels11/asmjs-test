@@ -18,44 +18,44 @@ namespace graphics {
 
         friend class vertex_array;
     public:
-        buffer() : 
-            _handle(0),
-            _info(),
-            _external(false) {}
-        
-        buffer(const buffer_info& info);
-
-        buffer(unsigned int handle) :
-            _handle(handle),
-            _info(),
-            _external(true) {}
-
-        ~buffer();
-
         buffer(buffer&&) = default;
 
         buffer& operator=(buffer&&) = default;        
 
-        void bind(buffer_target target) const;
+        buffer() noexcept: 
+            _handle(0),
+            _info(),
+            _external(false) {}
+        
+        buffer(const buffer_info& info) noexcept;
 
-        inline void bind() const {
+        buffer(unsigned int handle) noexcept:
+            _handle(handle),
+            _info(),
+            _external(true) {}
+
+        ~buffer() noexcept;
+
+        void bind(buffer_target target) const noexcept;
+
+        inline void bind() const noexcept {
             bind(_info.target);
         }
 
-        void invalidate() const;
+        void invalidate() const noexcept;
 
-        void subData(long offset, const void * src, std::size_t size) const;
+        void subData(long offset, const void * src, std::size_t size) const noexcept;
 
-        void bindBase(unsigned int index) const;
+        void bindBase(unsigned int index) const noexcept;
 
-        void bindRange(unsigned int index, long offset, std::size_t size) const;
+        void bindRange(unsigned int index, long offset, std::size_t size) const noexcept;
 
-        const graphics::buffer_info& getInfo() const;
+        const graphics::buffer_info& getInfo() const noexcept;
 
-        inline operator int() const {
+        inline operator int() const noexcept {
             return _handle;
         }
 
-        static const buffer& getDefault();
+        static const buffer& getDefault() noexcept;
     };
 }

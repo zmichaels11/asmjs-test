@@ -8,8 +8,8 @@ namespace graphics {
         int left, bottom, width, height;
     };
 
-    void apply(const graphics::scissor_state_info& info);
+    void apply(const graphics::scissor_state_info& info) noexcept;
 
     template<>
-    scissor_state_info defaults();
+    scissor_state_info defaults() noexcept;
 }

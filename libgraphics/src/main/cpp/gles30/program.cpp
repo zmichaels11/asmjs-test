@@ -13,10 +13,10 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg);
+        void _onError(const std::string& msg) noexcept;
     }
 
-    program::program(const program_info& info) {
+    program::program(const program_info& info) noexcept {
         _info = info;
         _handle = glCreateProgram();
         _external = false;
@@ -52,27 +52,27 @@ namespace graphics {
         }
     }
 
-    program::~program() {
+    program::~program() noexcept {
         if (_handle && !_external) {
             glDeleteProgram(_handle);
             _handle = 0;
         }
     }
 
-    void program::use() const {
+    void program::use() const noexcept {
         glUseProgram(_handle);
     }
 
-    int program::getUniformLocation(const std::string& name) const {
+    int program::getUniformLocation(const std::string& name) const noexcept {
         return glGetUniformLocation(_handle, name.c_str());
     }
 
-    unsigned int program::getUniformBlockIndex(const std::string& name) const {
+    unsigned int program::getUniformBlockIndex(const std::string& name) const noexcept {
         return glGetUniformBlockIndex(_handle, name.c_str());
     }
 
     namespace {
-        void _onError(const std::string& msg)  {
+        void _onError(const std::string& msg) noexcept {
             std::cerr << "program error: " << msg << std::endl;
             __builtin_trap();
         }

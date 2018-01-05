@@ -43,7 +43,7 @@ namespace renderer {
         };
 
         struct text_layer_res_impl : public virtual text_layer_res {
-            virtual ~text_layer_res_impl() {}
+            virtual ~text_layer_res_impl() {}            
 
             float projection[16];            
 
@@ -94,10 +94,11 @@ namespace renderer {
         
         auto pResources = std::make_shared<text_layer_res_impl>();
 
-        pResources->bufferSize = bufferSize;
+        pResources->bufferSize = bufferSize;        
+        
         std::swap(pResources->vtext, vtext);
-        std::swap(pResources->model, model);
         std::swap(pResources->font, font);
+        std::swap(pResources->model, model);        
         std::swap(pResources->texture, texture);  
 
         _pResources = pResources;              

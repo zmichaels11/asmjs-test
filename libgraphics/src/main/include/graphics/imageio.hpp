@@ -7,6 +7,6 @@
 
 namespace graphics {    
     namespace image_io {
-        std::unique_ptr<graphics::image> read(const std::string& path, unsigned int forcedChannels = 0);
+        std::unique_ptr<graphics::image> read(const std::string& path, unsigned int forcedChannels = 0) noexcept;
     }
 }

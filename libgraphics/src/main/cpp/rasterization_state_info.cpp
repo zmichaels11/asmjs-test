@@ -2,7 +2,7 @@
 
 namespace graphics {
     template<>
-    rasterization_state_info defaults() {
+    rasterization_state_info defaults() noexcept {
         return {
             front_face::CCW,
             1.0F,

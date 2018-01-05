@@ -30,9 +30,9 @@ namespace audio {
         sound& operator=(const sound&) = delete;
 
     public: 
-        sound(sound&&) noexcept = default;
+        sound(sound&&) = default;
 
-        sound& operator=(sound&&) noexcept = default;
+        sound& operator=(sound&&) = default;
 
         sound(const std::string& path, float loopOffset = 0.0F) noexcept; 
 

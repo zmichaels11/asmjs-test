@@ -15,33 +15,33 @@ namespace graphics {
         program& operator= (const program&) = delete;
 
     public:
-        program() : 
+        program(program&&) = default;
+
+        program& operator=(program&&) = default;
+
+        program() noexcept: 
             _info(),
             _handle(0),
             _external(false) {}
         
-        program(const program_info& info);
+        program(const program_info& info) noexcept;
 
-        program(unsigned int handle) :
+        program(unsigned int handle) noexcept:
             _info(),
             _handle(handle),
-            _external(true) {}
+            _external(true) {}        
 
-        program(program&&) = default;
+        ~program() noexcept;        
 
-        ~program();
+        unsigned int getUniformBlockIndex(const std::string& name) const noexcept;
 
-        program& operator=(program&&) = default;
+        int getUniformLocation(const std::string& name) const noexcept;
 
-        unsigned int getUniformBlockIndex(const std::string& name) const;
+        void use() const noexcept;
 
-        int getUniformLocation(const std::string& name) const;
+        const graphics::program_info& getInfo() const noexcept;
 
-        void use() const;
-
-        const graphics::program_info& getInfo() const;
-
-        inline operator int() const {
+        inline operator int() const noexcept {
             return _handle;
         }
     };

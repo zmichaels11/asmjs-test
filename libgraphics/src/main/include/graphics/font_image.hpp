@@ -12,7 +12,7 @@
 
 namespace graphics {
     struct font_resources {        
-        virtual ~font_resources() {}
+        virtual ~font_resources() noexcept {}
     };
 
     struct char_sprite {
@@ -33,36 +33,36 @@ namespace graphics {
 
         font_image& operator=(const font_image&) = delete;
     public:
-        font_image() :
-            _info(),
-            _resources(nullptr) {}
-
-        font_image(const font_info& info);
-
         font_image(font_image&&) = default;
 
         font_image& operator=(font_image&&) = default;
 
-        virtual std::vector<char_sprite> encode(float x, float y, const std::string& text) const;
+        font_image() noexcept:
+            _info(),
+            _resources(nullptr) {}
 
-        virtual unsigned int getWidth() const;
+        font_image(const font_info& info) noexcept;
 
-        virtual unsigned int getHeight() const;
+        virtual std::vector<char_sprite> encode(float x, float y, const std::string& text) const noexcept;
 
-        virtual const void * getData() const;
+        virtual unsigned int getWidth() const noexcept;
 
-        virtual std::size_t getSize() const;
+        virtual unsigned int getHeight() const noexcept;
 
-        virtual pixel_format getFormat() const;
+        virtual const void * getData() const noexcept;
 
-        virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimg);
+        virtual std::size_t getSize() const noexcept;
 
-        float getAscent() const;
+        virtual pixel_format getFormat() const noexcept;
 
-        float getDescent() const;
+        virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimg) noexcept;
 
-        float getLineGap() const;
+        float getAscent() const noexcept;
 
-        float getLineSpacing() const;
+        float getDescent() const noexcept;
+
+        float getLineGap() const noexcept;
+
+        float getLineSpacing() const noexcept;
     };
 }

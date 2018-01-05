@@ -5,7 +5,7 @@
 #include "GL/glew.h"
 
 namespace graphics {
-    void apply (const blend_state_info& info) {        
+    void apply (const blend_state_info& info) noexcept {        
         if (info.blendEnabled) {
             glEnable(GL_BLEND);
             

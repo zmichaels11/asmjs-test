@@ -14,33 +14,33 @@ namespace graphics {
         vertex_array& operator=(const vertex_array&) = delete;
 
     public:
-        vertex_array() :
-            _info(), 
-            _handle(0),
-            _external(false) {}
-        
-        vertex_array(const vertex_array_info& info);
-
-        vertex_array(unsigned int handle) :
-            _info(),
-            _handle(handle),
-            _external(true) {}
-
-        ~vertex_array();
-
         vertex_array(vertex_array&&) = default;
 
         vertex_array& operator=(vertex_array&&) = default;        
 
-        void bind() const;
+        vertex_array() noexcept:
+            _info(), 
+            _handle(0),
+            _external(false) {}
+        
+        vertex_array(const vertex_array_info& info) noexcept;
 
-        inline operator int() const {
+        vertex_array(unsigned int handle)  noexcept:
+            _info(),
+            _handle(handle),
+            _external(true) {}
+
+        ~vertex_array() noexcept;
+
+        void bind() const noexcept;
+
+        inline operator int() const noexcept {
             return _handle;
         }
 
-        const graphics::vertex_array_info& getInfo() const;
+        const graphics::vertex_array_info& getInfo() const noexcept;
 
-        static const vertex_array& getDefault();
+        static const vertex_array& getDefault() noexcept;
     };
 
 }

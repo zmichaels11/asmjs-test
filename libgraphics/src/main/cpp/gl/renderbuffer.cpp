@@ -7,7 +7,7 @@
 #include "graphics/renderbuffer_info.hpp"
 
 namespace graphics {
-    renderbuffer::renderbuffer(const renderbuffer_info& info) {        
+    renderbuffer::renderbuffer(const renderbuffer_info& info) noexcept {        
         _info = info;
         _external = false;
         _handle = 0;
@@ -23,7 +23,7 @@ namespace graphics {
         }
     }
 
-    renderbuffer::~renderbuffer() {
+    renderbuffer::~renderbuffer() noexcept {
         if (_handle && !_external) {
             glDeleteRenderbuffers(1, &_handle);
             _handle = 0;

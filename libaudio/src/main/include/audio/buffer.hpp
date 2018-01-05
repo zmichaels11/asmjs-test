@@ -17,9 +17,9 @@ namespace audio {
         buffer& operator=(const buffer&) = delete;
 
     public:
-        buffer(buffer&&) noexcept = default;
+        buffer(buffer&&) = default;
 
-        buffer& operator=(buffer&&) noexcept = default;
+        buffer& operator=(buffer&&) = default;
 
         buffer() noexcept;
 

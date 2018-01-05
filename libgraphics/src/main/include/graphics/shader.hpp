@@ -16,24 +16,24 @@ namespace graphics {
         friend class program;
 
     public:
-        shader() : 
+        shader(shader&&) = default;
+
+        shader& operator=(shader&&) = default;
+
+        shader() noexcept: 
             _info(),
             _handle(0),
             _external(false) {}
         
-        shader(const shader_info& info);
+        shader(const shader_info& info) noexcept;
 
-        shader(unsigned int handle) :
+        shader(unsigned int handle) noexcept:
             _info(),
             _handle(handle),
-            _external(true) {}
+            _external(true) {}        
 
-        shader(shader&&) = default;
+        ~shader() noexcept;        
 
-        ~shader();
-
-        shader& operator=(shader&&) = default;
-
-        const graphics::shader_info& getInfo() const;
+        const graphics::shader_info& getInfo() const noexcept;
     };
 }

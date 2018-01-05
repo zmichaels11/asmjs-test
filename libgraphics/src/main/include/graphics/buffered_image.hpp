@@ -22,22 +22,24 @@ namespace graphics {
         buffered_image& operator=(const buffered_image&) = delete;
 
     public:
-        buffered_image(unsigned int width, unsigned int height, pixel_format format);
+        buffered_image(buffered_image&&) noexcept = default;
 
-        buffered_image(buffered_image&&) = default;
+        buffered_image& operator=(buffered_image&&) noexcept = default;
 
-        buffered_image& operator=(buffered_image&&) = default;
+        buffered_image(unsigned int width, unsigned int height, pixel_format format) noexcept;
 
-        virtual unsigned int getWidth() const;
+        virtual ~buffered_image() noexcept {}
 
-        virtual unsigned int getHeight() const;
+        virtual unsigned int getWidth() const noexcept;
 
-        virtual const void * getData() const;
+        virtual unsigned int getHeight() const noexcept;
 
-        virtual std::size_t getSize() const;
+        virtual const void * getData() const noexcept;
 
-        virtual graphics::pixel_format getFormat() const;
+        virtual std::size_t getSize() const noexcept;
 
-        virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimg) = 0;
+        virtual graphics::pixel_format getFormat() const noexcept;
+
+        virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimg) noexcept;
     };
 }

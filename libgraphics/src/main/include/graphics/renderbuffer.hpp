@@ -16,24 +16,24 @@ namespace graphics {
         friend class framebuffer;
 
     public:
-        renderbuffer() : 
-            _info(),
-            _handle(0),
-            _external(false) {}
-        
-        renderbuffer(const renderbuffer_info& info);
-
-        renderbuffer(unsigned int handle) :
-            _info(),
-            _handle(handle),
-            _external(true) {}
-
-        ~renderbuffer();
-
         renderbuffer(renderbuffer&&) = default;
 
         renderbuffer& operator=(renderbuffer&&) = default;
 
-        const graphics::renderbuffer_info& getInfo() const;
+        renderbuffer() noexcept: 
+            _info(),
+            _handle(0),
+            _external(false) {}
+        
+        renderbuffer(const renderbuffer_info& info) noexcept;
+
+        renderbuffer(unsigned int handle) noexcept:
+            _info(),
+            _handle(handle),
+            _external(true) {}
+
+        ~renderbuffer() noexcept;        
+
+        const graphics::renderbuffer_info& getInfo() const noexcept;
     };
 }

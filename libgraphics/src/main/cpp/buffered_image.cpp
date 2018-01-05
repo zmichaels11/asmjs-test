@@ -12,13 +12,13 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) {
+        static void _onError(const std::string& msg) noexcept {
             std::cerr << "Err: " << msg << std::endl;
             __builtin_trap();
         }
     }
 
-    buffered_image::buffered_image(unsigned int width, unsigned int height, pixel_format format) {
+    buffered_image::buffered_image(unsigned int width, unsigned int height, pixel_format format) noexcept {
         _width = width;
         _height = height;
         _format = format;
@@ -45,23 +45,23 @@ namespace graphics {
         _data = std::make_unique<unsigned char[]> (_dataSize);
     }
 
-    unsigned int buffered_image::getWidth() const {
+    unsigned int buffered_image::getWidth() const noexcept {
         return _width;
     }
 
-    unsigned int buffered_image::getHeight() const {
+    unsigned int buffered_image::getHeight() const noexcept {
         return _height;
     }
 
-    const void * buffered_image::getData() const {
+    const void * buffered_image::getData() const noexcept {
         return _data.get();
     }
 
-    std::size_t buffered_image::getSize() const {
+    std::size_t buffered_image::getSize() const noexcept {
         return _dataSize;
     }
 
-    void buffered_image::setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimage) {
+    void buffered_image::setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimage) noexcept {
         auto scale = _pixelSize;
         auto lineSize = w * scale;
         auto src = reinterpret_cast<const unsigned char *> (subimage.getData());
@@ -77,7 +77,7 @@ namespace graphics {
         }
     }
 
-    pixel_format buffered_image::getFormat() const {
+    pixel_format buffered_image::getFormat() const noexcept {
         return _format;
     }
 }

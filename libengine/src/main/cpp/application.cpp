@@ -34,12 +34,12 @@
 #include "nk/nk_ctx.hpp"
 
 namespace {    
-    void _onError(const std::string& msg) {
+    void _onError(const std::string& msg) noexcept {
         std::cerr << msg << std::endl;
         __builtin_trap();
     }    
 
-    void doFrame();
+    void doFrame() noexcept;
 
     struct native_resources {
         struct glfw_resources_t {
@@ -53,13 +53,13 @@ namespace {
         
         std::unique_ptr<nk::nk_ctx> nuklear;     
 
-        native_resources() {}
+        native_resources() noexcept {}
 
-        native_resources(const std::string& title, unsigned int width, unsigned int height);        
+        native_resources(const std::string& title, unsigned int width, unsigned int height) noexcept;
 
-        ~native_resources();    
+        ~native_resources() noexcept;
 
-        bool isValid() const;
+        bool isValid() const noexcept;
     };
 }
 
@@ -81,35 +81,35 @@ namespace nk {
 
 namespace engine {
     namespace application {
-        renderer::scene * getScene() {
+        renderer::scene * getScene() noexcept {
             return _scene.get();
         }
         
-        void setScene(const std::shared_ptr<renderer::scene>& scene) {
+        void setScene(const std::shared_ptr<renderer::scene>& scene) noexcept {
             _scene = scene;
         }
 
-        void setScene(const renderer::scene_info& sceneInfo) {
+        void setScene(const renderer::scene_info& sceneInfo) noexcept {
             _scene = std::make_shared<renderer::scene> (sceneInfo);
         }
 
-        void setOnUpdate(const std::function<void(void*)>& callback) {
+        void setOnUpdate(const std::function<void(void*)>& callback) noexcept {
             _onUpdate = callback;
         }
 
-        void setOnFrame(const std::function<void(void*)>& callback) {
+        void setOnFrame(const std::function<void(void*)>& callback) noexcept {
             _onFrame = callback;
         }
 
-        void init(const std::string& name, unsigned int width, unsigned int height) {
+        void init(const std::string& name, unsigned int width, unsigned int height) noexcept {
             _pNativeResources = std::make_unique<native_resources> (name, width, height);            
         }
 
-        double getTime() {
+        double getTime() noexcept {
             return _time;
         }
 
-        void start(const std::shared_ptr<void>& pUserData) {
+        void start(const std::shared_ptr<void>& pUserData) noexcept {
             _pUserData = pUserData;
 
 #ifdef __EMSCRIPTEN__
@@ -124,7 +124,7 @@ namespace engine {
 }
 
 namespace {
-    native_resources::native_resources(const std::string& title, unsigned int width, unsigned int height) {
+    native_resources::native_resources(const std::string& title, unsigned int width, unsigned int height) noexcept {
         if (!glfwInit()) {
             _onError("glfwInit failed!");
         }
@@ -175,7 +175,7 @@ namespace {
         nuklear = std::make_unique<nk::nk_ctx> (glfw.pWindow);        
     }
 
-    native_resources::~native_resources() {
+    native_resources::~native_resources() noexcept {
         if (nuklear) {
             nuklear = nullptr;
         }
@@ -190,11 +190,11 @@ namespace {
         }
     }
 
-    bool native_resources::isValid() const {
+    bool native_resources::isValid() const noexcept {
         return glfw.pWindow && !glfwWindowShouldClose(glfw.pWindow);
     }
 
-    void doFrame() {        
+    void doFrame() noexcept {        
         glfwPollEvents();
         _time = glfwGetTime();
 

@@ -5,7 +5,7 @@
 #include "GL/glew.h"
 
 namespace graphics {
-    void apply(const pixel_store_state_info& info) {                
+    void apply(const pixel_store_state_info& info) noexcept {                
         glPixelStorei(GL_PACK_SWAP_BYTES, info.pack.swapBytes);
         glPixelStorei(GL_PACK_LSB_FIRST, info.pack.lsbFirst);
         glPixelStorei(GL_PACK_ROW_LENGTH, info.pack.rowLength);

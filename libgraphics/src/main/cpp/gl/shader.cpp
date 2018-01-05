@@ -12,10 +12,10 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg);
+        void _onError(const std::string& msg) noexcept;
     }
 
-    shader::shader(const shader_info& info) {        
+    shader::shader(const shader_info& info) noexcept {        
         _info = info;
         _external = false;
 
@@ -46,7 +46,7 @@ namespace graphics {
         }
     }
 
-    shader::~shader() {
+    shader::~shader() noexcept {
         if (_handle && !_external) {
             glDeleteShader(_handle);
             _handle = 0;
@@ -54,8 +54,7 @@ namespace graphics {
     }
 
     namespace {
-
-        void _onError(const std::string& msg) {
+        void _onError(const std::string& msg) noexcept {
             std::cerr << "shader error: " << msg << std::endl;
             __builtin_trap();
         }

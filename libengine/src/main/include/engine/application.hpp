@@ -30,20 +30,20 @@ namespace engine {
     }
 
     namespace application {
-        void init(const std::string& name, unsigned int width, unsigned int height);
+        void init(const std::string& name, unsigned int width, unsigned int height) noexcept;
 
-        void setOnFrame(const std::function<void(void*)>& callback);
+        void setOnFrame(const std::function<void(void*)>& callback) noexcept;
 
-        void setOnUpdate(const std::function<void(void*)>& callback);
+        void setOnUpdate(const std::function<void(void*)>& callback) noexcept;
 
-        void setScene(const std::shared_ptr<renderer::scene>& scene);
+        void setScene(const std::shared_ptr<renderer::scene>& scene) noexcept;
 
-        void setScene(const renderer::scene_info& sceneInfo);
+        void setScene(const renderer::scene_info& sceneInfo) noexcept;
 
-        renderer::scene * getScene();
+        renderer::scene * getScene() noexcept;
 
-        void start(const std::shared_ptr<void>& pUserData);
+        void start(const std::shared_ptr<void>& pUserData) noexcept;
 
-        double getTime();                 
+        double getTime() noexcept;
     }
 }

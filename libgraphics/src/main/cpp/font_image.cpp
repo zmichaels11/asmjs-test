@@ -5,6 +5,7 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "graphics/font_info.hpp"
@@ -17,7 +18,7 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) {
+        static void _onError(const std::string& msg) noexcept {
             std::cerr << "Err: " << msg << std::endl;
             __builtin_trap();
         }        
@@ -32,7 +33,7 @@ namespace graphics {
             unsigned int _width;
             unsigned int _height;
 
-            font_resources_impl(const font_info& info) {
+            font_resources_impl(const font_info& info) noexcept {
                 auto fontData = util::readAll(info.fontFile);
 
                 stbtt_InitFont(&_fontInfo, reinterpret_cast<const unsigned char *> (fontData.get()), 0);
@@ -81,73 +82,73 @@ namespace graphics {
                 _height = h;
             }
 
-            virtual ~font_resources_impl() {
+            virtual ~font_resources_impl() noexcept {
             }
         };
     }
 
-    float font_image::getLineSpacing() const {
+    float font_image::getLineSpacing() const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_lineSpacing;
     }
     
-    float font_image::getAscent() const {
+    float font_image::getAscent() const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_ascent; 
     }
 
-    float font_image::getDescent() const {
+    float font_image::getDescent() const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_descent;
     }
 
-    float font_image::getLineGap() const {
+    float font_image::getLineGap() const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_lineGap;
     }
 
-    font_image::font_image(const font_info& info) {
+    font_image::font_image(const font_info& info) noexcept {
         _info = info;
         _resources = std::make_shared<font_resources_impl>(info);
     }
 
-    unsigned int font_image::getWidth() const {
+    unsigned int font_image::getWidth() const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_width;
     }
 
-    unsigned int font_image::getHeight() const {
+    unsigned int font_image::getHeight() const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_height;
     }
 
-    const void * font_image::getData() const {
+    const void * font_image::getData() const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_data.get();
     }
 
-    std::size_t font_image::getSize() const {
+    std::size_t font_image::getSize() const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
 
         return res->_dataSize;
     }
 
-    pixel_format font_image::getFormat() const {
+    pixel_format font_image::getFormat() const noexcept {
         return pixel_format::RED;
     }
 
-    void font_image::setSubimage(int, int, unsigned int, unsigned int, const image&) {
-        __builtin_trap();
+    void font_image::setSubimage(int, int, unsigned int, unsigned int, const image&) noexcept {
+        _onError("font_image does not support writing!");
     }
 
-    std::vector<char_sprite> font_image::encode(float x, float y, const std::string& text) const {
+    std::vector<char_sprite> font_image::encode(float x, float y, const std::string& text) const noexcept {
         auto res = dynamic_cast<font_resources_impl *> (_resources.get());
         auto len = text.length();
         auto out = std::vector<char_sprite>();
@@ -163,5 +164,9 @@ namespace graphics {
         }
 
         return out;
+    }
+
+    void swap(font_image& a, font_image& b) {
+
     }
 }

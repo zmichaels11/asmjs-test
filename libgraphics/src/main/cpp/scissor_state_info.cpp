@@ -2,7 +2,7 @@
 
 namespace graphics {
     template<>
-    scissor_state_info defaults() {
+    scissor_state_info defaults() noexcept {
         return {false};
     }
 }

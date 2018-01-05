@@ -2,5 +2,5 @@
 
 namespace graphics {
     template<typename info_t>
-    info_t defaults();
+    info_t defaults() noexcept;
 }

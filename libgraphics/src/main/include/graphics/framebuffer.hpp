@@ -14,28 +14,28 @@ namespace graphics {
         framebuffer& operator=(const framebuffer&) = delete;
 
     public:
-        framebuffer() : 
+        framebuffer(framebuffer&&) = default;
+
+        framebuffer& operator=(framebuffer&&) = default;
+
+        framebuffer() noexcept: 
             _handle(0),
             _info(),
             _external(false) {}
 
-        framebuffer(const framebuffer_info& info);
+        framebuffer(const framebuffer_info& info) noexcept;
 
-        framebuffer(unsigned int handle) :
+        framebuffer(unsigned int handle) noexcept:
             _handle(handle),
             _info(),
-            _external(true) {}
+            _external(true) {}        
 
-        framebuffer(framebuffer&&) = default;
+        ~framebuffer() noexcept;        
 
-        ~framebuffer();
+        const graphics::framebuffer_info& getInfo() const noexcept;
 
-        framebuffer& operator=(framebuffer&&) = default;
+        void bind() const noexcept;
 
-        const graphics::framebuffer_info& getInfo() const;
-
-        void bind() const;
-
-        static void readPixels(int x, int y, std::size_t width, std::size_t height, graphics::pixel_info& info);
+        static void readPixels(int x, int y, std::size_t width, std::size_t height, graphics::pixel_info& info) noexcept;
     };
 }

@@ -12,10 +12,10 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg);
+        void _onError(const std::string& msg) noexcept;
     }
 
-    shader::shader(const shader_info& info) {
+    shader::shader(const shader_info& info) noexcept {
         _info = info;
         _handle = glCreateShader(static_cast<GLenum> (info.type));
         _external = false;
@@ -45,7 +45,7 @@ namespace graphics {
         }
     }
 
-    shader::~shader() {
+    shader::~shader() noexcept {
         if (!_handle && _external) {
             glDeleteShader(_handle);
             _handle = 0;
@@ -53,11 +53,8 @@ namespace graphics {
     }
 
     namespace {
-
-        void _onError(const std::string& msg) {
-            std::cerr << "shader error: " << msg << std::endl;
-            std::cerr << "Supported GLSL version: " << glGetString(GL_SHADING_LANGUAGE_VERSION) << std::endl;
-            std::cerr << "Supported version: " << glGetString(GL_VERSION) << std::endl;
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << "[GL] Shader Error: " << msg << std::endl;
 
             __builtin_trap();
         }

@@ -6,8 +6,11 @@
 
 namespace graphics {
     namespace compute {
-        void dispatchCompute(unsigned int numGroupsX, unsigned int numGroupsY, unsigned int numGroupsZ) {
-            glDispatchCompute(numGroupsX, numGroupsY, numGroupsZ);
+        void dispatchCompute(unsigned int numGroupsX, unsigned int numGroupsY, unsigned int numGroupsZ) noexcept {
+            glDispatchCompute(
+                static_cast<GLuint> (numGroupsX), 
+                static_cast<GLuint> (numGroupsY), 
+                static_cast<GLuint> (numGroupsZ));
         }
     }
 }

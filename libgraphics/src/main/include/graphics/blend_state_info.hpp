@@ -18,17 +18,15 @@ namespace graphics {
         } colorWrite;
     };
 
-    inline blend_state_info blendStatePremultiplyAlpha() {
-        return {
+    constexpr auto PREMULTIPLIED_ALPHA = blend_state_info{
             true, 
             graphics::blend_equation::ADD, graphics::blend_equation::ADD,
             graphics::blend_function::ONE, graphics::blend_function::ONE_MINUS_SRC_ALPHA,
             graphics::blend_function::ONE, graphics::blend_function::ONE_MINUS_SRC_ALPHA,
-            {true, true, true, true}};
-    }
+            {true, true, true, true}};    
 
-    void apply(const graphics::blend_state_info& info);
+    void apply(const graphics::blend_state_info& info) noexcept;
 
     template<>
-    blend_state_info defaults();
+    blend_state_info defaults() noexcept;
 }

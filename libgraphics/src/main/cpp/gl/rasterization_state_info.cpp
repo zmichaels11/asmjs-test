@@ -7,7 +7,7 @@
 #include "graphics/cull_mode.hpp"
 
 namespace graphics {
-    void apply(const rasterization_state_info& info) {       
+    void apply(const rasterization_state_info& info) noexcept {       
         glLineWidth(info.lineWidth);
         
         if (info.polygonOffset.enabled) {

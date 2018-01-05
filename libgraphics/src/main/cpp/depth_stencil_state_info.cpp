@@ -2,7 +2,7 @@
 
 namespace graphics {
     template<>
-    depth_stencil_state_info defaults() {
+    depth_stencil_state_info defaults() noexcept {
         return {
             false,
             compare_op::LESS,

@@ -12,12 +12,12 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg);
+        void _onError(const std::string& msg) noexcept;
 
-        GLenum _getTarget(const texture_info& info);        
+        GLenum _getTarget(const texture_info& info) noexcept;
     }
 
-    texture::texture(const texture_info& info) {               
+    texture::texture(const texture_info& info) noexcept {
         auto internalFormat = static_cast<GLenum> (info.format);
         _target = _getTarget(info);   
         _handle = 0;
@@ -78,14 +78,14 @@ namespace graphics {
         }
     }
 
-    texture::~texture() {
+    texture::~texture() noexcept {
         if (_handle && !_external) {
             glDeleteTextures(1, &_handle);
             _handle = 0;
         }
     }
 
-    void texture::generateMipmap() const {
+    void texture::generateMipmap() const noexcept {
         if (GLEW_VERSION_4_5) {
             glGenerateTextureMipmap(_handle);
         } else {
@@ -95,7 +95,7 @@ namespace graphics {
         }
     }
 
-    void texture::bind(unsigned int unit) const {
+    void texture::bind(unsigned int unit) const noexcept {
         if (GLEW_VERSION_4_5) {
             glBindTextureUnit(unit, _handle);
         } else {
@@ -104,7 +104,7 @@ namespace graphics {
         }
     }
 
-    void texture::subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const {        
+    void texture::subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const noexcept {        
         if (GLEW_VERSION_4_5) {
             switch (_target) {
                 case GL_TEXTURE_2D:
@@ -133,12 +133,12 @@ namespace graphics {
     }
 
     namespace {
-        void _onError(const std::string& msg) {
+        void _onError(const std::string& msg) noexcept {
             std::cerr << msg << std::endl;
             __builtin_trap();
         }
 
-        GLenum _getTarget(const texture_info& info) {
+        GLenum _getTarget(const texture_info& info) noexcept {
             if (info.extent.height > 1) {
                 if (info.extent.depth > 1) {
                     return GL_TEXTURE_3D; 

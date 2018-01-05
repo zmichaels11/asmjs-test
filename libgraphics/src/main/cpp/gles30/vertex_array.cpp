@@ -14,20 +14,20 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg);
+        void _onError(const std::string& msg) noexcept;
 
-        GLenum _type(vertex_format format);
+        GLenum _type(vertex_format format) noexcept;
 
-        bool _normalized(vertex_format format);
+        bool _normalized(vertex_format format) noexcept;
 
-        GLint _size(vertex_format format);
+        GLint _size(vertex_format format) noexcept;
 
-        GLsizei _bytes(vertex_format format);
+        GLsizei _bytes(vertex_format format) noexcept;
 
-        vertex_binding_description * _findBinding(const vertex_array_info& info, unsigned int binding);
+        vertex_binding_description * _findBinding(const vertex_array_info& info, unsigned int binding) noexcept;
     }
 
-    vertex_array::vertex_array(const vertex_array_info& info) {
+    vertex_array::vertex_array(const vertex_array_info& info) noexcept {
         _info = info;
         _external = false;
         _handle = 0;
@@ -60,24 +60,24 @@ namespace graphics {
         }
     }
 
-    vertex_array::~vertex_array() {
+    vertex_array::~vertex_array() noexcept {
         if (_handle && !_external) {
             glDeleteVertexArrays(1, &_handle);
             _handle = 0;
         }
     }
 
-    void vertex_array::bind() const {
+    void vertex_array::bind() const noexcept {
         glBindVertexArray(_handle);
     }
 
     namespace {
-        void _onError(const std::string& msg) {
+        void _onError(const std::string& msg) noexcept {
             std::cerr << "Err: " << msg << std::endl;
             __builtin_trap();
         }
 
-        bool _normalized(vertex_format format) {
+        bool _normalized(vertex_format format) noexcept {
             switch (format) {
                 case vertex_format::X8_UNORM:
                 case vertex_format::X8_SNORM:
@@ -103,7 +103,7 @@ namespace graphics {
             }
         }
 
-        GLenum _type(vertex_format format) {
+        GLenum _type(vertex_format format) noexcept {
             switch (format) {
                 case vertex_format::X8_UNORM:
                 case vertex_format::X8Y8_UNORM:
@@ -170,7 +170,7 @@ namespace graphics {
             }
         }
 
-        GLint _size(vertex_format format) {
+        GLint _size(vertex_format format) noexcept {
             switch (format) {                
                 case vertex_format::X8Y8Z8W8_SINT:
                 case vertex_format::X8Y8Z8W8_SNORM:
@@ -235,7 +235,7 @@ namespace graphics {
             }
         }
 
-        GLsizei _bytes(vertex_format format) {
+        GLsizei _bytes(vertex_format format) noexcept {
             switch (format) {
                 case vertex_format::X8_SINT:
                 case vertex_format::X8_SNORM:
@@ -308,7 +308,7 @@ namespace graphics {
             }
         }
 
-        vertex_binding_description * _findBinding(const vertex_array_info& info, unsigned int binding) {
+        vertex_binding_description * _findBinding(const vertex_array_info& info, unsigned int binding) noexcept {
             for (int i = 0; i < info.bindingCount; i++) {
                 auto pCurrent = info.ppBindings[i];
 

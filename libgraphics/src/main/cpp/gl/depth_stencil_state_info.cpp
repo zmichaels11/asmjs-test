@@ -5,7 +5,7 @@
 #include "GL/glew.h"
 
 namespace graphics {
-    void apply(const depth_stencil_state_info& info) {       
+    void apply(const depth_stencil_state_info& info) noexcept {       
         if (info.depthTestEnabled) {
             glEnable(GL_DEPTH_TEST);
             glDepthFunc(static_cast<GLenum> (info.depthCompareOp));

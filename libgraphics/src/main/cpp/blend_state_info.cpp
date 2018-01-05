@@ -2,7 +2,7 @@
 
 namespace graphics {
     template<>
-    blend_state_info defaults() {
+    blend_state_info defaults() noexcept {
         return {
             false,
             graphics::blend_equation::ADD, graphics::blend_equation::ADD,

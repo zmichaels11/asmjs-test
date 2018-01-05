@@ -84,7 +84,7 @@ namespace renderer {
         auto res = dynamic_cast<scene_res_impl*> (_resources.get());
 
         graphics::apply(res->clearInfo);
-        graphics::apply(graphics::blendStatePremultiplyAlpha());
+        graphics::apply(graphics::PREMULTIPLIED_ALPHA);
 
         for (auto&& layer : _layers) {
             layer.drawLayer->render(layer.renderInfo);

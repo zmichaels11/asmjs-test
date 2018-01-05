@@ -13,16 +13,16 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg);
+        void _onError(const std::string& msg) noexcept;
 
-        bool _isStencil(internal_format format);
+        bool _isStencil(internal_format format) noexcept;
 
-        bool _isDepthStencil(internal_format format);
+        bool _isDepthStencil(internal_format format) noexcept;
 
-        bool _isDepth(internal_format format);
+        bool _isDepth(internal_format format) noexcept;
     }
 
-    framebuffer::framebuffer(const framebuffer_info& info) {
+    framebuffer::framebuffer(const framebuffer_info& info) noexcept {
         _info = info;
         _handle = 0;
         _external = false;
@@ -73,32 +73,32 @@ namespace graphics {
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
 
-    framebuffer::~framebuffer() {
+    framebuffer::~framebuffer() noexcept {
         if (!_handle && _external) {
             glDeleteFramebuffers(1, &_handle);
             _handle = 0;
         }
     }
 
-    void framebuffer::bind() const {
+    void framebuffer::bind() const noexcept {
         glBindFramebuffer(GL_FRAMEBUFFER, _handle);
     }
 
-    const framebuffer_info& framebuffer::getInfo() const {
+    const framebuffer_info& framebuffer::getInfo() const noexcept {
         return _info;
     }
 
-    void framebuffer::readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info) {
+    void framebuffer::readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info) noexcept {
         glReadPixels(x, y, width, height, static_cast<GLenum> (info.format), static_cast<GLenum> (info.type), info.pData);
     }
 
     namespace {
-        void _onError(const std::string& msg) {
+        void _onError(const std::string& msg) noexcept {
             std::cerr << "Err: " << msg << std::endl;
             __builtin_trap();
         }    
 
-        bool _isStencil(internal_format format) {
+        bool _isStencil(internal_format format) noexcept {
             switch (format) {
                 case internal_format::STENCIL_INDEX8:
                     return true;
@@ -107,7 +107,7 @@ namespace graphics {
             }
         }
 
-        bool _isDepthStencil(internal_format format) {
+        bool _isDepthStencil(internal_format format) noexcept {
             switch (format) {
                 case internal_format::DEPTH24_STENCIL8:
                 case internal_format::DEPTH32F_STENCIL8:
@@ -117,7 +117,7 @@ namespace graphics {
             }
         }
 
-        bool _isDepth(internal_format format) {
+        bool _isDepth(internal_format format) noexcept {
             switch (format) {
                 case internal_format::DEPTH_COMPONENT16:
                 case internal_format::DEPTH_COMPONENT24:

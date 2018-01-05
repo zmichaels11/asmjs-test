@@ -13,8 +13,8 @@ namespace graphics {
         unsigned int stencil;
     };
 
-    void apply(const graphics::clear_state_info& info);
+    void apply(const graphics::clear_state_info& info) noexcept;
 
     template<>
-    clear_state_info defaults();
+    clear_state_info defaults() noexcept;
 }

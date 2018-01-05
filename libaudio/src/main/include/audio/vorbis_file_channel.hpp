@@ -24,9 +24,9 @@ namespace audio {
         vorbis_file_channel& operator=(const vorbis_file_channel&) = delete;
 
     public:
-        vorbis_file_channel(vorbis_file_channel&&) noexcept = default;
+        vorbis_file_channel(vorbis_file_channel&&) = default;
 
-        vorbis_file_channel& operator=(vorbis_file_channel&&) noexcept = default;
+        vorbis_file_channel& operator=(vorbis_file_channel&&) = default;
 
         vorbis_file_channel() noexcept:
             _channels(0),

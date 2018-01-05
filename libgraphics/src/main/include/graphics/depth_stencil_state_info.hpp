@@ -14,8 +14,8 @@ namespace graphics {
         graphics::stencil_op_state_info back;
     };
 
-    void apply(const graphics::depth_stencil_state_info& info);
+    void apply(const graphics::depth_stencil_state_info& info) noexcept;
 
     template<>
-    depth_stencil_state_info defaults();
+    depth_stencil_state_info defaults() noexcept;
 }

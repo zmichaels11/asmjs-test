@@ -16,8 +16,8 @@ namespace graphics {
         } pack, unpack;
     };
 
-    void apply(const graphics::pixel_store_state_info& info);
+    void apply(const graphics::pixel_store_state_info& info) noexcept;
 
     template<>
-    pixel_store_state_info defaults();
+    pixel_store_state_info defaults() noexcept;
 }

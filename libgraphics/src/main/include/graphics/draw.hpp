@@ -7,14 +7,14 @@
 
 namespace graphics {
     namespace draw {
-        void arrays(graphics::draw_mode mode, int first, std::size_t count);
+        void arrays(graphics::draw_mode mode, int first, std::size_t count) noexcept;
 
-        void elements(graphics::draw_mode mode, std::size_t count, index_type type, void * offset);
+        void elements(graphics::draw_mode mode, std::size_t count, index_type type, void * offset) noexcept;
 
-        void arraysInstanced(graphics::draw_mode mode, int first, std::size_t count, std::size_t instanceCount);
+        void arraysInstanced(graphics::draw_mode mode, int first, std::size_t count, std::size_t instanceCount) noexcept;
 
-        void elementsInstanced(graphics::draw_mode mode, std::size_t count, index_type type, void * offset, std::size_t instanceCount);
+        void elementsInstanced(graphics::draw_mode mode, std::size_t count, index_type type, void * offset, std::size_t instanceCount) noexcept;
 
-        void rangeElements(graphics::draw_mode mode, unsigned int start, unsigned int end, std::size_t count, index_type type, void * offset);
+        void rangeElements(graphics::draw_mode mode, unsigned int start, unsigned int end, std::size_t count, index_type type, void * offset) noexcept;
     }
 }

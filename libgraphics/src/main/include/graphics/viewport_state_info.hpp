@@ -6,5 +6,5 @@ namespace graphics {
         float minDepth, maxDepth;
     };
 
-    void apply(const graphics::viewport_state_info& info);
+    void apply(const graphics::viewport_state_info& info) noexcept;
 }

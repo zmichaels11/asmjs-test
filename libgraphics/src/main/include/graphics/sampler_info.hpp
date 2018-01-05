@@ -25,6 +25,6 @@ namespace graphics {
     };
 
     template<>
-    sampler_info defaults();
+    sampler_info defaults() noexcept;
 
 }

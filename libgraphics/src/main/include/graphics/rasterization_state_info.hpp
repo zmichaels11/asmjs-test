@@ -20,8 +20,8 @@ namespace graphics {
         graphics::polygon_mode polygonMode;
     };
 
-    void apply (const graphics::rasterization_state_info& info);
+    void apply (const graphics::rasterization_state_info& info) noexcept;
 
     template<>
-    rasterization_state_info defaults();
+    rasterization_state_info defaults() noexcept;
 }

@@ -12,12 +12,12 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg);
+        void _onError(const std::string& msg) noexcept;
 
-        GLenum _getTarget(const texture_info& info);        
+        GLenum _getTarget(const texture_info& info) noexcept;
     }
 
-    texture::texture(const texture_info& info) {
+    texture::texture(const texture_info& info) noexcept {
         _info = info;
         _external = false;
         _handle = 0;
@@ -54,24 +54,24 @@ namespace graphics {
         glBindTexture(_target, 0);
     }
 
-    texture::~texture() {
+    texture::~texture() noexcept {
         if (_handle && !_external) {
             glDeleteTextures(1, &_handle);
             _handle = 0;
         }
     }
 
-    void texture::generateMipmap() const {
+    void texture::generateMipmap() const noexcept {
         glBindTexture(_target, _handle);
         glGenerateMipmap(_target);
     }
 
-    void texture::bind(unsigned int unit) const {
+    void texture::bind(unsigned int unit) const noexcept {
         glActiveTexture(GL_TEXTURE0 + unit);
         glBindTexture(_target, _handle);
     }
 
-    void texture::subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const {
+    void texture::subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const noexcept {
         glBindTexture(_target, _handle);
 
         switch (_target) {
@@ -86,12 +86,12 @@ namespace graphics {
     }
 
     namespace {
-        void _onError(const std::string& msg) {
-            std::cerr << msg << std::endl;
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << "[GL] Texture Error: " << msg << std::endl;
             __builtin_trap();
         }
 
-        GLenum _getTarget(const texture_info& info) {
+        GLenum _getTarget(const texture_info& info) noexcept {
             if (info.extent.height > 1) {
                 if (info.extent.depth > 1) {
                     return GL_TEXTURE_3D; 

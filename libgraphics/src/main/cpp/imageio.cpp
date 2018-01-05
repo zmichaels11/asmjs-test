@@ -22,7 +22,7 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) {
+        static void _onError(const std::string& msg) noexcept {
             std::cerr << "Err: " << msg << std::endl;
             __builtin_trap();
         }
@@ -40,7 +40,7 @@ namespace graphics {
             stb_image& operator=(const stb_image&) = delete;
         
         public:
-            stb_image(const std::string& file, unsigned int forcedComponents) {
+            stb_image(const std::string& file, unsigned int forcedComponents) noexcept {
                 int width, height, channels;
 
                 _data = stbi_load(file.c_str(), &width, &height, &channels, forcedComponents);
@@ -76,27 +76,27 @@ namespace graphics {
                 }                                                
             }
 
-            ~stb_image() {
+            ~stb_image() noexcept {
                 stbi_image_free(_data);
             }
 
-            virtual unsigned int getWidth() const {
+            virtual unsigned int getWidth() const noexcept {
                 return _width;
             }            
 
-            virtual unsigned int getHeight() const {
+            virtual unsigned int getHeight() const noexcept {
                 return _height;
             }
 
-            virtual const void * getData() const {
+            virtual const void * getData() const noexcept {
                 return _data;
             }
 
-            virtual std::size_t getSize() const {
+            virtual std::size_t getSize() const noexcept {
                 return _dataSize;
             }
 
-            virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimage) {
+            virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimage) noexcept {
                 auto scale = _pixelSize;
                 auto lineSize = w * scale;
                 auto src = reinterpret_cast<const unsigned char *> (subimage.getData());
@@ -112,14 +112,14 @@ namespace graphics {
                 }
             }
 
-            virtual pixel_format getFormat() const {
+            virtual pixel_format getFormat() const noexcept {
                 return _format;
             }
         };
     }
 
     namespace image_io {
-        std::unique_ptr<image> read(const std::string& path, unsigned int forcedChannels) {
+        std::unique_ptr<image> read(const std::string& path, unsigned int forcedChannels) noexcept {
             return std::make_unique<stb_image> (path, forcedChannels);
         }
     }

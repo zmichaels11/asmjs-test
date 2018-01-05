@@ -13,9 +13,9 @@ namespace audio {
         source& operator=(const source&) = delete;
 
     public:
-        source(source&&) noexcept = default;                
+        source(source&&) = default;                
 
-        source& operator=(source&&) noexcept = default;
+        source& operator=(source&&) = default;
 
         source() noexcept;
 

@@ -6,7 +6,7 @@
 #include <iostream>
 
 namespace graphics {
-    void init() {
+    void init() noexcept {
         glewExperimental = true;
 
         if (glewInit() != GLEW_OK) {

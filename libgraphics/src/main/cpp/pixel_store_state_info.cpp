@@ -2,7 +2,7 @@
 
 namespace graphics {
     template<>
-    pixel_store_state_info defaults() {
+    pixel_store_state_info defaults() noexcept {
         return {
                 false,
                 false,

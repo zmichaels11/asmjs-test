@@ -31,9 +31,9 @@ namespace audio {
         wave_file_channel& operator=(wave_file_channel&&) noexcept = default;
 
     public:
-        wave_file_channel(wave_file_channel&&) noexcept = default;
+        wave_file_channel(wave_file_channel&&) = default;
 
-        wave_file_channel& operator=(const wave_file_channel&) noexcept = delete;        
+        wave_file_channel& operator=(const wave_file_channel&) = delete;        
 
         wave_file_channel() noexcept {}
 

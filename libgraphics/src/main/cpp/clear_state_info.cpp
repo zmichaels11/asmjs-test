@@ -4,7 +4,7 @@
 
 namespace graphics {
     template<>
-    clear_state_info defaults() {
+    clear_state_info defaults() noexcept {
         return {
             static_cast<clear_buffer> (0),
             {0.0F, 0.0F, 0.0F, 0.0F},

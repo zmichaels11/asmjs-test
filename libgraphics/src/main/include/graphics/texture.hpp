@@ -19,35 +19,35 @@ namespace graphics {
         friend class framebuffer;
 
     public:
-        texture() : 
+        texture(texture&&) = default;
+
+        texture& operator=(texture&&) = default;
+
+        texture() noexcept: 
             _handle(0),
             _info(),
             _target(0),
             _external(false) {}
         
-        texture(const texture_info& info);
+        texture(const texture_info& info) noexcept;
 
-        texture(unsigned int handle, texture_target target) :
+        texture(unsigned int handle, texture_target target) noexcept:
             _handle(handle),
             _info(),
             _target(static_cast<unsigned int> (target)),
             _external(true) {}
 
-        texture(texture&&) = default;
+        ~texture() noexcept;        
 
-        ~texture();
+        const graphics::texture_info& getInfo() const noexcept;
 
-        texture& operator=(texture&&) = default;
+        void generateMipmap() const noexcept;
 
-        const graphics::texture_info& getInfo() const;
+        void bind(unsigned int unit) const noexcept;
 
-        void generateMipmap() const;
+        void subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const noexcept;
 
-        void bind(unsigned int unit) const;
-
-        void subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const;        
-
-        inline operator int() const {
+        inline operator int() const noexcept {
             return _handle;
         }
     };

@@ -5,7 +5,7 @@
 #include <GLES3/gl3.h>
 
 namespace graphics {
-    void apply(const viewport_state_info& info) {
+    void apply(const viewport_state_info& info) noexcept {
         if (info.minDepth != info.maxDepth) {
             glDepthRangef(info.minDepth, info.maxDepth);
         }

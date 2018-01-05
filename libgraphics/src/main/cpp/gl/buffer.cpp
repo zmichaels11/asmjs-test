@@ -11,13 +11,13 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg) {
+        void _onError(const std::string& msg) noexcept {
             std::cerr << msg << std::endl;
             __builtin_trap();
         }
     }
 
-    buffer::buffer(const buffer_info& info) {
+    buffer::buffer(const buffer_info& info) noexcept {
         _info = info;
         _external = false;
         _handle = 0;
@@ -37,13 +37,13 @@ namespace graphics {
         }
     }
 
-    buffer::~buffer() {
+    buffer::~buffer() noexcept {
         if (_handle && !_external) {
             glDeleteBuffers(1, &_handle);            
         }
     }
 
-    void buffer::invalidate() const {
+    void buffer::invalidate() const noexcept {
         if (GLEW_VERSION_4_5) {
             glInvalidateBufferData(_handle);
         } else {
@@ -55,11 +55,11 @@ namespace graphics {
         }
     }
 
-    void buffer::bind(buffer_target target) const {
+    void buffer::bind(buffer_target target) const noexcept {
         glBindBuffer(static_cast<GLenum> (target), _handle);        
     }
 
-    void buffer::subData(long offset, const void * src, std::size_t size) const {        
+    void buffer::subData(long offset, const void * src, std::size_t size) const noexcept{        
         if (GLEW_VERSION_4_5) {
             glNamedBufferSubData(_handle, offset, size, src);
         } else {
@@ -71,11 +71,11 @@ namespace graphics {
         }
     }
 
-    void buffer::bindBase(unsigned int index) const {
+    void buffer::bindBase(unsigned int index) const noexcept {
         glBindBufferBase(static_cast<GLenum> (_info.target), index, _handle);
     }
 
-    void buffer::bindRange(unsigned int index, long offset, std::size_t size) const {
+    void buffer::bindRange(unsigned int index, long offset, std::size_t size) const noexcept {
         glBindBufferRange(static_cast<GLenum> (_info.target), index, _handle, offset, size);
     }
 }

@@ -3,7 +3,7 @@
 #include "graphics.hpp"
 
 namespace graphics {
-    void init() {
+    void init() noexcept {
         
     }
 }
