@@ -21,6 +21,7 @@ model {
                             default:
                                 sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.dll')
                                 break;
+			}
                     } else {
                         sharedLibraryFile = file(projectDir.path + '/../share/bin/dummy.so')
                     }

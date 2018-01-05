@@ -12,16 +12,16 @@ model {
                                 case 'ia-32':
                                 case 'i686':
                                     sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows32/angle/libGLESv2.dll')
-                                    break;
+                                    break
                                 case 'x86_64':
                                 case 'amd64':
                                 case 'x64':
                                 case 'x86-64':
                                     sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/angle/libGLESv2.dll')
-                                    break;
+                                    break
                                 default:
                                     sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
-                                    break;
+                                    break
                             }                            
                         } else {
                             sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
@@ -42,15 +42,17 @@ model {
                             case 'i686':
                             case 'ia-32':
                                 sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows32/glfw3/glfw3.dll')
-                                break;
+                                break
                             case 'x86_64':
                             case 'amd64':
                             case 'x64':
                             case 'x86-64':
 						        sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/glfw3/glfw3.dll')
-                                break;
+                                break
                             default:
                                 sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
+                                break
+                        }
 					} else {
                         sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.so')
                     }
@@ -67,16 +69,17 @@ model {
                             case 'i686':
                             case 'ia-32':
                                 sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows32/openal-soft/OpenAL32.dll')
-                                break;
+                                break
                             case 'x86_64':
                             case 'amd64':
                             case 'x64':
                             case 'x86-64':                                
                                 sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/openal-soft/OpenAL32.dll')
-                                break;
+                                break
                             default:
                                 sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
-                                break;
+                                break
+                        }
                     } else {
                         sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.so')
                     }
