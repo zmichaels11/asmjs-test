@@ -24,16 +24,16 @@ namespace audio {
 
         void skipSubchunk(unsigned int chunkSize) noexcept;
 
-        void parseFormatSubchunk(unsigned int chunkSize) noexcept;
+        void parseFormatSubchunk(unsigned int chunkSize) noexcept;        
 
-        wave_file_channel(const wave_file_channel&) noexcept = delete;
+        wave_file_channel(const wave_file_channel&) = delete;
+        
+        wave_file_channel& operator=(const wave_file_channel&) = delete;
+        
+    public:        
+        wave_file_channel& operator=(wave_file_channel&&) = default;
 
-        wave_file_channel& operator=(wave_file_channel&&) noexcept = default;
-
-    public:
-        wave_file_channel(wave_file_channel&&) = default;
-
-        wave_file_channel& operator=(const wave_file_channel&) = delete;        
+        wave_file_channel(wave_file_channel&&) = default;                
 
         wave_file_channel() noexcept {}
 

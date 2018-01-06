@@ -62,7 +62,7 @@ namespace renderer {
         _info = info;   
         _scissor = renderer::scissor_rect{false};
         
-        auto pResources = new image_layer_res_impl();
+        auto pResources = std::make_unique<image_layer_res_impl>();
 
         if (info.image.pData == nullptr) {
             _onError("image_layer must define an image!");
@@ -104,7 +104,7 @@ namespace renderer {
         pResources->uniformData[6] = 1.0F;
         pResources->uniformData[7] = 1.0F;
 
-        _pResources.reset(pResources);
+        _pResources.reset(pResources.release());
     }
 
     void image_layer::setColorTransform(const renderer::color_transform& ct) {

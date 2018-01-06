@@ -92,7 +92,7 @@ namespace renderer {
             const_cast<void*> (font.getData())
         });        
                 
-        auto pResources = new text_layer_res_impl();
+        auto pResources = std::make_unique<text_layer_res_impl>();
 
         pResources->bufferSize = bufferSize;        
         
@@ -101,7 +101,7 @@ namespace renderer {
         std::swap(pResources->model, model);        
         std::swap(pResources->texture, texture);  
 
-        _pResources.reset(pResources);
+        _pResources.reset(pResources.release());
     }
 
     const text_layer_info& text_layer::getInfo() const {

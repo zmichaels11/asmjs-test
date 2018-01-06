@@ -64,7 +64,7 @@ namespace {
 }
 
 namespace {
-    std::shared_ptr<renderer::scene> _scene(nullptr);
+    std::unique_ptr<renderer::scene> _scene(nullptr);
     std::unique_ptr<native_resources> _pNativeResources(nullptr);
     std::function<void(void*)> _onFrame(nullptr);
     std::function<void(void*)> _onUpdate(nullptr);
@@ -82,14 +82,14 @@ namespace nk {
 namespace engine {
     renderer::scene * application::getScene() noexcept {
         return _scene.get();
-    }
-    
-    void application::setScene(const std::shared_ptr<renderer::scene>& scene) noexcept {
-        _scene = scene;
+    }    
+
+    void application::setScene(const renderer::scene_info& info) noexcept {
+        _scene.reset(new renderer::scene(info));
     }
 
-    void application::setScene(const renderer::scene_info& sceneInfo) noexcept {
-        _scene = std::make_shared<renderer::scene> (sceneInfo);
+    std::unique_ptr<renderer::scene> application::releaseScene() noexcept {
+        return std::unique_ptr<renderer::scene>(_scene.release());
     }
 
     void application::setOnUpdate(const std::function<void(void*)>& callback) noexcept {

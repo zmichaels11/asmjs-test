@@ -21,9 +21,9 @@ namespace engine {
 
         static void setOnUpdate(const std::function<void(void*)>& callback) noexcept;
 
-        static void setScene(const std::shared_ptr<renderer::scene>& scene) noexcept;
+        static void setScene(const renderer::scene_info& info) noexcept;
 
-        static void setScene(const renderer::scene_info& sceneInfo) noexcept;
+        static std::unique_ptr<renderer::scene> releaseScene() noexcept;
 
         static renderer::scene * getScene() noexcept;
 
