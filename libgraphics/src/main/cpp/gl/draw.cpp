@@ -1,6 +1,6 @@
 #ifdef GL
 
-#include "graphics/draw.hpp"
+#include "graphics/hutil/draw.hpp"
 
 #include "GL/glew.h"
 

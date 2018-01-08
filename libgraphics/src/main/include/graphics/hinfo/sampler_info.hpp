@@ -1,9 +1,8 @@
 #pragma once
 
-#include "graphics/address_mode.hpp"
-#include "graphics/info.hpp"
-#include "graphics/mag_filter.hpp"
-#include "graphics/min_filter.hpp"
+#include "graphics/henum/address_mode.hpp"
+#include "graphics/henum/mag_filter.hpp"
+#include "graphics/henum/min_filter.hpp"
 
 namespace graphics {
     struct sampler_info {
@@ -22,9 +21,7 @@ namespace graphics {
             float min;
             float max;
         } lod;
+
+        static sampler_info defaults() noexcept;
     };
-
-    template<>
-    sampler_info defaults() noexcept;
-
 }

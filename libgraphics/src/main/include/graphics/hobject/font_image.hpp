@@ -6,9 +6,9 @@
 #include <string>
 #include <vector>
 
-#include "graphics/font_info.hpp"
-#include "graphics/image.hpp"
-#include "graphics/pixel_format.hpp"
+#include "graphics/henum/pixel_format.hpp"
+#include "graphics/hinfo/font_info.hpp"
+#include "graphics/hobject/image.hpp"
 
 namespace graphics {
     struct font_resources {        

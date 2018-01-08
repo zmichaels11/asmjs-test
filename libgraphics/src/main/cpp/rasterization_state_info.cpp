@@ -1,8 +1,7 @@
-#include "graphics/rasterization_state_info.hpp"
+#include "graphics/hstate/rasterization_state_info.hpp"
 
-namespace graphics {
-    template<>
-    rasterization_state_info defaults() noexcept {
+namespace graphics {    
+    rasterization_state_info rasterization_state_info::defaults() noexcept {
         return {
             front_face::CCW,
             1.0F,

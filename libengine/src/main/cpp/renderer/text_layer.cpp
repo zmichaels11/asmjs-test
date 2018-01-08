@@ -11,14 +11,12 @@
 
 
 #include "graphics/buffer.hpp"
-#include "graphics/draw.hpp"
-#include "graphics/draw_mode.hpp"
-#include "graphics/font_image.hpp"
+#include "graphics/operation.hpp"
+#include "graphics/image.hpp"
 #include "graphics/program.hpp"
-#include "graphics/scissor_state_info.hpp"
 #include "graphics/shader.hpp"
+#include "graphics/state.hpp"
 #include "graphics/texture.hpp"
-#include "graphics/uniform.hpp"
 #include "graphics/vertex_array.hpp"
 
 #include "util.hpp"

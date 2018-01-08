@@ -8,9 +8,8 @@
 
 #include "engine/application.hpp"
 
-#include "graphics/clear_state_info.hpp"
-#include "graphics/imageio.hpp"
-#include "graphics/viewport_state_info.hpp"
+#include "graphics/state.hpp"
+#include "graphics/image.hpp"
 
 #include "math/mat4.hpp"
 
@@ -43,7 +42,7 @@ int main(int argc, char** argv) {
     engine::application::init("Calculator", 640, 480);    
 
     auto sceneInfo = renderer::scene_info();
-    auto backgroundImgRes = graphics::image_io::read("data/images/environment.png", 4);    
+    auto backgroundImgRes = graphics::image::read("data/images/environment.png", 4);    
     auto backgroundInfo = renderer::image_layer_info{
         {backgroundImgRes->getWidth(), backgroundImgRes->getHeight(), renderer::image_format::R8G8B8A8_UNORM, backgroundImgRes->getData()},
         {renderer::image_filter::LINEAR, renderer::image_filter::LINEAR},

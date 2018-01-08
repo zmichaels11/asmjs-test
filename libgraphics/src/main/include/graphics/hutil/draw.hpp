@@ -2,8 +2,8 @@
 
 #include <cstddef>
 
-#include "graphics/draw_mode.hpp"
-#include "graphics/index_type.hpp"
+#include "graphics/henum/draw_mode.hpp"
+#include "graphics/henum/index_type.hpp"
 
 namespace graphics {
     class draw {

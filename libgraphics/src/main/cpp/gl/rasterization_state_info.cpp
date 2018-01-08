@@ -1,12 +1,13 @@
 #ifdef GL
 
-#include "graphics/rasterization_state_info.hpp"
+#include "graphics/hstate/rasterization_state_info.hpp"
 
 #include "GL/glew.h"
 
-#include "graphics/cull_mode.hpp"
+#include "graphics/henum/cull_mode.hpp"
 
 namespace graphics {
+    template<>
     void apply(const rasterization_state_info& info) noexcept {       
         glLineWidth(info.lineWidth);
         

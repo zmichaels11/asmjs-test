@@ -1,7 +1,7 @@
 #pragma once
 
-#include "graphics/compare_op.hpp"
-#include "graphics/stencil_op.hpp"
+#include "graphics/henum/compare_op.hpp"
+#include "graphics/henum/stencil_op.hpp"
 
 namespace graphics {
     struct stencil_op_state_info {
@@ -12,5 +12,7 @@ namespace graphics {
         int reference;
         unsigned int compareMask;
         unsigned int writeMask;
+
+        static stencil_op_state_info defaults() noexcept;
     };
 }

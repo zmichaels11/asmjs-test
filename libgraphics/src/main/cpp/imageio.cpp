@@ -1,5 +1,3 @@
-#include "graphics/imageio.hpp"
-
 #include <cstddef>
 #include <cstring>
 
@@ -7,8 +5,8 @@
 #include <memory>
 #include <string>
 
-#include "graphics/pixel_format.hpp"
-#include "graphics/image.hpp"
+#include "graphics/henum/pixel_format.hpp"
+#include "graphics/hobject/image.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
 
@@ -118,9 +116,7 @@ namespace graphics {
         };
     }
 
-    namespace image_io {
-        std::unique_ptr<image> read(const std::string& path, unsigned int forcedChannels) noexcept {
-            return std::make_unique<stb_image> (path, forcedChannels);
-        }
-    }
+    std::unique_ptr<image> image::read(const std::string& path, unsigned int forcedChannels) noexcept {
+        return std::make_unique<stb_image> (path, forcedChannels);
+    }    
 }

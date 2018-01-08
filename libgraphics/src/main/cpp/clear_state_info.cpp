@@ -1,10 +1,9 @@
-#include "graphics/clear_state_info.hpp"
+#include "graphics/hstate/clear_state_info.hpp"
 
-#include "graphics/clear_buffer.hpp"
+#include "graphics/hbitfield/clear_buffer.hpp"
 
-namespace graphics {
-    template<>
-    clear_state_info defaults() noexcept {
+namespace graphics {    
+    clear_state_info clear_state_info::defaults() noexcept {
         return {
             static_cast<clear_buffer> (0),
             {0.0F, 0.0F, 0.0F, 0.0F},

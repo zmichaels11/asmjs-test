@@ -1,16 +1,16 @@
 #ifdef GLES30
 
-#include "graphics/vertex_array.hpp"
+#include "graphics/hobject/vertex_array.hpp"
 
 #include <GLES3/gl3.h>
 
 #include <iostream>
 #include <string>
 
-#include "graphics/buffer.hpp"
-#include "graphics/vertex_attribute_description.hpp"
-#include "graphics/vertex_array_info.hpp"
-#include "graphics/vertex_binding_description.hpp"
+#include "graphics/hinfo/vertex_attribute_description.hpp"
+#include "graphics/hinfo/vertex_array_info.hpp"
+#include "graphics/hinfo/vertex_binding_description.hpp"
+#include "graphics/hobject/buffer.hpp"
 
 namespace graphics {
     namespace {

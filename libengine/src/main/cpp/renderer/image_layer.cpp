@@ -10,22 +10,11 @@
 
 #include <GLES3/gl3.h>
 
-#include "graphics/address_mode.hpp"
-#include "graphics/clear_state_info.hpp"
-#include "graphics/draw.hpp"
-#include "graphics/draw_mode.hpp"
-#include "graphics/mag_filter.hpp"
-#include "graphics/min_filter.hpp"
-#include "graphics/pixel_format.hpp"
-#include "graphics/pixel_type.hpp"
+#include "graphics/state.hpp"
+#include "graphics/operation.hpp"
 #include "graphics/program.hpp"
-#include "graphics/program_info.hpp"
-#include "graphics/scissor_state_info.hpp"
 #include "graphics/shader.hpp"
-#include "graphics/shader_info.hpp"
 #include "graphics/texture.hpp"
-#include "graphics/texture_info.hpp"
-#include "graphics/uniform.hpp"
 #include "graphics/vertex_array.hpp"
 
 #include "renderer/color_transform.hpp"

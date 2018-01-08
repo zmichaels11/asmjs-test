@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/info.hpp"
+#include "graphics/hstate/state.hpp"
 
 namespace graphics {
     struct pixel_store_state_info {
@@ -14,10 +14,10 @@ namespace graphics {
             int skipImages;
             int alignment;
         } pack, unpack;
+
+        static pixel_store_state_info defaults() noexcept;
     };
 
-    void apply(const graphics::pixel_store_state_info& info) noexcept;
-
     template<>
-    pixel_store_state_info defaults() noexcept;
+    void apply(const graphics::pixel_store_state_info& info) noexcept;
 }

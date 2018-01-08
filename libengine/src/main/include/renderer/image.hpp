@@ -10,5 +10,5 @@ namespace renderer {
         unsigned int width, height;
         renderer::image_format format;
         const void * pData;
-    };
+    };    
 }

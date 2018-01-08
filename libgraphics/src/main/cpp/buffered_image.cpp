@@ -1,4 +1,4 @@
-#include "graphics/buffered_image.hpp"
+#include "graphics/hobject/buffered_image.hpp"
 
 #include <cstddef>
 #include <cstring>
@@ -7,8 +7,8 @@
 #include <memory>
 #include <string>
 
-#include "graphics/pixel_format.hpp"
-#include "graphics/image.hpp"
+#include "graphics/henum/pixel_format.hpp"
+#include "graphics/hobject/image.hpp"
 
 namespace graphics {
     namespace {

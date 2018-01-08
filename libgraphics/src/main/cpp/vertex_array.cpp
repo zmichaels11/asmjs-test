@@ -1,6 +1,6 @@
-#include "graphics/vertex_array.hpp"
+#include "graphics/hobject/vertex_array.hpp"
 
-#include "graphics/vertex_array_info.hpp"
+#include "graphics/hinfo/vertex_array_info.hpp"
 
 namespace graphics {    
     const vertex_array& vertex_array::getDefault() noexcept {

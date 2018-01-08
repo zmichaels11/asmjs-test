@@ -1,6 +1,6 @@
-#include "graphics/renderbuffer.hpp"
+#include "graphics/hobject/renderbuffer.hpp"
 
-#include "graphics/renderbuffer_info.hpp"
+#include "graphics/hinfo/renderbuffer_info.hpp"
 
 namespace graphics {
     const renderbuffer_info& renderbuffer::getInfo() const noexcept {

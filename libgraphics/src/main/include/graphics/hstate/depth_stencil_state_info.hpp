@@ -1,8 +1,8 @@
 #pragma once
 
-#include "graphics/compare_op.hpp"
-#include "graphics/info.hpp"
-#include "graphics/stencil_op_state_info.hpp"
+#include "graphics/henum/compare_op.hpp"
+#include "graphics/hstate/state.hpp"
+#include "graphics/hstate/stencil_op_state_info.hpp"
 
 namespace graphics {
     struct depth_stencil_state_info {
@@ -12,10 +12,10 @@ namespace graphics {
         bool stencilTestEnable;
         graphics::stencil_op_state_info front;
         graphics::stencil_op_state_info back;
+
+        static depth_stencil_state_info defaults() noexcept;
     };
 
-    void apply(const graphics::depth_stencil_state_info& info) noexcept;
-
     template<>
-    depth_stencil_state_info defaults() noexcept;
+    void apply(const graphics::depth_stencil_state_info& info) noexcept;
 }

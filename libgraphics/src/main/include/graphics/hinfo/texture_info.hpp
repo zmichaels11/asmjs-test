@@ -2,8 +2,9 @@
 
 #include <cstddef>
 
-#include "graphics/sampler_info.hpp"
-#include "graphics/internal_format.hpp"
+#include "graphics/henum/internal_format.hpp"
+
+#include "graphics/hinfo/sampler_info.hpp"
 
 namespace graphics {
     struct texture_info {

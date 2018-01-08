@@ -1,14 +1,14 @@
 #ifdef GL
 
-#include "graphics/texture.hpp"
+#include "graphics/hobject/texture.hpp"
 
 #include "GL/glew.h"
 
 #include <iostream>
 #include <string>
 
-#include "graphics/pixel_info.hpp"
-#include "graphics/texture_info.hpp"
+#include "graphics/hinfo/pixel_info.hpp"
+#include "graphics/hinfo/texture_info.hpp"
 
 namespace graphics {
     namespace {

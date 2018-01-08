@@ -1,6 +1,6 @@
 #ifdef GL
 
-#include "graphics/uniform.hpp"
+#include "graphics/hutil/uniform.hpp"
 
 #include <cstddef>
 

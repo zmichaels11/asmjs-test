@@ -1,6 +1,6 @@
-#include "graphics/program.hpp"
+#include "graphics/hobject/program.hpp"
 
-#include "graphics/program_info.hpp"
+#include "graphics/hinfo/program_info.hpp"
 
 namespace graphics {   
     const program_info& program::getInfo() const noexcept {

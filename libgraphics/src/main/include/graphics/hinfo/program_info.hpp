@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-#include "graphics/attribute_state_info.hpp"
+#include "graphics/hinfo/attribute_state_info.hpp"
 
 namespace graphics {
     class shader;

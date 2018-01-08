@@ -1,9 +1,9 @@
 #pragma once
 
-#include "graphics/cull_mode.hpp"
-#include "graphics/front_face.hpp"
-#include "graphics/info.hpp"
-#include "graphics/polygon_mode.hpp"
+#include "graphics/henum/cull_mode.hpp"
+#include "graphics/henum/front_face.hpp"
+#include "graphics/henum/polygon_mode.hpp"
+#include "graphics/hstate/state.hpp"
 
 namespace graphics {
     struct rasterization_state_info {
@@ -18,10 +18,10 @@ namespace graphics {
         } polygonOffset;
 
         graphics::polygon_mode polygonMode;
+
+        static rasterization_state_info defaults() noexcept;
     };
 
-    void apply (const graphics::rasterization_state_info& info) noexcept;
-
     template<>
-    rasterization_state_info defaults() noexcept;
+    void apply (const graphics::rasterization_state_info& info) noexcept;
 }

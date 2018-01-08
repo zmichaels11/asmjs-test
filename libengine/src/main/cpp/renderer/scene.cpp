@@ -5,8 +5,7 @@
 #include <iostream>
 #include <memory>
 
-#include "graphics/blend_state_info.hpp"
-#include "graphics/clear_state_info.hpp"
+#include "graphics/state.hpp"
 
 #include "renderer/image_layer.hpp"
 #include "renderer/image_layer_info.hpp"
@@ -98,7 +97,7 @@ namespace renderer {
         auto res = dynamic_cast<scene_res_impl*> (_resources.get());
 
         graphics::apply(res->clearInfo);
-        graphics::apply(graphics::PREMULTIPLIED_ALPHA);
+        graphics::apply(graphics::blend_state_info::premultipliedAlpha());
 
         for (auto&& layer : _layers) {
             layer.drawLayer->render(layer.renderInfo);

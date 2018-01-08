@@ -1,13 +1,13 @@
 #ifdef GL
 
-#include "graphics/buffer.hpp"
+#include "graphics/hobject/buffer.hpp"
 
 #include "GL/glew.h"
 
 #include <iostream>
 
-#include "graphics/buffer_info.hpp"
-#include "graphics/buffer_target.hpp"
+#include "graphics/henum/buffer_target.hpp"
+#include "graphics/hinfo/buffer_info.hpp"
 
 namespace graphics {
     namespace {

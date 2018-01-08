@@ -1,8 +1,7 @@
-#include "graphics/scissor_state_info.hpp"
+#include "graphics/hstate/scissor_state_info.hpp"
 
-namespace graphics {
-    template<>
-    scissor_state_info defaults() noexcept {
+namespace graphics {    
+    scissor_state_info scissor_state_info::defaults() noexcept {
         return {false};
     }
 }

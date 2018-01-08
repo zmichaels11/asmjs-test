@@ -1,10 +1,11 @@
 #ifdef GL
 
-#include "graphics/pixel_store_state_info.hpp"
+#include "graphics/hstate/pixel_store_state_info.hpp"
 
 #include "GL/glew.h"
 
 namespace graphics {
+    template<>
     void apply(const pixel_store_state_info& info) noexcept {                
         glPixelStorei(GL_PACK_SWAP_BYTES, info.pack.swapBytes);
         glPixelStorei(GL_PACK_LSB_FIRST, info.pack.lsbFirst);

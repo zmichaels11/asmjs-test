@@ -1,10 +1,11 @@
 #ifdef GL
 
-#include "graphics/depth_stencil_state_info.hpp"
+#include "graphics/hstate/depth_stencil_state_info.hpp"
 
 #include "GL/glew.h"
 
 namespace graphics {
+    template<>
     void apply(const depth_stencil_state_info& info) noexcept {       
         if (info.depthTestEnabled) {
             glEnable(GL_DEPTH_TEST);

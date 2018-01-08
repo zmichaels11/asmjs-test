@@ -4,8 +4,8 @@
 
 #include <memory>
 
-#include "graphics/image.hpp"
-#include "graphics/pixel_format.hpp"
+#include "graphics/henum/pixel_format.hpp"
+#include "graphics/hobject/image.hpp"
 
 namespace graphics {
     class buffered_image : public image {

@@ -1,10 +1,11 @@
 #ifdef GLES30
 
-#include "graphics/blend_state_info.hpp"
+#include "graphics/hstate/blend_state_info.hpp"
 
 #include <GLES3/gl3.h>
 
 namespace graphics {
+    template<>
     void apply (const blend_state_info& info) noexcept {
         if (info.blendEnabled) {
             glEnable(GL_BLEND);

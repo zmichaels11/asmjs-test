@@ -1,15 +1,15 @@
 #ifdef GL
 
-#include "graphics/program.hpp"
+#include "graphics/hobject/program.hpp"
 
 #include "GL/glew.h"
 
 #include <iostream>
 #include <string>
 
-#include "graphics/attribute_state_info.hpp"
-#include "graphics/program_info.hpp"
-#include "graphics/shader.hpp"
+#include "graphics/hinfo/attribute_state_info.hpp"
+#include "graphics/hinfo/program_info.hpp"
+#include "graphics/hobject/shader.hpp"
 
 namespace graphics {
     namespace {

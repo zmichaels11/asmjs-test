@@ -1,10 +1,10 @@
 #ifdef GLES30
 
-#include "graphics/renderbuffer.hpp"
+#include "graphics/hobject/renderbuffer.hpp"
 
 #include <GLES3/gl3.h>
 
-#include "graphics/renderbuffer_info.hpp"
+#include "graphics/hinfo/renderbuffer_info.hpp"
 
 namespace graphics {
     renderbuffer::renderbuffer(const renderbuffer_info& info) noexcept {

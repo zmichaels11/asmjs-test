@@ -1,9 +1,9 @@
-#include "graphics/buffer.hpp"
+#include "graphics/hobject/buffer.hpp"
 
 #include <cstddef>
 #include <iostream>
 
-#include "graphics/buffer_info.hpp"
+#include "graphics/hinfo/buffer_info.hpp"
 
 namespace graphics {
     const buffer& buffer::getDefault() noexcept {

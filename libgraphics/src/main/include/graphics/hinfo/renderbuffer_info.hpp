@@ -1,6 +1,6 @@
 #pragma once
 
-#include "graphics/internal_format.hpp"
+#include "graphics/henum/internal_format.hpp"
 
 namespace graphics {
     struct renderbuffer_info {

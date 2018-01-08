@@ -1,6 +1,6 @@
 #ifdef GL
 
-#include "graphics/shader.hpp"
+#include "graphics/hobject/shader.hpp"
 
 #include "GL/glew.h"
 
@@ -8,7 +8,7 @@
 #include <memory>
 #include <string>
 
-#include "graphics/shader_info.hpp"
+#include "graphics/hinfo/shader_info.hpp"
 
 namespace graphics {
     namespace {

@@ -31,26 +31,12 @@
 #define NK_IMPLEMENTATION
 #include "nuklear.h"
 
-#include "graphics/address_mode.hpp"
-
 #include "graphics/buffer.hpp"
-#include "graphics/buffer_info.hpp"
-#include "graphics/buffer_target.hpp"
-#include "graphics/buffer_usage.hpp"
-#include "graphics/depth_stencil_state_info.hpp"
-#include "graphics/draw.hpp"
-#include "graphics/internal_format.hpp"
-#include "graphics/mag_filter.hpp"
-#include "graphics/min_filter.hpp"
+#include "graphics/operation.hpp"
 #include "graphics/program.hpp"
-#include "graphics/rasterization_state_info.hpp"
-#include "graphics/scissor_state_info.hpp"
 #include "graphics/shader.hpp"
+#include "graphics/state.hpp"
 #include "graphics/texture.hpp"
-#include "graphics/texture_info.hpp"
-#include "graphics/texture_target.hpp"
-#include "graphics/uniform.hpp"
-#include "graphics/viewport_state_info.hpp"
 
 #include "util.hpp"
 
@@ -298,11 +284,9 @@ namespace nk {
             offset += cmd->elem_count;
         }
 
-        nk_clear(&context);
+        nk_clear(&context);        
 
-        static auto scissorStateDefaults = graphics::defaults<graphics::scissor_state_info>();
-
-        graphics::apply(scissorStateDefaults);
+        graphics::apply(graphics::scissor_state_info::defaults());
     }
 
     namespace {

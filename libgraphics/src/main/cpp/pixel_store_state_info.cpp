@@ -1,8 +1,7 @@
-#include "graphics/pixel_store_state_info.hpp"
+#include "graphics/hstate/pixel_store_state_info.hpp"
 
-namespace graphics {
-    template<>
-    pixel_store_state_info defaults() noexcept {
+namespace graphics {    
+    pixel_store_state_info pixel_store_state_info::defaults() noexcept {
         return {
                 false,
                 false,

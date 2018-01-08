@@ -1,4 +1,4 @@
-#include "graphics/font_image.hpp"
+#include "graphics/hobject/font_image.hpp"
 
 #include <cstddef>
 
@@ -8,7 +8,7 @@
 #include <utility>
 #include <vector>
 
-#include "graphics/font_info.hpp"
+#include "graphics/hinfo/font_info.hpp"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC

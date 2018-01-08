@@ -1,6 +1,6 @@
-#include "graphics/texture.hpp"
+#include "graphics/hobject/texture.hpp"
 
-#include "graphics/texture_info.hpp"
+#include "graphics/hinfo/texture_info.hpp"
 
 namespace graphics {
     const texture_info& texture::getInfo() const noexcept {

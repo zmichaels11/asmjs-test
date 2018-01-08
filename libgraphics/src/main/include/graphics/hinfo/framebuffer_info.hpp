@@ -2,7 +2,7 @@
 
 #include <cstddef>
 
-#include "graphics/attachment_info.hpp"
+#include "graphics/hinfo/attachment_info.hpp"
 
 namespace graphics {
     struct framebuffer_info {

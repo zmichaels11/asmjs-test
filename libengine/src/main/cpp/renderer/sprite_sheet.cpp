@@ -73,7 +73,7 @@ namespace renderer {
             writeBuffer += imageSize;
         }
 
-        auto samplerInfo = graphics::defaults<graphics::sampler_info>();
+        auto samplerInfo = graphics::sampler_info::defaults();
 
         samplerInfo.filters.mag = graphics::mag_filter::NEAREST;
         samplerInfo.filters.min = graphics::min_filter::NEAREST;

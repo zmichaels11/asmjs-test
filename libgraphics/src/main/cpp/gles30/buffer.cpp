@@ -1,11 +1,11 @@
 #ifdef GLES30
 
-#include "graphics/buffer.hpp"
+#include "graphics/hobject/buffer.hpp"
 
 #include <GLES3/gl3.h>
 
-#include "graphics/buffer_info.hpp"
-#include "graphics/buffer_target.hpp"
+#include "graphics/henum/buffer_target.hpp"
+#include "graphics/hinfo/buffer_info.hpp"
 
 namespace graphics {
     buffer::buffer(const buffer_info& info) noexcept {

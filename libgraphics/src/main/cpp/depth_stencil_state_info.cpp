@@ -1,8 +1,7 @@
-#include "graphics/depth_stencil_state_info.hpp"
+#include "graphics/hstate/depth_stencil_state_info.hpp"
 
-namespace graphics {
-    template<>
-    depth_stencil_state_info defaults() noexcept {
+namespace graphics {    
+    depth_stencil_state_info depth_stencil_state_info::defaults() noexcept {
         return {
             false,
             compare_op::LESS,

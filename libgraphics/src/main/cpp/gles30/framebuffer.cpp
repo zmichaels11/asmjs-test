@@ -1,15 +1,15 @@
 #ifdef GLES30
 
-#include "graphics/framebuffer.hpp"
+#include "graphics/hobject/framebuffer.hpp"
 
 #include <GLES3/gl3.h>
 
 #include <iostream>
 #include <string>
 
-#include "graphics/internal_format.hpp"
-#include "graphics/renderbuffer.hpp"
-#include "graphics/texture.hpp"
+#include "graphics/henum/internal_format.hpp"
+#include "graphics/hobject/renderbuffer.hpp"
+#include "graphics/hobject/texture.hpp"
 
 namespace graphics {
     namespace {

@@ -2,8 +2,8 @@
 
 #include <cstddef>
 
-#include "graphics/buffer_target.hpp"
-#include "graphics/buffer_usage.hpp"
+#include "graphics/henum/buffer_target.hpp"
+#include "graphics/henum/buffer_usage.hpp"
 
 namespace graphics {
     struct buffer_info {

@@ -1,6 +1,6 @@
 #ifdef GLES30
 
-#include "graphics/uniform.hpp"
+#include "graphics/hutil/uniform.hpp"
 
 #include <cstddef>
 
