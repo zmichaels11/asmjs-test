@@ -52,15 +52,9 @@ model {
                     lib library: 'angle'  
 
                     source {
-                        srcDir 'src/main/cpp'
-                        include '**/*.cpp'
+                        srcDirs 'src/main/cpp', 'src/main/c'
+                        include '**/*.cpp', '**/*.c'
                     }
-
-                    
-                    source {
-                        srcDir 'src/main/c'
-                        include '**/*.c'
-                    }                    
 
                     exportedHeaders {
                         srcDirs '../share/src/main/include', 'src/main/include'
