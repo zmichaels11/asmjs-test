@@ -16,7 +16,7 @@
 
 #define STBI_ONLY_PNG
 #define STB_IMAGE_STATIC
-#include "stbimage.cpp"
+#include "stb_image.h"
 
 namespace graphics {
     namespace {
