@@ -5,7 +5,8 @@ namespace renderer {
         enum class node_type {
             BLIT,
             GRID,
-            STREAM
+            STREAM,
+            LIST
         };
     }
 }

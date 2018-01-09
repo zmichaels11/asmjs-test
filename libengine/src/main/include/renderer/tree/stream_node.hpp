@@ -3,7 +3,6 @@
 #include <memory>
 
 #include "renderer/color_transform.hpp"
-#include "renderer/tree/image.hpp"
 #include "renderer/tree/node.hpp"
 #include "renderer/tree/stream_node_info.hpp"
 #include "renderer/tree/stream_node_leaf.hpp"
@@ -26,17 +25,23 @@ namespace renderer {
 
             stream_node& operator=(stream_node&&) = default;
 
-            stream_node(const stream_node_info& info) noexcept;            
+            stream_node(const renderer::tree::stream_node_info& info) noexcept;            
 
-            virtual ~stream_node();
+            virtual ~stream_node() noexcept;
 
-            virtual void setProjection(const float * projection) noexcept;
+            virtual void render(void * pRenderTarget) noexcept;
 
-            void accept(const stream_node_leaf& leaf) noexcept;
+            virtual void setColorTransform(const renderer::color_transform& colorTransform) noexcept;
 
-            void setColorTransform(const renderer::color_transform& colorTransform) noexcept;
+            virtual bool supportsColorTransform() const noexcept;
 
-            const stream_node_info& getInfo() const noexcept;            
+            virtual bool isVisible() const noexcept;
+
+            virtual void setVisible(bool isVisible) noexcept;
+
+            void accept(const renderer::tree::stream_node_leaf& leaf) noexcept;            
+
+            const renderer::tree::stream_node_info& getInfo() const noexcept;            
 
             inline stream_node& operator<< (const stream_node_leaf& leaf) noexcept;
         };

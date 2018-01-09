@@ -3,7 +3,10 @@
 namespace renderer {
     namespace tree {
         enum class blend_mode {
-            LAYER
+            LAYER,
+            MULTIPLY,
+            ADD,
+            SUBTRACT
         };
     }
 }

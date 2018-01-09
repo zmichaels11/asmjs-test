@@ -3,7 +3,7 @@
 namespace renderer {
     namespace tree {
         struct stream_node_leaf {
-            struct pos_t {
+            struct position_t {
                 float x, y;
             } position;
 

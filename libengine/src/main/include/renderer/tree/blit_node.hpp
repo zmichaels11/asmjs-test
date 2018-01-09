@@ -23,11 +23,21 @@ namespace renderer {
 
             blit_node& operator=(blit_node&&) = default;
 
-            blit_node(const blit_node_info& info) noexcept;
+            blit_node(const renderer::tree::blit_node_info& info) noexcept;
 
             virtual ~blit_node() noexcept;
 
-            virtual void setProjection(const float * projection) noexcept;
+            virtual void render(void * pRenderTarget) noexcept;
+
+            virtual void setColorTransform(const renderer::color_transform& colorTransform) noexcept;
+
+            virtual bool supportsColorTransform() const noexcept;
+
+            virtual bool isVisible() const noexcept;
+
+            virtual void setVisible(bool isVisible) noexcept;
+
+            const renderer::tree::blit_node_info& getInfo() const noexcept;
         };
     }
 }
