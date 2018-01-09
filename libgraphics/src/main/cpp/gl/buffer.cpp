@@ -11,10 +11,7 @@
 
 namespace graphics {
     namespace {
-        void _onError(const std::string& msg) noexcept {
-            std::cerr << msg << std::endl;
-            __builtin_trap();
-        }
+        void _onError(const std::string& msg) noexcept;
     }
 
     buffer::buffer(const buffer_info& info) noexcept {
@@ -77,6 +74,13 @@ namespace graphics {
 
     void buffer::bindRange(unsigned int index, long offset, std::size_t size) const noexcept {
         glBindBufferRange(static_cast<GLenum> (_info.target), index, _handle, offset, size);
+    }
+
+    namespace {
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << msg << std::endl;
+            __builtin_trap();
+        }
     }
 }
 
