@@ -122,14 +122,24 @@ model {
                 }
             }
 
-            binaries.all {                
-                if (toolChain.name == 'emscripten') {
-                    cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
-                    linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
-                } else if (targetPlatform.operatingSystem.linux) {
-                    linker.args '-lopenal', '-lGL', '-lglfw', '-lGLEW'                    
-                } else if (targetPlatform.operatingSystem.windows) {                    
-                    linker.args '-lopengl32'
+            binaries.all {  
+                if (flavor == flavors.GLES20) {
+                    cppCompiler.define 'GLES20'
+                } else if (flavor == flavors.GLES30) {
+                    if (toolChain.name == 'emscripten') {
+                        cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
+                        linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
+                    } else if (targetPlatform.operatingSystem.linux) {
+                        linker.args '-lopenal', '-lGL', '-lglfw', '-lGLEW'
+                    } else if (targetPlatform.operatingSystem.windows) {
+                        // already included
+                    }
+                } else if (flavor == flavors.GL) {
+                    if (targetPlatform.operatingSystem.linux) {
+                        linker.args '-lopenal', '-lGL', '-lglfw', '-lGLEW'
+                    } else if (targetPlatform.operatingSystem.windows) {
+                        linker.args '-lopengl32'
+                    }
                 }
             }
         }
