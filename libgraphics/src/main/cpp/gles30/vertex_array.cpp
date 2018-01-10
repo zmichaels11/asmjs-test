@@ -4,7 +4,8 @@
 
 #include <GLES3/gl3.h>
 
-#include <iostream>
+#include <cstdio>
+
 #include <string>
 
 #include "graphics/hinfo/vertex_attribute_description.hpp"
@@ -58,6 +59,8 @@ namespace graphics {
 
             glVertexAttribPointer(pCurrent->location, size, type, normalized, strideAdjust, offset);
         }
+
+        _name = std::to_string(_handle);
     }
 
     vertex_array::~vertex_array() noexcept {
@@ -67,13 +70,21 @@ namespace graphics {
         }
     }
 
+    void vertex_array::setName(const std::string& name) noexcept {
+        _name = name;
+    }
+
+    const std::string& vertex_array::getName() const noexcept {
+        return _name;
+    }
+
     void vertex_array::bind() const noexcept {
         glBindVertexArray(_handle);
     }
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
+            std::printf("[GLES] Vertex Array error: %s\n", msg.c_str());
             __builtin_trap();
         }
 

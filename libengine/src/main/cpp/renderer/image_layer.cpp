@@ -3,8 +3,8 @@
 #include <cmath>
 #include <cstdio>
 
-#include <iostream>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <utility>
 
@@ -48,13 +48,19 @@ namespace renderer {
     }
 
     image_layer::image_layer(const image_layer_info& info) {
+        static unsigned int imageLayerId = 0;        
+
         _info = info;   
         _scissor = renderer::scissor_rect{false};
         
         auto pResources = std::make_unique<image_layer_res_impl>();
 
         if (info.image.pData == nullptr) {
-            _onError("image_layer must define an image!");
+            auto name = std::stringstream();
+            
+            name << "image_layer[" << imageLayerId << "] must define an image!";
+
+            _onError(name.str());
         }
 
         {
@@ -75,11 +81,21 @@ namespace renderer {
                 const_cast<void*> (info.image.pData)
             });                  
 
+            auto name = std::stringstream();
+
+            name << "image_layer[" << imageLayerId << "].image";
+            newImage.setName(name.str());
+
             std::swap(pResources->image, newImage);
         }
             
         {
             auto newModel = graphics::vertex_array({nullptr, 0, nullptr, 0, nullptr});
+            auto name = std::stringstream();
+
+            name << "image_layer[" << imageLayerId << "].model";
+
+            newModel.setName(name.str());
 
             std::swap(pResources->model, newModel);
         }
@@ -94,6 +110,7 @@ namespace renderer {
         pResources->uniformData[7] = 1.0F;
 
         _pResources.reset(pResources.release());
+        imageLayerId++;
     }
 
     void image_layer::setColorTransform(const renderer::color_transform& ct) {
@@ -215,7 +232,7 @@ namespace renderer {
 
     namespace {
         void _onError(const std::string& msg) {
-            std::cerr << msg << std::endl;
+            std::printf("[render_engine] image_layer error: %s\n", msg.c_str());
             __builtin_trap();
         }
 

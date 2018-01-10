@@ -4,7 +4,8 @@
 
 #include <GLES3/gl3.h>
 
-#include <iostream>
+#include <cstdio>
+
 #include <memory>
 #include <string>
 
@@ -43,6 +44,8 @@ namespace graphics {
             
             _onError(log);
         }
+
+        _name = std::to_string(_handle);
     }
 
     shader::~shader() noexcept {
@@ -52,10 +55,17 @@ namespace graphics {
         }
     }
 
+    void shader::setName(const std::string& name) noexcept {
+        _name = name;
+    }
+
+    const std::string& shader::getName() const noexcept {
+        return _name;
+    }
+
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << "[GL] Shader Error: " << msg << std::endl;
-
+            std::printf("[GLES] Shader error: %s\n", msg.c_str());
             __builtin_trap();
         }
     }

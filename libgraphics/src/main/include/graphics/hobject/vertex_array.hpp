@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "graphics/hinfo/vertex_array_info.hpp"
 
 namespace graphics {    
@@ -7,6 +9,7 @@ namespace graphics {
         vertex_array_info _info;
         unsigned int _handle;
         bool _external;
+        std::string _name;
 
         vertex_array(const vertex_array&) = delete;
 
@@ -20,14 +23,16 @@ namespace graphics {
         vertex_array() noexcept:
             _info(), 
             _handle(0),
-            _external(false) {}
+            _external(false),
+            _name("0") {}
         
         vertex_array(const vertex_array_info& info) noexcept;
 
         vertex_array(unsigned int handle)  noexcept:
             _info(),
             _handle(handle),
-            _external(true) {}
+            _external(true),
+            _name(std::to_string(handle)) {}
 
         ~vertex_array() noexcept;
 
@@ -38,6 +43,10 @@ namespace graphics {
         }
 
         const graphics::vertex_array_info& getInfo() const noexcept;
+
+        void setName(const std::string& name) noexcept;
+
+        const std::string& getName() const noexcept;
 
         static const vertex_array& getDefault() noexcept;
     };

@@ -4,7 +4,9 @@
 
 #include "GL/glew.h"
 
-#include <iostream>
+#include <cstdio>
+
+#include <string>
 
 #include "graphics/henum/buffer_target.hpp"
 #include "graphics/hinfo/buffer_info.hpp"
@@ -23,7 +25,7 @@ namespace graphics {
 
         if (GLEW_VERSION_4_5) {
             glCreateBuffers(1, &_handle);
-            glNamedBufferData(_handle, info.initialData.size, info.initialData.pData, usage);
+            glNamedBufferData(_handle, info.initialData.size, info.initialData.pData, usage);            
         } else {
             auto tgt = static_cast<GLenum> (info.target);
 
@@ -32,12 +34,26 @@ namespace graphics {
             glBufferData(tgt, info.initialData.size, info.initialData.pData, usage);
             glBindBuffer(tgt, 0);
         }
+
+        _name = std::to_string(_handle);
     }
 
     buffer::~buffer() noexcept {
         if (_handle && !_external) {
             glDeleteBuffers(1, &_handle);            
         }
+    }
+
+    void buffer::setName(const std::string& name) noexcept {
+        _name = name;
+
+        if (GLEW_VERSION_4_3) {
+            glObjectLabel(GL_BUFFER, _handle, _name.size(), _name.c_str());
+        }
+    }
+
+    const std::string& buffer::getName() const noexcept {
+        return _name;
     }
 
     void buffer::invalidate() const noexcept {
@@ -78,7 +94,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << msg << std::endl;
+            std::printf("[GL] Buffer error: %s\n", msg.c_str());
             __builtin_trap();
         }
     }

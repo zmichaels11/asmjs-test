@@ -9,6 +9,7 @@ namespace graphics {
         graphics::program_info _info;
         unsigned int _handle;
         bool _external;
+        std::string _name;
 
         program(const program&) = delete;
 
@@ -22,14 +23,16 @@ namespace graphics {
         program() noexcept: 
             _info(),
             _handle(0),
-            _external(false) {}
+            _external(false),
+            _name("0") {}
         
         program(const program_info& info) noexcept;
 
         program(unsigned int handle) noexcept:
             _info(),
             _handle(handle),
-            _external(true) {}        
+            _external(true),
+            _name(std::to_string(handle)) {}        
 
         ~program() noexcept;        
 
@@ -38,6 +41,10 @@ namespace graphics {
         int getUniformLocation(const std::string& name) const noexcept;
 
         void use() const noexcept;
+
+        void setName(const std::string& name) noexcept;
+
+        const std::string& getName() const noexcept;
 
         const graphics::program_info& getInfo() const noexcept;
 

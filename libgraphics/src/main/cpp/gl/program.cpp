@@ -4,7 +4,8 @@
 
 #include "GL/glew.h"
 
-#include <iostream>
+#include <cstdio>
+
 #include <string>
 
 #include "graphics/hinfo/attribute_state_info.hpp"
@@ -50,6 +51,8 @@ namespace graphics {
 
             _onError(infoLog);
         }
+
+        _name = std::to_string(_handle);
     }
 
     program::~program() noexcept {
@@ -57,6 +60,18 @@ namespace graphics {
             glDeleteProgram(_handle);
             _handle = 0;
         }
+    }
+
+    void program::setName(const std::string& name) noexcept {
+        _name = name;
+
+        if (GLEW_VERSION_4_3) {
+            glObjectLabel(GL_PROGRAM, _handle, _name.size(), _name.c_str());
+        }
+    }
+
+    const std::string& program::getName() const noexcept {
+        return _name;
     }
 
     void program::use() const noexcept {
@@ -73,7 +88,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << "program error: " << msg << std::endl;
+            std::printf("[GL] Program error: %s\n", msg.c_str());
             __builtin_trap();
         }
     }

@@ -1,5 +1,7 @@
 #pragma once
 
+#include <string>
+
 #include "graphics/henum/texture_target.hpp"
 #include "graphics/hinfo/pixel_info.hpp"
 #include "graphics/hinfo/texture_info.hpp"
@@ -12,6 +14,7 @@ namespace graphics {
         graphics::texture_info _info;
         unsigned int _target;
         bool _external;
+        std::string _name;
 
         texture(const texture&) = delete;
 
@@ -28,7 +31,8 @@ namespace graphics {
             _handle(0),
             _info(),
             _target(0),
-            _external(false) {}
+            _external(false),
+            _name("0") {}
         
         texture(const texture_info& info) noexcept;
 
@@ -36,7 +40,8 @@ namespace graphics {
             _handle(handle),
             _info(),
             _target(static_cast<unsigned int> (target)),
-            _external(true) {}
+            _external(true),
+            _name(std::to_string(handle)) {}
 
         ~texture() noexcept;        
 
@@ -51,5 +56,9 @@ namespace graphics {
         inline operator int() const noexcept {
             return _handle;
         }
+
+        void setName(const std::string& name) noexcept;
+
+        const std::string& getName() const noexcept;
     };
 }

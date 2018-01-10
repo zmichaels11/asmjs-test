@@ -4,6 +4,8 @@
 
 #include <GLES3/gl3.h>
 
+#include <string>
+
 #include "graphics/hinfo/renderbuffer_info.hpp"
 
 namespace graphics {
@@ -17,6 +19,8 @@ namespace graphics {
         glBindRenderbuffer(GL_RENDERBUFFER, _handle);
         glRenderbufferStorage(GL_RENDERBUFFER, static_cast<GLenum> (info.format), info.width, info.height);
         glBindRenderbuffer(GL_RENDERBUFFER, 0);
+
+        _name = std::to_string(_handle);
     }
 
     renderbuffer::~renderbuffer() noexcept {
@@ -24,6 +28,14 @@ namespace graphics {
             glDeleteRenderbuffers(1, &_handle);
             _handle = 0;
         }
+    }
+
+    void renderbuffer::setName(const std::string& name) noexcept {
+        _name = name;
+    }
+
+    const std::string& renderbuffer::getName() const noexcept {
+        return _name;
     }
 }
 

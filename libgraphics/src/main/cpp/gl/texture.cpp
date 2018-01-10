@@ -2,9 +2,10 @@
 
 #include "graphics/hobject/texture.hpp"
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
-#include <iostream>
+#include <cstdio>
+
 #include <string>
 
 #include "graphics/hinfo/pixel_info.hpp"
@@ -76,6 +77,8 @@ namespace graphics {
 
             glBindTexture(_target, 0);
         }
+
+        _name = std::to_string(_handle);
     }
 
     texture::~texture() noexcept {
@@ -83,6 +86,18 @@ namespace graphics {
             glDeleteTextures(1, &_handle);
             _handle = 0;
         }
+    }
+
+    void texture::setName(const std::string& name) noexcept {
+        _name = name;
+
+        if (GLEW_VERSION_4_3) {
+            glObjectLabel(GL_TEXTURE, _handle, _name.size(), _name.c_str());
+        }
+    }
+
+    const std::string& texture::getName() const noexcept {
+        return _name;
     }
 
     void texture::generateMipmap() const noexcept {
@@ -134,7 +149,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << msg << std::endl;
+            std::printf("[GL] Texture error: %s\n", msg.c_str());
             __builtin_trap();
         }
 

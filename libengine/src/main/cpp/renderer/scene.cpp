@@ -1,8 +1,8 @@
 #include "renderer/scene.hpp"
 
 #include <cstddef>
+#include <cstdio>
 
-#include <iostream>
 #include <memory>
 
 #include "graphics/state.hpp"
@@ -23,7 +23,7 @@ namespace renderer {
         };
 
         void _onError(const std::string& msg) {
-            std::cerr << msg << std::endl;
+            std::printf("[render_engine] scene error: %s\n", msg.c_str());
             __builtin_trap();
         }
     }

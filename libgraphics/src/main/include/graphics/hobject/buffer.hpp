@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+#include <string>
+
 #include "graphics/henum/buffer_target.hpp"
 #include "graphics/hinfo/buffer_info.hpp"
 
@@ -12,6 +14,7 @@ namespace graphics {
         unsigned int _handle;
         buffer_info _info;
         bool _external;
+        std::string _name;
 
         buffer(const buffer&) = delete;
 
@@ -26,14 +29,16 @@ namespace graphics {
         buffer() noexcept: 
             _handle(0),
             _info(),
-            _external(false) {}
+            _external(false),
+            _name("0") {}
         
         buffer(const buffer_info& info) noexcept;
 
         buffer(unsigned int handle) noexcept:
             _handle(handle),
             _info(),
-            _external(true) {}
+            _external(true),
+            _name(std::to_string(handle)) {}
 
         ~buffer() noexcept;
 
@@ -58,5 +63,9 @@ namespace graphics {
         }
 
         static const buffer& getDefault() noexcept;
+
+        void setName(const std::string& name) noexcept;
+
+        const std::string& getName() const noexcept;
     };
 }

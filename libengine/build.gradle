@@ -106,7 +106,8 @@ model {
                     lib library: 'glfw3'
                     lib library: 'openal_soft'
                     lib library: 'angle'
-                    lib project: ':libgraphics', library: 'graphics'                    
+                    lib project: ':libgraphics', library: 'graphics'
+                    lib project: ':libaudio', library: 'audio'                  
                     
                     source {
                         srcDir 'src/main/cpp'

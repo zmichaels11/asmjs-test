@@ -4,7 +4,8 @@
 
 #include "GL/glew.h"
 
-#include <iostream>
+#include <cstdio>
+
 #include <string>
 
 #include "graphics/henum/internal_format.hpp"
@@ -68,6 +69,8 @@ namespace graphics {
         if (glCheckNamedFramebufferStatus(_handle, GL_FRAMEBUFFER) != GL_FRAMEBUFFER_COMPLETE) {
             _onError("Incomplete framebuffer!");
         }
+
+        _name = std::to_string(_handle);
     }
 
     framebuffer::~framebuffer() noexcept {
@@ -75,6 +78,18 @@ namespace graphics {
             glDeleteFramebuffers(1, &_handle);
             _handle = 0;
         }
+    }
+
+    void framebuffer::setName(const std::string& name) noexcept {
+        _name = name;
+
+        if (GLEW_VERSION_4_3) {
+            glObjectLabel(GL_FRAMEBUFFER, _handle, _name.size(), _name.c_str());
+        }
+    }
+
+    const std::string& framebuffer::getName() const noexcept {
+        return _name;
     }
 
     void framebuffer::bind() const noexcept {
@@ -90,8 +105,8 @@ namespace graphics {
     }
 
     namespace {
-        void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
+        void _onError(const std::string& msg) noexcept {            
+            std::printf("[GL] Framebuffer error: %s\n", msg.c_str());
             __builtin_trap();
         }    
 

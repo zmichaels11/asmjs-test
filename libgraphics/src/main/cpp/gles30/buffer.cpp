@@ -4,6 +4,8 @@
 
 #include <GLES3/gl3.h>
 
+#include <string>
+
 #include "graphics/henum/buffer_target.hpp"
 #include "graphics/hinfo/buffer_info.hpp"
 
@@ -19,6 +21,8 @@ namespace graphics {
         glGenBuffers(1, &_handle);
         glBindBuffer(tgt, _handle);
         glBufferData(tgt, info.initialData.size, info.initialData.pData, usage);
+
+        _name = std::to_string(_handle);
     }
 
     buffer::~buffer() noexcept {
@@ -26,6 +30,14 @@ namespace graphics {
             glDeleteBuffers(1, &_handle);
             _handle = 0;
         }
+    }
+
+    void buffer::setName(const std::string& name) noexcept {
+        _name = name;
+    }
+
+    const std::string& buffer::getName() const noexcept {
+        return _name;
     }
 
     void buffer::invalidate() const noexcept {

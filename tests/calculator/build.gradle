@@ -105,9 +105,9 @@ model {
                 cpp {                    
                     lib library: 'glfw3'
                     lib library: 'openal_soft'
-                    lib library: 'angle'
-                    lib project: ':libaudio', library: 'audio', linkage: 'static'                    
+                    lib library: 'angle'                                        
                     lib project: ':libengine', library: 'engine', linkage: 'static'
+                    lib project: ':libaudio', library: 'audio', linkage: 'static'
                     lib project: ':libgraphics', library: 'graphics', linkage: 'static'
 
                     source {

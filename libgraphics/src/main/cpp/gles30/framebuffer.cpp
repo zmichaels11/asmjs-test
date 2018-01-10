@@ -4,7 +4,8 @@
 
 #include <GLES3/gl3.h>
 
-#include <iostream>
+#include <cstdio>
+
 #include <string>
 
 #include "graphics/henum/internal_format.hpp"
@@ -70,7 +71,7 @@ namespace graphics {
             _onError("Incomplete framebuffer!");
         }
 
-        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        _name = std::to_string(_handle);
     }
 
     framebuffer::~framebuffer() noexcept {
@@ -78,6 +79,14 @@ namespace graphics {
             glDeleteFramebuffers(1, &_handle);
             _handle = 0;
         }
+    }
+
+    void framebuffer::setName(const std::string& name) noexcept {
+        _name = name;
+    }
+
+    const std::string& framebuffer::getName() const noexcept {
+        return _name;
     }
 
     void framebuffer::bind() const noexcept {
@@ -94,7 +103,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
+            std::printf("[GLES] Framebuffer error: %s\n", msg.c_str());
             __builtin_trap();
         }    
 

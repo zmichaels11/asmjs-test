@@ -2,9 +2,10 @@
 
 #include "graphics/hobject/shader.hpp"
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
-#include <iostream>
+#include <cstdio>
+
 #include <memory>
 #include <string>
 
@@ -44,6 +45,8 @@ namespace graphics {
             
             _onError(log);
         }
+
+        _name = std::to_string(_handle);
     }
 
     shader::~shader() noexcept {
@@ -53,9 +56,21 @@ namespace graphics {
         }
     }
 
+    void shader::setName(const std::string& name) noexcept {
+        _name = name;
+
+        if (GLEW_VERSION_4_3) {
+            glObjectLabel(GL_SHADER, _handle, _name.size(), _name.c_str());
+        }
+    }
+
+    const std::string& shader::getName() const noexcept {
+        return _name;
+    }
+
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << "shader error: " << msg << std::endl;
+            std::printf("[GL] Shader error: %s\n", msg.c_str());
             __builtin_trap();
         }
     }

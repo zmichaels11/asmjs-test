@@ -1,6 +1,7 @@
 #include "audio/wave_file_channel.hpp"
 
 #include <cstdint>
+#include <cstdio>
 
 #include <iostream>
 #include <fstream>
@@ -8,8 +9,8 @@
 
 namespace audio {    
     namespace {
-        void _onError(const std::string& msg) {                
-            std::cerr << "Err: " << msg << std::endl;
+        void _onError(const std::string& msg) {
+            std::printf("[AL] Wave error: %s\n", msg.c_str());
             __builtin_trap();        
         }    
     }

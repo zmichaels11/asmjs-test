@@ -1,6 +1,7 @@
 #include "audio/vorbis_file_channel.hpp"
 
-#include <iostream>
+#include <cstdio>
+
 #include <string>
 
 #define STB_VORBIS_NO_PUSHDATA_API
@@ -86,7 +87,7 @@ namespace audio {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
+            std::printf("[AL] Vorbis error: %s\n", msg.c_str());
             __builtin_trap();
         }
     }

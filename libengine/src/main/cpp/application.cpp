@@ -4,8 +4,6 @@
 #include <cstring>
 #include <cstdio>
 
-#include <AL/alc.h>
-
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
 #endif
@@ -23,21 +21,20 @@
 #error No GL version specified!
 #endif
 
+#include <cstdio>
+
 #include <functional>
-#include <iostream>
 #include <memory>
 #include <string>
 
+#include "audio.hpp"
 #include "graphics.hpp"
 
 #include "renderer/scene.hpp"
 #include "nk/nk_ctx.hpp"
 
 namespace {    
-    void _onError(const std::string& msg) noexcept {
-        std::cerr << msg << std::endl;
-        __builtin_trap();
-    }    
+    void _onGLFWError(int error, const char * desc);
 
     void doFrame() noexcept;
 
@@ -45,11 +42,6 @@ namespace {
         struct glfw_resources_t {
             GLFWwindow * pWindow;
         } glfw;
-
-        struct openal_resources_t {
-            ALCdevice * pDevice;
-            ALCcontext * pContext;
-        } oal;
         
         std::unique_ptr<nk::nk_ctx> nuklear;     
 
@@ -122,9 +114,60 @@ namespace engine {
 }
 
 namespace {
+    void _onGLFWError(int error, const char * description) {
+        switch (error) {
+            case GLFW_NOT_INITIALIZED:
+                std::printf("[GLFW] Not initialized: %s\n", description);                
+                break;
+            case GLFW_NO_CURRENT_CONTEXT:
+                std::printf("[GLFW] No current context: %s\n", description);
+                break;
+            case GLFW_INVALID_ENUM:
+                std::printf("[GLFW] Invalid enum: %s\n", description);
+                break;
+            case GLFW_INVALID_VALUE:
+                std::printf("[GLFW] Invalid value: %s\n", description);
+                break;
+            case GLFW_OUT_OF_MEMORY:
+                std::printf("[GLFW] Out of memory: %s\n", description);
+                break;
+            case GLFW_API_UNAVAILABLE:
+                std::printf("[GLFW] API unavailable: %s\n", description);
+                break;
+            case GLFW_VERSION_UNAVAILABLE:
+                std::printf("[GLFW] Version unavailable: %s\n", description);
+                break;
+            case GLFW_PLATFORM_ERROR:
+                std::printf("[GLFW] Platform error: %s\n", description);
+                break;
+            case GLFW_FORMAT_UNAVAILABLE:
+                std::printf("[GLFW] Format unavailable: %s\n", description);
+                break;
+            case GLFW_NO_WINDOW_CONTEXT:
+                std::printf("[GLFW] No window context: %s\n", description);
+                break;
+            default:
+                std::printf("[GLFW] Unknown error: %s\n", description);
+                break;
+        }
+    }
+
     native_resources::native_resources(const std::string& title, unsigned int width, unsigned int height) noexcept {
-        if (!glfwInit()) {
-            _onError("glfwInit failed!");
+        glfwSetErrorCallback(_onGLFWError);
+
+        if (glfwInit() != GLFW_TRUE) {
+            std::printf("[GLFW] Unable to initialize!\n");
+            __builtin_trap();
+        }
+
+        {
+            int major = 0;
+            int minor = 0;
+            int revision = 0;
+
+            glfwGetVersion(&major, &minor, &revision);
+
+            std::printf("[GLFW] GLFW Version: %d.%d.%d\n", major, minor, revision);
         }
 
         glfwDefaultWindowHints();
@@ -141,6 +184,7 @@ namespace {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #elif GL        
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);        
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #else
@@ -149,7 +193,8 @@ namespace {
 
 
         if ((glfw.pWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr)) == nullptr) {
-            _onError("glfwCreateWindow failed!");
+            std::printf("[GLFW] Window creation failed!\n");
+            __builtin_trap();
         }
 
         glfwMakeContextCurrent(glfw.pWindow);
@@ -158,17 +203,7 @@ namespace {
 
         glfwSwapInterval(1);
 
-        if ((oal.pDevice = alcOpenDevice(nullptr)) == nullptr) {
-            _onError("alcOpenDevice failed!");
-        }
-
-        if ((oal.pContext = alcCreateContext(oal.pDevice, nullptr)) == nullptr) {
-            _onError("alcCreateContext failed!");
-        }
-
-        if (!alcMakeContextCurrent(oal.pContext)) {
-            _onError("alcMakeContextCurrent failed!");
-        }
+        audio::init();
 
         nuklear = std::make_unique<nk::nk_ctx> (glfw.pWindow);        
     }
@@ -179,10 +214,6 @@ namespace {
         }
 
         if (glfw.pWindow) {
-            alcMakeContextCurrent(nullptr);
-            alcDestroyContext(oal.pContext);
-            alcCloseDevice(oal.pDevice);            
-
             glfwDestroyWindow(glfw.pWindow);
             glfwTerminate();
         }

@@ -330,6 +330,9 @@ namespace nk {
                 auto vbo = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_VERTEX_BUFFER}});
                 auto ebo = graphics::buffer({graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_ELEMENT_BUFFER}});             
 
+                vbo.setName("gui_layer.vertices");
+                ebo.setName("gui_layer.indices");
+
                 graphics::vertex_attribute_description aPosition = {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
                 graphics::vertex_attribute_description aTexCoord = {1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0};
                 graphics::vertex_attribute_description aColor = {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0};

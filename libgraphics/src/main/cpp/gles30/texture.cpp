@@ -4,7 +4,8 @@
 
 #include <GLES3/gl3.h>
 
-#include <iostream>
+#include <cstdio>
+
 #include <string>
 
 #include "graphics/hinfo/pixel_info.hpp"
@@ -51,7 +52,7 @@ namespace graphics {
                 _onError("Unsupported texture target!");
         }
 
-        glBindTexture(_target, 0);
+        std::to_string(_handle);
     }
 
     texture::~texture() noexcept {
@@ -59,6 +60,14 @@ namespace graphics {
             glDeleteTextures(1, &_handle);
             _handle = 0;
         }
+    }
+
+    void texture::setName(const std::string& name) noexcept {
+        _name = name;
+    }
+
+    const std::string& texture::getName() const noexcept {
+        return _name;
     }
 
     void texture::generateMipmap() const noexcept {
@@ -86,8 +95,8 @@ namespace graphics {
     }
 
     namespace {
-        void _onError(const std::string& msg) noexcept {
-            std::cerr << "[GL] Texture Error: " << msg << std::endl;
+        void _onError(const std::string& msg) noexcept {            
+            std::printf("[GLES] Texture error: %s\n", msg.c_str());
             __builtin_trap();
         }
 

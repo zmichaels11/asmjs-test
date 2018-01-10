@@ -1,10 +1,11 @@
 #include "renderer/text_layer.hpp"
 
 #include <cstdint>
+#include <cstdio>
 
-#include <iostream>
 #include <limits>
 #include <memory>
+#include <sstream>
 #include <string>
 #include <utility>
 #include <vector>
@@ -56,11 +57,17 @@ namespace renderer {
     }
 
     text_layer::text_layer(const text_layer_info& info) {
+        static unsigned int textLayerId = 0;
+
         _info = info;
         _scissor = {false};
                 
         auto bufferSize = info.maxCharacters * BYTES_PER_CHARACTER;
         auto vtext = graphics::buffer({graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW, {nullptr, bufferSize}});
+        auto vboName = std::stringstream();
+        
+        vboName << "text_layer[" << textLayerId << "].vertices";        
+        vtext.setName(vboName.str());
 
         auto binding = graphics::vertex_binding_description {0, 16, 0, &vtext};
         auto aPosition = graphics::vertex_attribute_description {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
@@ -70,6 +77,10 @@ namespace renderer {
         decltype(&binding) bindings[] = {&binding};
 
         auto model = graphics::vertex_array({attribs, 3, bindings, 1, nullptr});
+        auto vaoName = std::stringstream();
+
+        vaoName << "text_layer[" << textLayerId << "].model";
+        model.setName(vaoName.str());
         
         auto font = graphics::font_image({info.firstChar, info.charCount, info.fontFile, info.pointSize * PIXELS_PER_POINT});            
 
@@ -82,7 +93,12 @@ namespace renderer {
                 {-1000.0F, 1000.0F}
             },
             graphics::internal_format::R8
-        });
+        });        
+
+        auto textureName = std::stringstream();
+
+        textureName << "text_layer[" << textLayerId << "].texture";
+        texture.setName(textureName.str());
 
         texture.subImage(0, 0, 0, 0, font.getWidth(), font.getHeight(), 1, {
             graphics::pixel_type::UNSIGNED_BYTE,
@@ -100,6 +116,7 @@ namespace renderer {
         std::swap(pResources->texture, texture);  
 
         _pResources.reset(pResources.release());
+        textLayerId++;
     }
 
     const text_layer_info& text_layer::getInfo() const {
@@ -233,7 +250,7 @@ namespace renderer {
         }
 
         void _onError(const std::string& msg) {
-            std::cout << msg << std::endl;
+            std::printf("[render_engine] text_layer error: %s\n", msg.c_str());
             __builtin_trap();
         }
     }

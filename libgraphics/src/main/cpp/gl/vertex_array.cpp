@@ -2,9 +2,10 @@
 
 #include "graphics/hobject/vertex_array.hpp"
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
-#include <iostream>
+#include <cstdio>
+
 #include <string>
 
 #include "graphics/hinfo/vertex_array_info.hpp"
@@ -59,7 +60,9 @@ namespace graphics {
             glVertexAttribPointer(pCurrent->location, size, type, normalized, strideAdjust, offset);
         }
 
-        glBindVertexArray(0);        
+        glBindVertexArray(0);
+
+        _name = std::to_string(_handle);
     }
 
     vertex_array::~vertex_array() noexcept {
@@ -69,13 +72,25 @@ namespace graphics {
         }
     }
 
+    void vertex_array::setName(const std::string& name) noexcept {
+        _name = name;
+
+        if (GLEW_VERSION_4_3) {
+            glObjectLabel(GL_VERTEX_ARRAY, _handle, _name.size(), _name.c_str());
+        }
+    }
+
+    const std::string& vertex_array::getName() const noexcept {
+        return _name;
+    }
+
     void vertex_array::bind() const noexcept {
         glBindVertexArray(_handle);
     }
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
+            std::printf("[GL] Vertex Array error: %s\n", msg.c_str());
             __builtin_trap();
         }
 
