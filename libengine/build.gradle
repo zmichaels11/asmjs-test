@@ -98,7 +98,9 @@ model {
         engine(NativeLibrarySpec) {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
+            targetPlatform 'linux32'
             targetPlatform 'linux64'
+            targetPlatform 'windows32'
             targetPlatform 'windows64'
 
             sources {

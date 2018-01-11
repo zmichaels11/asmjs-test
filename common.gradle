@@ -71,11 +71,17 @@ model {
 			}
 
 			target("linux32") {
-				cCompiler.executable = 'i686-linux-gnu-gcc'
-				cppCompiler.executable = 'i686-linux-gnu-g++'
-				linker.executable = 'i686-linux-gnu-g++'
-				assembler.executable = 'i686-linux-gnu-as'
-				staticLibArchiver.executable = 'i686-linux-gnu-ar'
+				cppCompiler.withArguments { args -> 
+					args.add(0, '-m32')
+				}
+
+				cCompiler.withArguments { args ->
+					args.add(0, '-m32')
+				}
+
+				linker.withArguments { args ->
+					args.add(0, '-m32')
+				}
 			}
 
 			target("windows32") {
