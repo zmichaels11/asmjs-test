@@ -32,10 +32,23 @@ namespace engine {
 
             virtual void render() const noexcept;
             
+            enum class data_type {
+                PROJECTION,
+                TILE
+            };
 
             struct tile_data {
                 unsigned int x, y;
                 int tileId;
+            };
+
+            struct data {
+                data_type type;
+
+                union payload_u {
+                    tile_data tile;
+                    float projection[16];
+                } payload;
             };
         };
     }

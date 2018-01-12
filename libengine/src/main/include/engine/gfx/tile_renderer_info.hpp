@@ -5,8 +5,8 @@ namespace engine {
         struct tile_renderer_info {
             unsigned int columns;
             unsigned int rows;
-            float tileWidth;
-            float tileHeight;
+            unsigned int tileWidth;
+            unsigned int tileHeight;
         };
     }
 }

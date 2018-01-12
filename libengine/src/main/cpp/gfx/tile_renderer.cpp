@@ -1,6 +1,8 @@
 #include "engine/gfx/tile_renderer.hpp"
 
 #include <cstddef>
+#include <cstdio>
+#include <cstring>
 
 #include <memory>
 #include <utility>
@@ -27,20 +29,23 @@ namespace engine {
 
             struct tile_renderer_resources : public virtual base_resources {
                 tile_renderer_info info;
+                graphics::buffer index;
                 graphics::buffer vertices;
                 graphics::buffer tiles;
                 graphics::vertex_array model;
                 std::unique_ptr<tile[]> tileData;
                 std::size_t tileCount;
                 bool isDirty;
+                float projection[16];
 
                 tile_renderer_resources(const tile_renderer_info& info) noexcept;
 
                 virtual ~tile_renderer_resources();
             };
 
-            graphics::program PROGRAM;
+            graphics::program program;
             int uTilesheet;
+            int uProjection;
         }
 
         tile_renderer::tile_renderer(const tile_renderer_info& info) noexcept {
@@ -49,22 +54,32 @@ namespace engine {
 
         void tile_renderer::reset() noexcept {
             auto res = dynamic_cast<tile_renderer_resources *> (_pResources.get());
-            auto tileCount = res->info.columns * res->info.rows;
+            auto tileDataSize = res->tileCount * sizeof(tile);
 
-            for (decltype(tileCount) i = 0; i < tileCount; i++) {
-                res->tileData[i] = tile();
-            }
-
-            res->isDirty = true;
+            std::memset(res->tileData.get(), 0, tileDataSize);
         }
 
         void tile_renderer::pushData(const void * pData) noexcept {
-            auto tileData = reinterpret_cast<const tile_renderer::tile_data * > (pData);
             auto res = dynamic_cast<tile_renderer_resources * > (_pResources.get());
-            auto idx = res->info.rows * tileData->y + tileData->x;
+            auto data = reinterpret_cast<const tile_renderer::data * > (pData);
 
-            //TODO: translate tileData->tileId into a tile object            
-            res->tileData[idx] = tile();
+            switch (data->type) {
+                case tile_renderer::data_type::PROJECTION: {
+                    std::memcpy(res->projection, data->payload.projection, sizeof(float) * 16);
+                    break;
+                }
+                case tile_renderer::data_type::TILE: {
+                    auto idx = res->info.rows * data->payload.tile.y + data->payload.tile.x;
+
+                    //TODO: translate tileId into tile
+                    res->tileData[idx] = tile();
+                    break;
+                }
+                default: {
+                    std::printf("[renderer] tile_renderer warning: Undefined push data!\n");
+                    break;
+                }
+            }            
         }
 
         void tile_renderer::update() noexcept {
@@ -78,15 +93,42 @@ namespace engine {
         }
 
         void tile_renderer::render() const noexcept {
-            if (!PROGRAM) {
-                //TODO: init program
+            if (!program) {
+#if defined (GL)
+                auto vsh = graphics::shader::makeVertex("data/shaders/tile_renderer/330_core.vert");
+                auto fsh = graphics::shader::makeFragment("data/shaders/tile_renderer/330_core.frag");
+#elif defined (GLES30)
+                auto vsh = graphics::shader::makeVertex("data/shaders/tile_renderer/300_es.vert");
+                auto fsh = graphics::shader::makeFragment("data/shaders/tile_renderer/300_es.frag");
+#elif defined (GLES20)
+                auto vsh = graphics::shader::makeVertex("data/shaders/tile_renderer/100_es.vert");
+                auto fsh = graphics::shader::makeFragment("data/shaders/tile_renderer/100_es.frag");
+#else
+                auto vsh = graphics::shader();
+                auto fsh = graphics::shader();
+#error "No GL defined!"
+#endif
+
+                graphics::attribute_state_info attribs[] = {
+                    {"vIndex", 0},
+                    {"vPosition", 1},
+                    {"vTexCoord", 2}
+                };
+
+                decltype(&vsh) shaders[] = {&vsh, &fsh};
+                
+                program = graphics::program(graphics::program_info{shaders, 2, attribs, 3});
+
+                uTilesheet = program.getUniformLocation("uTilesheet");
+                uProjection = program.getUniformLocation("uProjection");
             }
 
             auto res = dynamic_cast<tile_renderer_resources * > (_pResources.get());
 
-            PROGRAM.use();
+            program.use();
 
             graphics::uniform::setUniform1(uTilesheet, 0);
+            graphics::uniform::setUniformMatrix4(uProjection, 1, res->projection);
 
             res->model.bind();
             graphics::draw::arraysInstanced(graphics::draw_mode::TRIANGLE_STRIP, 0, 4, res->tileCount);
@@ -98,27 +140,27 @@ namespace engine {
                 this->isDirty = false;
 
                 tileCount = info.rows * info.columns;
+                
                 auto vertexCount = 4 * tileCount;
-
                 auto vertexData = std::vector<vertex>();
 
                 vertexData.reserve(vertexCount);
 
+                auto tw = static_cast<float> (info.tileWidth);
+                auto th = static_cast<float> (info.tileHeight);
+
                 for (decltype(info.columns) y = 0; y < info.columns; y++) {
+                    auto y0 = static_cast<float> (y) * th;
+                    auto y1 = y0 + th;
+
                     for (decltype(info.rows) x = 0; x < info.rows; x++) {
-                        auto x0 = x * info.tileWidth;
-                        auto y0 = y * info.tileHeight;
-                        auto x1 = x0 + info.tileWidth;
-                        auto y1 = y0 + info.tileHeight;
+                        auto x0 = static_cast<float> (x) * tw;
+                        auto x1 = x0 + tw;
 
                         auto v0 = vertex{x0, y0};
                         auto v1 = vertex{x0, y1};
                         auto v2 = vertex{x1, y0};
-                        auto v3 = vertex{x1, y1};
-
-                        // v0-v2
-                        // | / |
-                        // v1-v3
+                        auto v3 = vertex{x1, y1};                       
 
                         vertexData.push_back(v0);
                         vertexData.push_back(v1);                        
@@ -132,24 +174,28 @@ namespace engine {
                 auto vertexDataSize = sizeof(vertex) * vertexCount;
                 auto tileDataSize = sizeof(tile) * tileCount;                
 
-                auto newVertices = graphics::buffer(graphics::buffer_info{graphics::buffer_target::ARRAY, graphics::buffer_usage::STATIC_DRAW, {vertexData.data(), vertexDataSize}});
-                auto newTiles = graphics::buffer(graphics::buffer_info{graphics::buffer_target::ARRAY, graphics::buffer_usage::DYNAMIC_DRAW, {nullptr, tileDataSize}});
+                float indexData[] = {
+                    0.0F, 0.0F,
+                    0.0F, 1.0F,
+                    1.0F, 0.0F,
+                    1.0F, 1.0F};
 
-                std::swap(this->vertices, newVertices);
-                std::swap(this->tiles, newTiles);
+                this->index = graphics::buffer(graphics::buffer_info{graphics::buffer_target::ARRAY, graphics::buffer_usage::STATIC_DRAW, {indexData, sizeof(indexData)}});
+                this->vertices = graphics::buffer(graphics::buffer_info{graphics::buffer_target::ARRAY, graphics::buffer_usage::STATIC_DRAW, {vertexData.data(), vertexDataSize}});
+                this->tiles = graphics::buffer(graphics::buffer_info{graphics::buffer_target::ARRAY, graphics::buffer_usage::DYNAMIC_DRAW, {nullptr, tileDataSize}});                
 
-                auto vertexBinding = graphics::vertex_binding_description{0, sizeof(vertex), 1, &vertices, 0}; // every quad
-                auto tileBinding = graphics::vertex_binding_description{1, sizeof(tile), 1, &tiles, 0}; // every quad
+                auto indexBinding = graphics::vertex_binding_description{0, 0, 0, &index, 0};
+                auto vertexBinding = graphics::vertex_binding_description{1, sizeof(vertex), 1, &vertices, 0}; // every quad
+                auto tileBinding = graphics::vertex_binding_description{2, sizeof(tile), 1, &tiles, 0}; // every quad
 
-                auto aVertex = graphics::vertex_attribute_description{0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
-                auto aTile = graphics::vertex_attribute_description{1, graphics::vertex_format::X32Y32Z32W32_SFLOAT, 0, 1};
+                auto aIndex = graphics::vertex_attribute_description{0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
+                auto aVertex = graphics::vertex_attribute_description{0, graphics::vertex_format::X32Y32Z32W32_SFLOAT, 0, 1};
+                auto aTile = graphics::vertex_attribute_description{1, graphics::vertex_format::X32Y32Z32W32_SFLOAT, 0, 2};
 
-                decltype(&aVertex) attribs[] = {&aVertex, &aTile};
-                decltype(&vertexBinding) bindings[] = {&vertexBinding, &tileBinding};
+                decltype(&aVertex) attribs[] = {&aIndex, &aVertex, &aTile};
+                decltype(&vertexBinding) bindings[] = {&indexBinding, &vertexBinding, &tileBinding};
 
-                auto newModel = graphics::vertex_array(graphics::vertex_array_info{attribs, 2, bindings, 2, nullptr});
-
-                std::swap(this->model, newModel);
+                this->model = graphics::vertex_array(graphics::vertex_array_info{attribs, 3, bindings, 3, nullptr});
             }
 
             tile_renderer_resources::~tile_renderer_resources() {}

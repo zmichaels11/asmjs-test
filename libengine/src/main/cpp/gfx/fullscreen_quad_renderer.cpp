@@ -1,9 +1,12 @@
 #include "engine/gfx/fullscreen_quad_renderer.hpp"
 
+#include <cstring>
+
 #include <memory>
 
 #include "engine/gfx/base_resources.hpp"
 
+#include "graphics/buffer.hpp"
 #include "graphics/operation.hpp"
 #include "graphics/program.hpp"
 #include "graphics/shader.hpp"
@@ -13,6 +16,7 @@ namespace engine {
     namespace gfx {
         namespace {
             struct fullscreen_quad_resources : public virtual base_resources {
+                graphics::buffer index;
                 graphics::vertex_array model;
 
                 float imageView[4];                
@@ -21,13 +25,28 @@ namespace engine {
 
                 virtual ~fullscreen_quad_resources() {}
             };
-
-            graphics::program PROGRAM;
+            
+            graphics::program program;
+            int uImage;
             int uImageView;
         }
 
         fullscreen_quad_resources::fullscreen_quad_resources() {
-            model = graphics::vertex_array(graphics::vertex_array_info());
+            float indexData[] = {
+                0.0F, 0.0F, 
+                0.0F, 1.0F, 
+                1.0F, 0.0F, 
+                1.0F, 1.0F};
+
+            index = graphics::buffer(graphics::buffer_info{graphics::buffer_target::ARRAY, graphics::buffer_usage::STATIC_DRAW, {indexData, sizeof(indexData)}});
+
+            auto indexBinding = graphics::vertex_binding_description{0, 0, 0, &index, 0};
+            auto indexAttrib = graphics::vertex_attribute_description{0, graphics::vertex_format::X32Y32_SFLOAT, 0};
+            
+            decltype(&indexAttrib) attribs[] = {&indexAttrib};
+            decltype(&indexBinding) bindings[] = {&indexBinding};
+
+            model = graphics::vertex_array(graphics::vertex_array_info{attribs, 1, bindings, 1});
         }
 
         fullscreen_quad_renderer::fullscreen_quad_renderer() noexcept {
@@ -39,10 +58,7 @@ namespace engine {
         void fullscreen_quad_renderer::reset() noexcept {
             auto res = dynamic_cast<fullscreen_quad_resources *> (_pResources.get());
 
-            res->imageView[0] = 0.0F;
-            res->imageView[1] = 0.0F;
-            res->imageView[2] = 0.0F;
-            res->imageView[3] = 0.0F;
+            std::memset(res->imageView, 0, sizeof(float) * 4);
         }
 
         void fullscreen_quad_renderer::pushData(const void * pData) noexcept {
@@ -51,44 +67,45 @@ namespace engine {
             if (pData) {
                 auto data = reinterpret_cast<const float *> (pData);
 
-                res->imageView[0] = data[0];
-                res->imageView[1] = data[1];
-                res->imageView[2] = data[2];
-                res->imageView[3] = data[3];
+                std::memcpy(res->imageView, data, sizeof(float) * 4);
             } else {
-                res->imageView[0] = 0.0F;
-                res->imageView[1] = 0.0F;
-                res->imageView[2] = 0.0F;
-                res->imageView[3] = 0.0F;
+                std::memset(res->imageView, 0, sizeof(float) * 4);
             }
         }
 
         void fullscreen_quad_renderer::render() const noexcept {
-            if (!PROGRAM) {
+            if (!program) {
 #if defined(GL)
                 auto vsh = graphics::shader::makeVertex("data/shaders/fullscreen_quad_renderer/330_core.vert");
                 auto fsh = graphics::shader::makeFragment("data/shaders/fullscreen_quad_renderer/330_core.frag");
 #elif defined(GLES30)
                 auto vsh = graphics::shader::makeVertex("data/shaders/fullscreen_quad_renderer/300_es.vert");
                 auto fsh = graphics::shader::makeFragment("data/shaders/fullscreen_quad_renderer/300_es.frag");
+#elif defined (GLES20)
+                auto vsh = graphics::shader::makeVertex("data/shaders/fullscreen_quad_renderer/100_es.vert");
+                auto fsh = graphics::shader::makeFragment("data/shaders/fullscreen_quad_renderer/100_es.frag");
 #else
-                graphics::shader vsh, fsh;                
-#error "Only GL and GLES 3.0 are supported!"
+                auto vsh = graphics::shader();
+                auto fsh = graphics::shader();
+#error "GL not defined!"
 #endif                
 
-                decltype(&vsh) pShaders[] = {&vsh, &fsh};
+                decltype(&vsh) pShaders[] = {&vsh, &fsh};                
 
+                program = graphics::program(graphics::program_info{pShaders, 2, nullptr, 0});
 
-                PROGRAM = graphics::program(graphics::program_info{pShaders, 2, nullptr, 0});
-
-                uImageView = PROGRAM.getUniformLocation("uImageView");
+                uImageView = program.getUniformLocation("uImageView");
+                uImage = program.getUniformLocation("uImage");
             }
 
             auto res = dynamic_cast<fullscreen_quad_resources*> (_pResources.get());
 
-            PROGRAM.use();
+            program.use();            
 
+            graphics::uniform::setUniform1(uImage, 0);
             graphics::uniform::setUniform4(uImageView, 1, res->imageView);
+
+            res->model.bind();
 
             graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
         }
