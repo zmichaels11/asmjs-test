@@ -1,24 +1,24 @@
 #include "nk/nk_ctx.hpp"
 
 #include <cstddef>
+#include <cstdio>
 #include <cstring>
 
-#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
 
-#ifdef GLES20
+#if defined(GLES20)
 #define GLFW_INCLUDE_ES2
 #include <GLFW/glfw3.h>
-#elif GLES30
+#elif defined(GLES30)
 #define GLFW_INCLUDE_ES3
 #include <GLFW/glfw3.h>
-#elif GL
+#elif defined(GL)
 #include <GLFW/glfw3.h>
 #else
 #include <GLFW/glfw3.h>
-#error No GL specified!
+#error "No GL specified!"
 #endif
 
 #define NK_INCLUDE_FIXED_TYPES
@@ -48,15 +48,17 @@ namespace nk {
         constexpr std::size_t MAX_VERTEX_BUFFER = 512 * 1024;
         constexpr std::size_t MAX_ELEMENT_BUFFER = 128 * 1024;
 
-#ifdef GL
+#if defined(GL)
         constexpr const char * VERTEX_SHADER_FILE = "data/shaders/nuklear/330_core.vert";
         constexpr const char * FRAGMENT_SHADER_FILE = "data/shaders/nuklear/330_core.frag";
-#elif GLES30
+#elif defined(GLES30)
         constexpr const char * VERTEX_SHADER_FILE = "data/shaders/nuklear/300_ES.vert";
         constexpr const char * FRAGMENT_SHADER_FILE = "data/shaders/nuklear/300_ES.frag";
+#elif defined(GLES20)
+        constexpr const char * VERTEX_SHADER_FILE = "data/shaders/nuklear/100_es.vert";
+        constexpr const char * FRAGMENT_SHADER_FILE = "data/shaders/nuklear/100_es.frag";
 #else
-        constexpr const char * VERTEX_SHADER_FILE = "";
-        constexpr const char * FRAGMENT_SHADER_FILE = "";
+#error "No GL specified!"
 #endif
 
         static const nk_draw_vertex_layout_element VERTEX_LAYOUT[] = {
@@ -291,18 +293,11 @@ namespace nk {
 
     namespace {
         void _nkCreateDevice() {
-            nk_buffer_init_default(&_pIMPL->device.cmds);
-            
-            if (glGetError() != GL_NO_ERROR) {
-                std::cerr << "For some reason, there already is an error" << std::endl;
-            }
+            nk_buffer_init_default(&_pIMPL->device.cmds);                    
 
             {                
-                auto vsrc = util::stringReadAll(VERTEX_SHADER_FILE);
-                auto fsrc = util::stringReadAll(FRAGMENT_SHADER_FILE);
-
-                auto vsh = graphics::shader({graphics::shader_type::VERTEX, vsrc});
-                auto fsh = graphics::shader({graphics::shader_type::FRAGMENT, fsrc});
+                auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_FILE);
+                auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_FILE);
 
                 decltype(&vsh) shaders[] = {&vsh, &fsh};
 
@@ -333,14 +328,14 @@ namespace nk {
                 vbo.setName("gui_layer.vertices");
                 ebo.setName("gui_layer.indices");
 
-                graphics::vertex_attribute_description aPosition = {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
-                graphics::vertex_attribute_description aTexCoord = {1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0};
-                graphics::vertex_attribute_description aColor = {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0};
+                auto aPosition = graphics::vertex_attribute_description{0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
+                auto aTexCoord = graphics::vertex_attribute_description{1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0};
+                auto aColor = graphics::vertex_attribute_description{2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0};
 
-                graphics::vertex_binding_description binding = {0, 20, 0, &vbo, 0};                
+                auto binding = graphics::vertex_binding_description{0, 20, 0, &vbo, 0};                
 
-                graphics::vertex_attribute_description* attribs[] = {&aPosition, &aTexCoord, &aColor};
-                graphics::vertex_binding_description* bindings[] = {&binding};
+                decltype(&aPosition) attribs[] = {&aPosition, &aTexCoord, &aColor};
+                decltype(&binding) bindings[] = {&binding};
 
                 auto err = glGetError();
 
@@ -362,7 +357,7 @@ namespace nk {
         }
 
         void _onError(const std::string& msg) {
-            std::cerr << msg << std::endl;
+            std::printf("[NK] Nuklear error: %s\n", msg.c_str());
             __builtin_trap();
         }
 

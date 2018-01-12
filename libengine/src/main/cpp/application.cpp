@@ -8,13 +8,13 @@
 #include <emscripten/emscripten.h>
 #endif
 
-#ifdef GLES20
+#if defined(GLES20)
 #define GLFW_INCLUDE_ES2
 #include <GLFW/glfw3.h>
-#elif GLES30
+#elif defined(GLES30)
 #define GLFW_INCLUDE_ES3
 #include <GLFW/glfw3.h>
-#elif GL
+#elif defined(GL)
 #include <GLFW/glfw3.h>
 #else
 #include <GLFW/glfw3.h>
@@ -103,7 +103,7 @@ namespace engine {
     void application::start(const std::shared_ptr<void>& pUserData) noexcept {
         _pUserData = pUserData;
 
-#ifdef __EMSCRIPTEN__
+#if defined(__EMSCRIPTEN__)
         emscripten_set_main_loop(doFrame, 0, 1);
 #else
         while (_pNativeResources->isValid()) {
@@ -172,21 +172,22 @@ namespace {
 
         glfwDefaultWindowHints();
 
-#ifdef GLES20
+#if defined(GLES20)
         glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 2);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#elif GLES30
+#elif defined(GLES30)
         glfwWindowHint(GLFW_CONTEXT_CREATION_API, GLFW_EGL_CONTEXT_API);
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_ES_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
-#elif GL        
+#elif defined(GL)
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);        
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        std::printf("[GLFW] Configured for OpenGL!\n");
 #else
 #error "No GL version specified!"
 #endif
