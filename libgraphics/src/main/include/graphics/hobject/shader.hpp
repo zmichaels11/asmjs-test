@@ -45,5 +45,17 @@ namespace graphics {
         const std::string& getName() const noexcept;
 
         const graphics::shader_info& getInfo() const noexcept;
+
+        static shader makeVertex(const std::string& srcOrFile) noexcept;
+
+        static shader makeFragment(const std::string& srcOrFile) noexcept;
+
+        static shader makeGeometry(const std::string& srcOrFile) noexcept;
+
+        static shader makeTessControl(const std::string& srcOrFile) noexcept;
+
+        static shader makeTessEvaluation(const std::string& srcOrFile) noexcept;
+
+        static shader makeCompute(const std::string& srcOrFile) noexcept;
     };
 }
