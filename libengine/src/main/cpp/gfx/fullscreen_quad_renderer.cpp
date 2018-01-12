@@ -36,6 +36,15 @@ namespace engine {
 
         fullscreen_quad_renderer::~fullscreen_quad_renderer() {}
 
+        void fullscreen_quad_renderer::reset() noexcept {
+            auto res = dynamic_cast<fullscreen_quad_resources *> (_pResources.get());
+
+            res->imageView[0] = 0.0F;
+            res->imageView[1] = 0.0F;
+            res->imageView[2] = 0.0F;
+            res->imageView[3] = 0.0F;
+        }
+
         void fullscreen_quad_renderer::pushData(const void * pData) noexcept {
             auto res = dynamic_cast<fullscreen_quad_resources*> (_pResources.get());
 
@@ -63,6 +72,7 @@ namespace engine {
                 auto vsh = graphics::shader::makeVertex("data/shaders/fullscreen_quad_renderer/300_es.vert");
                 auto fsh = graphics::shader::makeFragment("data/shaders/fullscreen_quad_renderer/300_es.frag");
 #else
+                graphics::shader vsh, fsh;                
 #error "Only GL and GLES 3.0 are supported!"
 #endif                
 

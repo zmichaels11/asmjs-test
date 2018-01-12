@@ -17,6 +17,8 @@ namespace engine {
 
             virtual void pushData(const void * pData) noexcept;
 
+            virtual void reset() noexcept;
+
             virtual void render() const noexcept;
         };
     }
