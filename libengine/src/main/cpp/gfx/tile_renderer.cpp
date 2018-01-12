@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include <memory>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -46,6 +47,22 @@ namespace engine {
             graphics::program program;
             int uTilesheet;
             int uProjection;
+
+            const std::string BASE_SHADER_PATH = "data/shaders/tile_renderer/";
+#if defined(GL)
+            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "330_core.vert";
+            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_PATH + "330_core.frag";
+#elif defined(GLES30)
+            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "300_es.vert";
+            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_PATH + "300_es.frag";
+#elif defined(GLES20)
+            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "100_es.vert";
+            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_pATH + "100_es.frag";
+#else
+            const std::string VERTEX_SHADER_PATH = "";
+            const std::string FRAGMENT_SHADER_PATH = "";
+#error "No GL defined!"
+#endif
         }
 
         tile_renderer::tile_renderer(const tile_renderer_info& info) noexcept {
@@ -94,20 +111,8 @@ namespace engine {
 
         void tile_renderer::render() const noexcept {
             if (!program) {
-#if defined (GL)
-                auto vsh = graphics::shader::makeVertex("data/shaders/tile_renderer/330_core.vert");
-                auto fsh = graphics::shader::makeFragment("data/shaders/tile_renderer/330_core.frag");
-#elif defined (GLES30)
-                auto vsh = graphics::shader::makeVertex("data/shaders/tile_renderer/300_es.vert");
-                auto fsh = graphics::shader::makeFragment("data/shaders/tile_renderer/300_es.frag");
-#elif defined (GLES20)
-                auto vsh = graphics::shader::makeVertex("data/shaders/tile_renderer/100_es.vert");
-                auto fsh = graphics::shader::makeFragment("data/shaders/tile_renderer/100_es.frag");
-#else
-                auto vsh = graphics::shader();
-                auto fsh = graphics::shader();
-#error "No GL defined!"
-#endif
+                auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
+                auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_PATH);
 
                 graphics::attribute_state_info attribs[] = {
                     {"vIndex", 0},
