@@ -2,8 +2,8 @@
 
 namespace engine {
     namespace gfx {
-        struct quad_renderer_info {
-            unsigned int maxQuads;
+        struct color {
+            unsigned char r, g, b, a;
         };
     }
 }
