@@ -44,6 +44,34 @@ namespace graphics {
         }
     }
 
+    void * buffer::map(long offset, std::size_t length, buffer_access access) const noexcept {
+        if (GLEW_VERSION_4_5) {
+            return glMapNamedBufferRange(_handle, static_cast<GLintptr> (offset), static_cast<GLsizeiptr> (length), static_cast<GLbitfield> (access));
+        } else {
+            auto tgt = static_cast<GLenum> (_info.target);
+
+            glBindBuffer(tgt, _handle);
+            
+            auto res = glMapBufferRange(_handle, static_cast<GLintptr> (offset), static_cast<GLsizeiptr> (length), static_cast<GLbitfield> (access));
+
+            glBindBuffer(tgt, 0);
+
+            return res;
+        }
+    }
+
+    void buffer::unmap() const noexcept {
+        if (GLEW_VERSION_4_5) {
+            glUnmapNamedBuffer(_handle);
+        } else {
+            auto tgt = static_cast<GLenum> (_info.target);
+
+            glBindBuffer(tgt, _handle);
+            glUnmapBuffer(tgt);
+            glBindBuffer(tgt, 0);
+        }
+    }
+
     void buffer::setName(const std::string& name) noexcept {
         _name = name;
 

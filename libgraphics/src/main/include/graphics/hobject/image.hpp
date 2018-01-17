@@ -22,7 +22,7 @@ namespace graphics {
 
         virtual graphics::pixel_format getFormat() const noexcept = 0;
 
-        virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const graphics::image& subimg) noexcept = 0;
+        virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const graphics::image& subimg) noexcept = 0;        
 
         static std::unique_ptr<image> read(const std::string& path, unsigned int forcedChannels = 0) noexcept;
     };

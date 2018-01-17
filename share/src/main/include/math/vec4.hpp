@@ -11,7 +11,7 @@ namespace math {
 
         constexpr vec4(float x, float y, float z, float w) : x(x), y(y), z(z), w(w) {}
 
-        constexpr void data(float * ptr) {
+        constexpr void data(float * ptr) const {
             ptr[0] = x;
             ptr[1] = y;
             ptr[2] = z;

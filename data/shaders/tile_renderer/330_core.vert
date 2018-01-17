@@ -1,16 +1,15 @@
-#version 330
+#version 330 core
 
-in vec2 vIndex;
-in vec4 vPosition;
-in vec4 vTexCoord;
+in vec2 vPosition;
+in float vFrameIndex;
+in vec2 vFrameSize;
 
-out vec2 fTexCoord;
+out vec3 fTexCoord;
 
 uniform mat4 uProjection;
+uniform float uTileSize;
 
 void main() {
-    vec2 pos = mix(vPosition.xy, vPosition.zw, vIndex);
-
-    gl_Position = uProjection * vec4(pos, 0.0, 1.0);
-    fTexCoord = mix(vTexCoord.xy, vTexCoord.zw, vIndex);
+    gl_Position = uProjection * vec4(vPosition * vec2(uTileSize), 0.0, 1.0);
+    fTexCoord = vec3(mix(vec2(0.0), vFrameSize, vPosition), 1.0);
 }
