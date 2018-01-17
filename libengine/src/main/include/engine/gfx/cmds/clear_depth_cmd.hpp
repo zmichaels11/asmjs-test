@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/gfx/cmds/command.hpp"
 #include "engine/gfx/cmds/command_type.hpp"
+#include "engine/gfx/cmds/command.hpp"
 
 namespace engine {
     namespace gfx {
@@ -10,7 +10,7 @@ namespace engine {
                 float depth;
 
                 clear_depth_cmd(float depth) :
-                    type(engine::gfx::cmds::command_type::CLEAR_DEPTH),
+                    command(engine::gfx::cmds::command_type::CLEAR_DEPTH),
                     depth(depth) {}
             };
         }

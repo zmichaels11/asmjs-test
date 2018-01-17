@@ -17,8 +17,7 @@ namespace engine {
                     const engine::gfx::pen& pen,
                     const engine::gfx::point<float>& start,
                     const engine::gfx::point<float>& end) :
-
-                    type(engine::gfx::cmds::command_type::DRAW_LINE),
+                    command(engine::gfx::cmds::command_type::DRAW_LINE),
                     pen(pen),
                     start(start),
                     end(end) {}

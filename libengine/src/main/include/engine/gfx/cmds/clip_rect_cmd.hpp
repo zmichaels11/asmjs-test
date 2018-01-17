@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/gfx/cmds/command.hpp"
 #include "engine/gfx/cmds/command_type.hpp"
+#include "engine/gfx/cmds/command.hpp"
 
 #include "engine/gfx/combine_mode.hpp"
 #include "engine/gfx/rect.hpp"
@@ -16,8 +16,7 @@ namespace engine {
                 clip_rect_cmd(
                     engine::gfx::combine_mode mode,
                     engine::gfx::rect<int, unsigned int> area) :
-                
-                    type(engine::gfx::cmds::command_type::CLIP_RECT),
+                    command(engine::gfx::cmds::command_type::CLIP_RECT),
                     mode(mode),
                     area(area) {}
             };

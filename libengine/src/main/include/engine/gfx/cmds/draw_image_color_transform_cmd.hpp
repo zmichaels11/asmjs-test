@@ -19,8 +19,7 @@ namespace engine {
                     const engine::gfx::image * pImage,
                     const engine::gfx::parallelogram<float>& polygon,
                     const engine::gfx::color_transform& colorTransform) :
-
-                    type(engine::gfx::cmds::command_type::DRAW_IMAGE_COLOR_TRANSFORM),
+                    command(engine::gfx::cmds::command_type::DRAW_IMAGE_COLOR_TRANSFORM),
                     pImage(pImage),
                     polygon(polygon),
                     colorTransform(colorTransform) {}

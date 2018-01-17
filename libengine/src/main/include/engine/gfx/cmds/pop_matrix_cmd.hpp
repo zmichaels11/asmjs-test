@@ -6,10 +6,8 @@
 namespace engine {
     namespace gfx {
         namespace cmds {
-            struct set_transform_cmd : public engine::gfx::cmds::command {
-                float matrix[16];
-
-                set_transform_cmd(const float * matrix);
+            struct pop_matrix_cmd : public engine::gfx::cmds::command {
+                pop_matrix_cmd() : command(engine::gfx::cmds::command_type::POP_MATRIX) {}
             };
         }
     }

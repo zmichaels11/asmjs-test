@@ -8,20 +8,19 @@
 namespace engine {
     namespace gfx {
         namespace cmds {
-            struct scale_transform : engine::gfx::cmds::command {
+            struct scale_transform_cmd : engine::gfx::cmds::command {
                 float sx, sy;
                 engine::gfx::matrix_order order;
 
-                scale_transform(
+                scale_transform_cmd(
                     float sx,
                     float sy,
                     engine::gfx::matrix_order order) :
-
-                    type(engine::gfx::cmds::command_type::SCALE_TRANSFORM),
+                    command(engine::gfx::cmds::command_type::SCALE_TRANSFORM),
                     sx(sx),
                     sy(sy),
                     order(order) {}
-            }
+            };
         }
     }
 }

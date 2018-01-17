@@ -16,8 +16,7 @@ namespace engine {
                 draw_image_cmd(
                     const engine::gfx::image * pImage,
                     const engine::gfx::parallelogram<float>& polygon) :
-
-                    type(engine::gfx::cmds::command_type::DRAW_IMAGE),
+                    command(engine::gfx::cmds::command_type::DRAW_IMAGE),
                     pImage(pImage),
                     polygon(polygon) {}
             };

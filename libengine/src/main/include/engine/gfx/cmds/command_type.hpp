@@ -7,6 +7,8 @@ namespace engine {
                 CLEAR_COLOR,
                 CLEAR_CLIP,
                 CLEAR_DEPTH,
+                CLIP_RECT,
+                DRAW_TILE,
                 DRAW_IMAGE,
                 DRAW_IMAGE_COLOR_TRANSFORM,
                 DRAW_IMAGE_BC,
@@ -19,8 +21,8 @@ namespace engine {
                 SCALE_TRANSFORM,
                 SET_TRANSFORM,
                 TRANSLATE_TRANSFORM,
-                SAVE,
-                RESTORE,
+                PUSH_MATRIX,
+                POP_MATRIX,
                 SET_COMPOSITE_MODE
             };
         }

@@ -15,8 +15,7 @@ namespace engine {
                 translate_transform_cmd(
                     float dx, float dy,
                     engine::gfx::matrix_order order) :
-
-                    type(engine::gfx::cmds::command_type::TRANSLATE_TRANSFORM),
+                    command(engine::gfx::cmds::command_type::TRANSLATE_TRANSFORM),
                     dx(dx),
                     dy(dy),
                     order(order) {}

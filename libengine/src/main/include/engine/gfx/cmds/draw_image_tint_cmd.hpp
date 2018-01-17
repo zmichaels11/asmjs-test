@@ -17,9 +17,11 @@ namespace engine {
                 draw_image_tint_cmd(
                     const engine::gfx::image * pImage,
                     const engine::gfx::parallelogram<float>& polygon,
-                    float r, g, b, a) :
-
-                    type(engine::gfx::cmds::command_type::DRAW_IMAGE_TINT),
+                    float r, 
+                    float g, 
+                    float b, 
+                    float a) :
+                    command(engine::gfx::cmds::command_type::DRAW_IMAGE_TINT),
                     pImage(pImage),
                     polygon(polygon),
                     r(r),

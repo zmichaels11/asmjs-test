@@ -15,8 +15,7 @@ namespace engine {
                 rotate_transform_cmd(
                     float angle,
                     engine::gfx::matrix_order order) :
-
-                    type(engine::gfx::cmds::command_type::ROTATE_TRANSFORM),
+                    command(engine::gfx::cmds::command_type::ROTATE_TRANSFORM),
                     angle(angle),
                     order(order) {}
             };

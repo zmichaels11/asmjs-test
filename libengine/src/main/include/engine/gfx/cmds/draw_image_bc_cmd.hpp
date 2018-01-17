@@ -1,7 +1,7 @@
 #pragma once
 
-#include "engine/gfx/cmds/command.hpp"
 #include "engine/gfx/cmds/command_type.hpp"
+#include "engine/gfx/cmds/command.hpp"
 
 #include "engine/gfx/image.hpp"
 #include "engine/gfx/parallelogram.hpp"
@@ -16,11 +16,10 @@ namespace engine {
 
                 draw_image_bc_cmd(
                     const engine::gfx::image * pImage,
-                    const engine::gfx::parallelogram& polygon,
+                    const engine::gfx::parallelogram<float>& polygon,
                     float brightness,
-                    float contrast) :
-                
-                    type(engine::gfx::command_type::DRAW_IMAGE_BC),
+                    float contrast) :                
+                    command(engine::gfx::cmds::command_type::DRAW_IMAGE_BC),
                     pImage(pImage),
                     polygon(polygon),
                     brightness(brightness),

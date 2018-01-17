@@ -5,6 +5,6 @@ namespace engine {
         enum class composite_mode {
             SOURCE_OVER,
             SOURCE_COPY
-        }
+        };
     }
 }
