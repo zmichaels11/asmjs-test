@@ -30,7 +30,7 @@ namespace math {
             c(cx, cy, cz, cw),
             d(dx, dy, dz, dw) {}
 
-        constexpr void data(float * ptr) {
+        constexpr void data(float * ptr) const {
             a.data(ptr);
             b.data(ptr+4);
             c.data(ptr+8);

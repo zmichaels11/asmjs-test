@@ -4,6 +4,7 @@
 
 #include <string>
 
+#include "graphics/hbitfield/buffer_access.hpp"
 #include "graphics/henum/buffer_target.hpp"
 #include "graphics/hinfo/buffer_info.hpp"
 
@@ -47,6 +48,10 @@ namespace graphics {
         inline void bind() const noexcept {
             bind(_info.target);
         }
+
+        void * map(long offset, std::size_t size, buffer_access access) const noexcept;
+
+        void unmap() const noexcept;
 
         void invalidate() const noexcept;
 

@@ -25,6 +25,9 @@ public:
     inline static T bestFitPowerOf2(T value);
 
     template<class T>
+    inline static T optimalMipmapCount(T value);
+
+    template<class T>
     inline static T unorm(float value);
 
     template<class T>
@@ -66,8 +69,21 @@ std::unique_ptr<char[]> util::readAll(const std::string& file) {
 }
 
 template<class T>
+T util::optimalMipmapCount(T value) {
+    auto result = static_cast<T> (0);  
+    auto testValue = static_cast<T> (1);
+
+    while (testValue < value) {        
+        testValue <<= 1;
+        result++;
+    }
+
+    return result;
+}
+
+template<class T>
 T util::bestFitPowerOf2(T value) {        
-    auto result = static_cast<T> (0);
+    auto result = static_cast<T> (1);
 
     while (result < value) {
         result <<= 1;
