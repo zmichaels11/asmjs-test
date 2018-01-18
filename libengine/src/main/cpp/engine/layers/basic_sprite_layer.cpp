@@ -17,8 +17,8 @@
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/basic_sprite_layer_info.hpp"
 #include "engine/layers/basic_sprite_slot.hpp"
+#include "engine/layers/context.hpp"
 #include "engine/layers/image_view.hpp"
-#include "engine/layers/parallelogram.hpp"
 #include "engine/layers/sprite_sheet.hpp"
 
 namespace engine {
@@ -27,8 +27,8 @@ namespace engine {
             void _onError(const std::string& msg) noexcept;
 
             struct basic_sprite_layer_resources : public engine::layers::base_resources {
-                engine::layers::sprite_sheet _spriteSheet;
-                engine::layers::basic_sprite_layer_info _info;
+                const sprite_sheet * _pSpriteSheet;
+                basic_sprite_layer_info _info;
                 std::unique_ptr<basic_sprite_slot[]> _spriteSlots;
                 basic_sprite_slot * _spriteSlotAccessor;
 
@@ -37,7 +37,9 @@ namespace engine {
                 graphics::buffer _vbo;
                 graphics::vertex_array _vao;
 
-                basic_sprite_layer_resources(const engine::layers::basic_sprite_layer_info& info) noexcept;
+                basic_sprite_layer_resources(
+                    const context& ctx, 
+                    const basic_sprite_layer_info& info) noexcept;
 
                 virtual ~basic_sprite_layer_resources() {}
             };
@@ -63,8 +65,11 @@ namespace engine {
             int _uImage;
         }
 
-        basic_sprite_layer::basic_sprite_layer(const engine::layers::basic_sprite_layer_info& info) noexcept {
-            _pResources = std::make_unique<basic_sprite_layer_resources>(info);
+        basic_sprite_layer::basic_sprite_layer(
+            const context& ctx, 
+            const basic_sprite_layer_info& info) noexcept {
+
+            _pResources = std::make_unique<basic_sprite_layer_resources>(ctx, info);
         }
 
         void basic_sprite_layer::invalidate() noexcept {
@@ -99,7 +104,7 @@ namespace engine {
             graphics::uniform::setUniform1(_uImage, 0);
             graphics::uniform::setUniformMatrix4(_uProjection, 1, res->_projection);
 
-            auto pTexture = reinterpret_cast<const graphics::texture *> (res->_spriteSheet.getTexture());
+            auto pTexture = reinterpret_cast<const graphics::texture *> (res->_pSpriteSheet->getTexture());
             
             pTexture->bind(0);
 
@@ -126,10 +131,10 @@ namespace engine {
             return &res->_spriteSlotAccessor;
         }
 
-        const engine::layers::image_view& basic_sprite_layer::getImageView(const std::string& imgRef) const noexcept {
+        const engine::layers::image_view& basic_sprite_layer::getImageView(int spriteID) const noexcept {
             auto res = dynamic_cast<basic_sprite_layer_resources * > (_pResources.get());
 
-            return res->_spriteSheet.getSprite(imgRef);
+            return res->_pSpriteSheet->getSprite(spriteID);
         }
 
         namespace {
@@ -138,9 +143,12 @@ namespace engine {
                 __builtin_trap();
             }
 
-            basic_sprite_layer_resources::basic_sprite_layer_resources(const engine::layers::basic_sprite_layer_info& info) noexcept {
+            basic_sprite_layer_resources::basic_sprite_layer_resources(
+                const context& ctx,
+                const basic_sprite_layer_info& info) noexcept {
+
                 _info = info;
-                _spriteSheet = engine::layers::sprite_sheet(info.spriteInfo);
+                _pSpriteSheet = ctx.getSpriteSheet(info.spriteSheetID);
                 _spriteSlots = std::make_unique<basic_sprite_slot[]> (info.maxSprites);
 
                 graphics::buffer_usage usage;

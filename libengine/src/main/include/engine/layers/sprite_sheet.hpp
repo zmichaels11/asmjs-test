@@ -25,7 +25,7 @@ namespace engine {
 
             sprite_sheet(const engine::layers::sprite_sheet_info& info) noexcept;
 
-            const engine::layers::image_view& getSprite(const std::string& lookup) const noexcept;
+            const engine::layers::image_view& getSprite(int spriteID) const noexcept;
 
             const engine::layers::sprite_sheet_info& getInfo() const noexcept;
 

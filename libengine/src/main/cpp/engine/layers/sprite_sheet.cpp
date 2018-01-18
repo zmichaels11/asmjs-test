@@ -4,8 +4,6 @@
 
 #include <algorithm>
 #include <memory>
-#include <map>
-#include <string>
 
 #include "engine/image_cache.hpp"
 #include "engine/layers/image_view.hpp"
@@ -23,7 +21,7 @@ namespace engine {
 
             struct sprite_sheet_resources : public engine::layers::base_resources {
                 engine::layers::sprite_sheet_info _info;
-                std::map<std::string, engine::layers::image_view> _sprites;
+                std::unique_ptr<image_view[]> _sprites;
                 
                 graphics::texture _texture;
 
@@ -41,10 +39,10 @@ namespace engine {
             _pResources = std::make_unique<sprite_sheet_resources> (info);
         }
 
-        const engine::layers::image_view& sprite_sheet::getSprite(const std::string& lookup) const noexcept {
+        const engine::layers::image_view& sprite_sheet::getSprite(int spriteID) const noexcept {
             auto res = dynamic_cast<sprite_sheet_resources * > (_pResources.get());
-
-            return res->_sprites[lookup];
+             
+            return res->_sprites[spriteID];
         }
 
         const engine::layers::sprite_sheet_info& sprite_sheet::getInfo() const noexcept {
@@ -66,28 +64,26 @@ namespace engine {
             }
 
             void sprite_sheet_resources::buildSpritesheet() noexcept {
+                //TODO: support non-layered sprites
                 buildLayeredSpritesheet();
             }
 
             void sprite_sheet_resources::buildLayeredSpritesheet() noexcept {
                 unsigned int width = 0;
-                unsigned int height = 0;
-                auto layerCount = _info.requiredImages.size();
-                auto images = std::map<std::string, const graphics::image*>();
+                unsigned int height = 0;                                
 
-                for (auto&& imgRef : _info.requiredImages) {
-                    auto image = engine::image_cache::getImage(imgRef);
+                for (decltype(_info.imageCount) i = 0; i < _info.imageCount; i++) {
+                    auto pImage = _info.ppImages[i];
 
-                    images.emplace(imgRef, image);
-                    width = std::max(width, image->getWidth());
-                    height = std::max(height, image->getHeight());                                      
+                    width = std::max(width, pImage->getWidth());
+                    height = std::max(height, pImage->getHeight());
                 }
 
                 width = util::bestFitPowerOf2(width);
                 height = util::bestFitPowerOf2(height);
 
                 auto pixelsPerImage = width * height;
-                auto totalPixels = pixelsPerImage * layerCount;
+                auto totalPixels = pixelsPerImage * _info.imageCount;
                 auto totalBytes = totalPixels * 4;
                 auto samplerInfo = graphics::sampler_info::defaults();
 
@@ -110,9 +106,10 @@ namespace engine {
                     levelCount = std::max(util::optimalMipmapCount(width), util::optimalMipmapCount(height));
                 }
                 
+                _sprites = std::make_unique<image_view[]> (_info.imageCount);
                 _texture = graphics::texture(graphics::texture_info{
                     {width, height, 1},
-                    layerCount,
+                    _info.imageCount,
                     levelCount,
                     samplerInfo,
                     graphics::internal_format::RGBA8
@@ -120,17 +117,21 @@ namespace engine {
 
                 unsigned int currentLayer = 0;
 
-                for (auto&& pair : images) {                    
-                    auto& image = *pair.second;
+                for (decltype(_info.imageCount) i = 0; i < _info.imageCount; i++) {
+                    auto pImage = _info.ppImages[i];
                     auto pixelInfo = graphics::pixel_info{
                         graphics::pixel_type::UNSIGNED_BYTE,
                         graphics::pixel_format::RGBA,
-                        const_cast<void*> (image.getData())
-                    };
+                        const_cast<void*> (pImage->getData())};
+                    auto w = pImage->getWidth();
+                    auto h = pImage->getHeight();
+                    auto sw = static_cast<float> (w) / static_cast<float> (width);
+                    auto sh = static_cast<float> (h) / static_cast<float> (height);
 
-                    _texture.subImage(0, 0, 0, currentLayer, image.getWidth(), image.getHeight(), 1, pixelInfo);
+                    _sprites[currentLayer] = {currentLayer, util::unorm<std::uint16_t> (sw), util::unorm<std::uint16_t> (sh)};                    
+                    _texture.subImage(0, 0, 0, currentLayer, w, h, 1, pixelInfo);
                     currentLayer++;
-                }                                
+                }
             }
 
             sprite_sheet_resources::sprite_sheet_resources(const sprite_sheet_info& info) noexcept {

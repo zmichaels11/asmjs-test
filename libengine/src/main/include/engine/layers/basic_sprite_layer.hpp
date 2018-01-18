@@ -9,6 +9,7 @@
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/basic_sprite_layer_info.hpp"
 #include "engine/layers/basic_sprite_slot.hpp"
+#include "engine/layers/context.hpp"
 
 namespace engine {
     namespace layers {        
@@ -23,7 +24,7 @@ namespace engine {
 
             basic_sprite_layer& operator=(basic_sprite_layer&&) = default;
 
-            basic_sprite_layer(const basic_sprite_layer_info& info) noexcept;
+            basic_sprite_layer(const context& ctx, const basic_sprite_layer_info& info) noexcept;
 
             virtual void invalidate() noexcept;      
 
@@ -39,7 +40,7 @@ namespace engine {
 
             engine::layers::basic_sprite_slot ** fetchSpriteSlots() const noexcept;
 
-            const engine::layers::image_view& getImageView(const std::string& imgRef) const noexcept;
+            const engine::layers::image_view& getImageView(int spriteID) const noexcept;
 
             const engine::layers::basic_sprite_layer_info& getInfo() const noexcept;
         };

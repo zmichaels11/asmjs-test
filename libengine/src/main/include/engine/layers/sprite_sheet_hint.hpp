@@ -6,7 +6,8 @@ namespace engine {
             LAYERED = 1,
             HORIZONTAL_REPEAT = 2,
             VERTICAL_REPEAT = 4,
-            GENERATE_MIPMAP = 8
+            GENERATE_MIPMAP = 8,
+            GLOBAL = 16
         };
 
         constexpr sprite_sheet_hint operator| (sprite_sheet_hint lhs, sprite_sheet_hint rhs) {

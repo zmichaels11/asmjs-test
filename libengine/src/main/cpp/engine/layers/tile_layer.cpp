@@ -14,6 +14,7 @@
 #include "graphics/vertex_array.hpp"
 
 #include "engine/layers/base_resources.hpp"
+#include "engine/layers/context.hpp"
 #include "engine/layers/sprite_sheet.hpp"
 #include "engine/layers/tile_layer_info.hpp"
 #include "engine/layers/tile_slot.hpp"
@@ -24,8 +25,8 @@ namespace engine {
             void _onError(const std::string& msg) noexcept;
 
             struct tile_layer_resources : public engine::layers::base_resources {
-                engine::layers::sprite_sheet _spriteSheet;
-                engine::layers::tile_layer_info _info;
+                const sprite_sheet * _pSpriteSheet;
+                tile_layer_info _info;
                 std::unique_ptr<tile_slot[]> _tileSlots;
                 tile_slot * _tileSlotAccessor;
 
@@ -36,7 +37,9 @@ namespace engine {
                 graphics::buffer _tiles;
                 graphics::vertex_array _vao;
 
-                tile_layer_resources(const tile_layer_info& info) noexcept;
+                tile_layer_resources(
+                    const context& ctx,
+                    const tile_layer_info& info) noexcept;
 
                 virtual ~tile_layer_resources() {}
             };
@@ -63,8 +66,11 @@ namespace engine {
             int _uTileSize;
         }
 
-        tile_layer::tile_layer(const tile_layer_info& info) noexcept {
-            _pResources = std::make_unique<tile_layer_resources> (info);
+        tile_layer::tile_layer(
+            const context& ctx,
+            const tile_layer_info& info) noexcept {
+
+            _pResources = std::make_unique<tile_layer_resources> (ctx, info);
         }
 
         const tile_layer_info& tile_layer::getInfo() const noexcept {
@@ -104,7 +110,7 @@ namespace engine {
                 graphics::uniform::setUniform1(_uTileSize, res->_info.tileSize);
                 graphics::uniform::setUniformMatrix4(_uProjection, 1, res->_projection);
 
-                auto pTexture = reinterpret_cast<const graphics::texture * > (res->_spriteSheet.getTexture());
+                auto pTexture = reinterpret_cast<const graphics::texture * > (res->_pSpriteSheet->getTexture());
 
                 pTexture->bind(0);
 
@@ -134,10 +140,10 @@ namespace engine {
             return &res->_tileSlotAccessor;
         }
 
-        const engine::layers::image_view& tile_layer::getImageView(const std::string& imgRef) const noexcept {
+        const engine::layers::image_view& tile_layer::getImageView(int tileID) const noexcept {
             auto res = dynamic_cast<tile_layer_resources * > (_pResources.get());
             
-            return res->_spriteSheet.getSprite(imgRef);
+            return res->_pSpriteSheet->getSprite(tileID);
         }
 
         namespace {
@@ -146,9 +152,12 @@ namespace engine {
                 __builtin_trap();
             }
 
-            tile_layer_resources::tile_layer_resources(const tile_layer_info& info) noexcept {
+            tile_layer_resources::tile_layer_resources(
+                const context& ctx,                
+                const tile_layer_info& info) noexcept {
+
                 _info = info;
-                _spriteSheet = engine::layers::sprite_sheet(info.tileInfo);
+                _pSpriteSheet = ctx.getSpriteSheet(info.tileSheetID);
                 
                 auto tileCount = info.rows * info.columns;
                 _tileSlots = std::make_unique<tile_slot[]> (tileCount);

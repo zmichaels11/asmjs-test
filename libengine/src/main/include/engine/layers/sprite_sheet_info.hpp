@@ -1,14 +1,13 @@
 #pragma once
 
-#include <set>
-#include <string>
-
+#include "graphics/image.hpp"
 #include "engine/layers/sprite_sheet_hint.hpp"
 
 namespace engine {
     namespace layers {
         struct sprite_sheet_info {
-            std::set<std::string> requiredImages;
+            graphics::image ** ppImages;
+            std::size_t imageCount;
             engine::layers::sprite_sheet_hint hints;
         };
     }

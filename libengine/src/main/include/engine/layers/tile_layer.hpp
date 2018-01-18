@@ -7,6 +7,7 @@
 
 #include "engine/layers/base_layer.hpp"
 #include "engine/layers/base_resources.hpp"
+#include "engine/layers/context.hpp"
 #include "engine/layers/image_view.hpp"
 #include "engine/layers/tile_layer_info.hpp"
 #include "engine/layers/tile_slot.hpp"
@@ -24,7 +25,9 @@ namespace engine {
 
             tile_layer& operator=(tile_layer&&) = default;
 
-            tile_layer(const tile_layer_info& info) noexcept;
+            tile_layer(
+                const context& ctx,
+                const tile_layer_info& info) noexcept;
 
             virtual void invalidate() noexcept;
 
@@ -40,7 +43,7 @@ namespace engine {
 
             engine::layers::tile_slot ** fetchTileSlots() const noexcept;
 
-            const engine::layers::image_view& getImageView(const std::string& imgRef) const noexcept;
+            const engine::layers::image_view& getImageView(int tileID) const noexcept;
 
             const engine::layers::tile_layer_info& getInfo() const noexcept;
         };

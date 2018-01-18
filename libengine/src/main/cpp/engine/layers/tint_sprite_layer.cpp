@@ -23,9 +23,9 @@ namespace engine {
         namespace {
             void _onError(const std::string& msg) noexcept;
 
-            struct tint_sprite_layer_resources : public engine::layers::base_resources {
-                engine::layers::sprite_sheet _spriteSheet;
-                engine::layers::tint_sprite_layer_info _info;
+            struct tint_sprite_layer_resources : public base_resources {
+                const sprite_sheet * _pSpriteSheet;
+                tint_sprite_layer_info _info;
                 std::unique_ptr<tint_sprite_slot[]> _spriteSlots;
                 tint_sprite_slot * _spriteSlotAccessor;
 
@@ -34,7 +34,9 @@ namespace engine {
                 graphics::buffer _vbo;
                 graphics::vertex_array _vao;
 
-                tint_sprite_layer_resources(const tint_sprite_layer_info& info) noexcept;
+                tint_sprite_layer_resources(
+                    const context& ctx,
+                    const tint_sprite_layer_info& info) noexcept;
 
                 virtual ~tint_sprite_layer_resources() {}
             };
@@ -60,8 +62,11 @@ namespace engine {
             int _uImage;
         }
 
-        tint_sprite_layer::tint_sprite_layer(const tint_sprite_layer_info& info) noexcept {
-            _pResources = std::make_unique<tint_sprite_layer_resources> (info);
+        tint_sprite_layer::tint_sprite_layer(
+            const context& ctx,
+            const tint_sprite_layer_info& info) noexcept {
+
+            _pResources = std::make_unique<tint_sprite_layer_resources> (ctx, info);
         }
 
         void tint_sprite_layer::invalidate() noexcept {
@@ -90,7 +95,7 @@ namespace engine {
             graphics::uniform::setUniform1(_uImage, 0);
             graphics::uniform::setUniformMatrix4(_uProjection, 1, res->_projection);
 
-            auto pTexture = reinterpret_cast<const graphics::texture * > (res->_spriteSheet.getTexture());
+            auto pTexture = reinterpret_cast<const graphics::texture * > (res->_pSpriteSheet->getTexture());
 
             pTexture->bind(0);
 
@@ -117,10 +122,10 @@ namespace engine {
             return &res->_spriteSlotAccessor;
         }
 
-        const image_view& tint_sprite_layer::getImageView(const std::string& imgRef) const noexcept {
+        const image_view& tint_sprite_layer::getImageView(int spriteID) const noexcept {
             auto res = dynamic_cast<tint_sprite_layer_resources * > (_pResources.get());
 
-            return res->_spriteSheet.getSprite(imgRef);
+            return res->_pSpriteSheet->getSprite(spriteID);
         }
 
         namespace {
@@ -129,9 +134,12 @@ namespace engine {
                 __builtin_trap();
             }
 
-            tint_sprite_layer_resources::tint_sprite_layer_resources(const tint_sprite_layer_info& info) noexcept {
+            tint_sprite_layer_resources::tint_sprite_layer_resources(
+                const context& ctx,
+                const tint_sprite_layer_info& info) noexcept {
+
                 _info = info;
-                _spriteSheet = engine::layers::sprite_sheet(info.spriteInfo);
+                _pSpriteSheet = ctx.getSpriteSheet(info.spriteID);
                 _spriteSlots = std::make_unique<tint_sprite_slot[]> (info.maxSprites);
 
                 graphics::buffer_usage usage;

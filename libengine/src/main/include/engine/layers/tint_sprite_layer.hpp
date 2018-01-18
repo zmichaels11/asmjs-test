@@ -7,13 +7,14 @@
 
 #include "engine/layers/base_layer.hpp"
 #include "engine/layers/base_resources.hpp"
+#include "engine/layers/context.hpp"
 #include "engine/layers/tint_sprite_layer_info.hpp"
 #include "engine/layers/tint_sprite_slot.hpp"
 
 namespace engine {
     namespace layers {
-        class tint_sprite_layer : public engine::layers::base_layer {
-            std::unique_ptr<engine::layers::base_resources> _pResources;
+        class tint_sprite_layer : public base_layer {
+            std::unique_ptr<base_resources> _pResources;
 
             tint_sprite_layer(const tint_sprite_layer&) = delete;
 
@@ -24,7 +25,9 @@ namespace engine {
             
             tint_sprite_layer& operator=(tint_sprite_layer&&) = default;
 
-            tint_sprite_layer(const tint_sprite_layer_info& info) noexcept;
+            tint_sprite_layer(
+                const context& ctx,
+                const tint_sprite_layer_info& info) noexcept;
 
             virtual void invalidate() noexcept;
 
@@ -40,7 +43,7 @@ namespace engine {
 
             engine::layers::tint_sprite_slot ** fetchSpriteSlots() const noexcept;
 
-            const engine::layers::image_view& getImageView(const std::string& imgRef) const noexcept;
+            const engine::layers::image_view& getImageView(int spriteID) const noexcept;
 
             const engine::layers::tint_sprite_layer_info& getInfo() const noexcept;
         };
