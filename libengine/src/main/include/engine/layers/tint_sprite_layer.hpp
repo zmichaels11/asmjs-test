@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
 
 #include "math/mat4.hpp"
 
@@ -41,11 +40,11 @@ namespace engine {
 
             virtual void setProjection(const float * projection) noexcept;
 
-            engine::layers::tint_sprite_slot ** fetchSpriteSlots() const noexcept;
+            tint_sprite_slot ** fetchSpriteSlots() const noexcept;
 
-            const engine::layers::image_view& getImageView(int spriteID) const noexcept;
+            const image_view& getImageView(int spriteID) const noexcept;
 
-            const engine::layers::tint_sprite_layer_info& getInfo() const noexcept;
+            const tint_sprite_layer_info& getInfo() const noexcept;
         };
     }
 }

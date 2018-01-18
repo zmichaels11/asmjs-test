@@ -5,7 +5,7 @@
 namespace engine {
     namespace layers {
         struct tile_slot {            
-            engine::layers::image_view view;            
+            image_view view;            
         };
     }
 }

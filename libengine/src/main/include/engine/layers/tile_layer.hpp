@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
 
 #include "math/mat4.hpp"
 
@@ -14,8 +13,8 @@
 
 namespace engine {
     namespace layers {
-        class tile_layer : public engine::layers::base_layer {
-            std::unique_ptr<engine::layers::base_resources> _pResources;
+        class tile_layer : public base_layer {
+            std::unique_ptr<base_resources> _pResources;
 
             tile_layer(const tile_layer&) = delete;
 
@@ -41,11 +40,11 @@ namespace engine {
 
             virtual void setProjection(const float * projection) noexcept;
 
-            engine::layers::tile_slot ** fetchTileSlots() const noexcept;
+            tile_slot ** fetchTileSlots() const noexcept;
 
-            const engine::layers::image_view& getImageView(int tileID) const noexcept;
+            const image_view& getImageView(int tileID) const noexcept;
 
-            const engine::layers::tile_layer_info& getInfo() const noexcept;
+            const tile_layer_info& getInfo() const noexcept;
         };
     }
 }

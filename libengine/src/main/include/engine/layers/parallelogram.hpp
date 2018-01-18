@@ -6,7 +6,7 @@ namespace engine {
     namespace layers {
         template <typename point_component_T = float>
         struct parallelogram {
-            engine::layers::point<point_component_T> upperLeft, upperRight, bottomLeft;
+            point<point_component_T> upperLeft, upperRight, bottomLeft;
         };
     }
 }

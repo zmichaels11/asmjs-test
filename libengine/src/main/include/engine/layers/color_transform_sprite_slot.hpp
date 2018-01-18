@@ -7,9 +7,9 @@
 namespace engine {
     namespace layers {
         struct color_transform_sprite_slot {
-            engine::layers::parallelogram<float> shape;
-            engine::layers::image_view view;
-            engine::layers::color_transform colorTransform;
+            parallelogram<float> shape;
+            image_view view;
+            color_transform colorTransform;
         };
     }
 }

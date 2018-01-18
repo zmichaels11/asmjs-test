@@ -7,9 +7,9 @@
 namespace engine {
     namespace layers {
         struct hsv_sprite_slot {
-            engine::layers::parallelogram<float> shape;
-            engine::layers::image_view view;
-            engine::layers::hsv hsv;
+            parallelogram<float> shape;
+            image_view view;
+            hsv hsv;
             float padding;
         };
     }

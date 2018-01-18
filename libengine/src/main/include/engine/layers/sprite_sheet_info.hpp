@@ -8,7 +8,7 @@ namespace engine {
         struct sprite_sheet_info {
             graphics::image ** ppImages;
             std::size_t imageCount;
-            engine::layers::sprite_sheet_hint hints;
+            sprite_sheet_hint hints;
         };
     }
 }

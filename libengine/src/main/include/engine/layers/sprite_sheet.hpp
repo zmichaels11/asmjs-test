@@ -1,7 +1,6 @@
 #pragma once
 
 #include <memory>
-#include <string>
 
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/image_view.hpp"
@@ -10,7 +9,7 @@
 namespace engine {
     namespace layers {        
         class sprite_sheet {
-            std::unique_ptr<engine::layers::base_resources> _pResources;
+            std::unique_ptr<base_resources> _pResources;
 
             sprite_sheet(const sprite_sheet&) = delete;
 
@@ -23,11 +22,11 @@ namespace engine {
 
             sprite_sheet() noexcept : _pResources(nullptr) {}
 
-            sprite_sheet(const engine::layers::sprite_sheet_info& info) noexcept;
+            sprite_sheet(const sprite_sheet_info& info) noexcept;
 
-            const engine::layers::image_view& getSprite(int spriteID) const noexcept;
+            const image_view& getSprite(int spriteID) const noexcept;
 
-            const engine::layers::sprite_sheet_info& getInfo() const noexcept;
+            const sprite_sheet_info& getInfo() const noexcept;
 
             const void * getTexture() const noexcept;
         };

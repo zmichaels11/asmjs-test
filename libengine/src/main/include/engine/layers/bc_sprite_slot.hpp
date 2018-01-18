@@ -7,9 +7,9 @@
 namespace engine {
     namespace layers {
         struct bc_sprite_slot {
-            engine::layers::parallelogram<float> shape;
-            engine::layers::image_view view;
-            engine::layers::bc bc;
+            parallelogram<float> shape;
+            image_view view;
+            bc bc;
             float padding[2];
         };
     }

@@ -7,7 +7,7 @@
 namespace engine {
     namespace layers {
         struct context_info {
-            engine::layers::sprite_sheet_info * pSpriteInfos;
+            sprite_sheet_info * pSpriteInfos;
             std::size_t nSpriteInfos;
         };
     }
