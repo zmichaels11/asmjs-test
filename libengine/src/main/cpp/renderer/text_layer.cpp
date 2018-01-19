@@ -130,7 +130,7 @@ namespace renderer {
         static int uFont, uProjection;
 
         if (PROGRAM == 0) {
-            auto newProgram = _newProgram("data/shaders/text_layer/300_ES.vert", "data/shaders/text_layer/300_ES.frag");
+            auto newProgram = _newProgram("data/shaders/text_layer/300_es.vert", "data/shaders/text_layer/300_es.frag");
             
             std::swap(PROGRAM, newProgram);
 
