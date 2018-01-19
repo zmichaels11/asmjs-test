@@ -43,7 +43,8 @@ model {
 				cppCompiler.withArguments { args -> 
 					args.add(0, "$CXX_STD")
 					args.add(0, "$CXX_OPT")
-					args.add(0, "-g")
+					args.add(0, '-g')
+					args.add(0, '-Wall')
 				}
 
 				linker.withArguments { args -> 
@@ -63,11 +64,17 @@ model {
 			}
 
 			target("linux64") {
-				cCompiler.executable = 'x86_64-linux-gnu-gcc'
-				cppCompiler.executable = 'x86_64-linux-gnu-g++'
-				linker.executable = 'x86_64-linux-gnu-g++'
-				assembler.executable = 'x86_64-linux-gnu-as'
-				staticLibArchiver.executable = 'x86_64-linux-gnu-ar'				
+				cppCompiler.withArguments { args ->
+					args.add(0, '-m64')
+				}
+
+				cCompiler.withArguments { args ->
+					args.add(0, '-m64')
+				}
+
+				linker.withArguments { args ->
+					args.add(0, '-m64')
+				}
 			}
 
 			target("linux32") {

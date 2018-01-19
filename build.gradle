@@ -92,3 +92,39 @@ task buildTests {
 	dependsOn ':buildTestsLinux'
 	dependsOn ':buildTestsWindows'
 }
+
+task installWindows64Libs(type: Copy) {
+	from 'share/bin/windows64/glfw3/glfw3.dll'
+	from 'share/bin/windows64/angle/libGLESv2.dll'
+	from 'share/bin/windows64/angle/libEGL.dll'
+	from 'share/bin/windows64/openal-soft/OpenAL32.dll'
+
+	into '/tmp/win64_tests'
+}
+
+task installWindows64Data(type: Copy) {
+	from 'data'
+	into '/tmp/win64_tests/data'
+}
+
+task installLinux64Data(type: Copy) {
+	from 'data'
+	into '/tmp/linux64_tests/data'
+}
+
+task installLinux64GL(type: Copy) {
+	dependsOn ':buildTestsLinux64GL'
+	dependsOn ':installLinux64Data'
+
+	from 'tests/calculator/build/exe/calculator/linux64/gL/calculator'
+	into '/tmp/linux64_tests'	
+}
+
+task installWindows64GL(type: Copy) {
+	dependsOn ':buildTestsWindows64GL'
+	dependsOn ':installWindows64Libs'
+	dependsOn ':installWindows64Data'
+
+	from 'tests/calculator/build/exe/calculator/windows64/gL/calculator.exe'
+	into '/tmp/win64_tests'
+}
