@@ -136,7 +136,7 @@ namespace nk {
 
         nk_input_begin(&context);
 
-        for (int i = 0; i < device.textLen; i++) {
+        for (decltype(device.textLen) i = 0; i < device.textLen; i++) {
             nk_input_unicode(&context, device.text[i]);
         }
 
@@ -250,15 +250,15 @@ namespace nk {
                 nk_buffer_init_fixed(&vbuf, vertices.get(), MAX_VERTEX_BUFFER);
                 nk_buffer_init_fixed(&ebuf, elements.get(), MAX_ELEMENT_BUFFER);
                 nk_convert(&context, &device.cmds, &vbuf, &ebuf, &config);
-            }
-
-            device.gl.vao.bind();
+            }            
                     
             device.gl.buffers.vbo.invalidate();
             device.gl.buffers.vbo.subData(0, vertices.get(), MAX_VERTEX_BUFFER);
             
             device.gl.buffers.ebo.invalidate();
             device.gl.buffers.ebo.subData(0, elements.get(), MAX_ELEMENT_BUFFER);
+
+            device.gl.vao.bind();
         }            
 
         const nk_draw_command * cmd;
@@ -319,6 +319,13 @@ namespace nk {
                 }
                 
                 std::swap(_pIMPL->device.gl.program, program);
+
+                auto err = glGetError();
+
+                if (err != GL_NO_ERROR) {
+                    std::printf("Uncaught error in program init: %x\n", err);
+                    __builtin_trap();
+                }
             }
 
             {                
@@ -340,7 +347,7 @@ namespace nk {
                 auto err = glGetError();
 
                 if (err != GL_NO_ERROR) {
-                    std::printf("Uncaught error: %x\n", err);
+                    std::printf("Uncaught error in buffer init: %x\n", err);
                     __builtin_trap();
                 }
 

@@ -3,8 +3,8 @@
 #include <cstddef>
 
 namespace graphics {
-    enum class vertex_format {        
-        X8Y8Z8W8_UNORM,
+    enum class vertex_format : unsigned int {        
+        X8Y8Z8W8_UNORM = 0,
         X8Y8Z8_UNORM,
         X8Y8_UNORM,
         X8_UNORM,
