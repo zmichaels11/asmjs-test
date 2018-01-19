@@ -3,6 +3,7 @@
 #include <memory>
 
 #include "engine/layers/base_resources.hpp"
+#include "engine/layers/bitmap_font.hpp"
 #include "engine/layers/context_info.hpp"
 #include "engine/layers/sprite_sheet.hpp"
 
@@ -23,6 +24,8 @@ namespace engine {
             context(const context_info& info) noexcept;
 
             const sprite_sheet * getSpriteSheet(int id) const noexcept;
+
+            const bitmap_font * getFont(int id) const noexcept;
 
             const context_info& getInfo() const noexcept;
         };
