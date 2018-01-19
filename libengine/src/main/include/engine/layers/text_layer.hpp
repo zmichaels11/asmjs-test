@@ -41,6 +41,12 @@ namespace engine {
 
             virtual void setProjection(const float * projection) noexcept;
 
+            float getAscent() const noexcept;
+
+            float getDescent() const noexcept;
+
+            float getLineGap() const noexcept;
+
             void submit(const text_info * pTexts, std::size_t count = 1) noexcept;
         };
     }
