@@ -13,8 +13,8 @@ namespace engine {
         struct scene_layer_info {
             layer_type type;
             clear_operation clear;
-            engine::layers::bounds<int, int, int, int> scissor;
-            engine::layers::bounds<int, int, unsigned int, unsigned int> viewport;
+            engine::layers::bounds<int, int> scissor;
+            engine::layers::bounds<int, unsigned int> viewport;
             
             union {
                 basic_image_layer_info basicImageLayer;
@@ -22,6 +22,8 @@ namespace engine {
                 text_layer_info textLayer;
                 tile_layer_info tileLayer;            
             } info;
+
+            static scene_layer_info init(const basic_image_layer_info& info) noexcept;
         };
     }
 }

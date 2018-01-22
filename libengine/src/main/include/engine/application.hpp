@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
-#include "renderer/scene.hpp"
-#include "renderer/scene_info.hpp"
+#include "engine/layers/scene_info.hpp"
+#include "engine/layers/scene.hpp"
 
 namespace engine {
     class application {
@@ -21,11 +21,11 @@ namespace engine {
 
         static void setOnUpdate(const std::function<void(void*)>& callback) noexcept;
 
-        static void setScene(const renderer::scene_info& info) noexcept;
+        static void setScene(const engine::layers::scene_info& info) noexcept;
 
-        static std::unique_ptr<renderer::scene> releaseScene() noexcept;
+        static std::unique_ptr<engine::layers::scene> releaseScene() noexcept;
 
-        static renderer::scene * getScene() noexcept;
+        static engine::layers::scene * getScene() noexcept;
 
         static void start(const std::shared_ptr<void>& pUserData) noexcept;
 

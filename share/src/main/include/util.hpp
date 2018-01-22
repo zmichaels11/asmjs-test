@@ -3,6 +3,7 @@
 #include <cstddef>
 
 #include <fstream>
+#include <functional>
 #include <limits>
 #include <memory>
 #include <streambuf>

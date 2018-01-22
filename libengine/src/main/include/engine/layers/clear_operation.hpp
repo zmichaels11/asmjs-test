@@ -10,6 +10,10 @@ namespace engine {
             color clearColor;
             unsigned int clearStencil;
             float clearDepth;
+
+            static clear_operation noop() noexcept;
+
+            static clear_operation colorDepth(const color& color, float depth = 1.0F) noexcept;
         };
     }
 }

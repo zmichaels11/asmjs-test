@@ -21,6 +21,8 @@ namespace engine {
 
             context& operator=(context&&) = default;
 
+            context() : _pResources(nullptr) {}
+
             context(const context_info& info) noexcept;
 
             const sprite_sheet * getSpriteSheet(int id) const noexcept;

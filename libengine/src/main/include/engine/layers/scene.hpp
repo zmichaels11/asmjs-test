@@ -7,7 +7,7 @@
 #include "engine/layers/scene_info.hpp"
 
 namespace engine {
-    namespace layers {
+    namespace layers {        
         class scene {
             std::unique_ptr<base_resources> _pResources;
 
@@ -22,13 +22,17 @@ namespace engine {
 
             scene(const scene_info& info) noexcept;
 
+            void invalidate() noexcept;
+
             void beginWrite() noexcept;
 
             void endWrite() noexcept;
 
             void render() const noexcept;
 
-            base_layer * getLayer(int layerId) const noexcept;            
+            base_layer * getLayer(int layerId) noexcept;
+
+            const base_layer * getLayer(int layerId) const noexcept;
 
             const scene_info& getInfo() const noexcept;
         };

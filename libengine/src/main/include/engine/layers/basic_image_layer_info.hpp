@@ -2,13 +2,15 @@
 
 #include "graphics/image.hpp"
 
-#include "engine/layers/scroll_type.hpp"
+#include "engine/layers/image_scroll_type.hpp"
 
-namespace renderer {
-    struct image_layer_info {
-        graphics::image * pImage;
-        struct scroll_t {
-            scroll_type horizontal, vertical;
-        } scroll;
-    };
+namespace engine {
+    namespace layers {
+        struct basic_image_layer_info {
+            graphics::image * pImage;
+            struct scroll_t {
+                image_scroll_type horizontal, vertical;
+            } scroll;
+        };
+    }
 }

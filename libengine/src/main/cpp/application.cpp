@@ -30,7 +30,7 @@
 #include "audio.hpp"
 #include "graphics.hpp"
 
-#include "renderer/scene.hpp"
+#include "engine/layers/scene.hpp"
 #include "nk/nk_ctx.hpp"
 
 namespace {    
@@ -56,7 +56,7 @@ namespace {
 }
 
 namespace {
-    std::unique_ptr<renderer::scene> _scene(nullptr);
+    std::unique_ptr<engine::layers::scene> _scene(nullptr);
     std::unique_ptr<native_resources> _pNativeResources(nullptr);
     std::function<void(void*)> _onFrame(nullptr);
     std::function<void(void*)> _onUpdate(nullptr);
@@ -72,16 +72,16 @@ namespace nk {
 }
 
 namespace engine {
-    renderer::scene * application::getScene() noexcept {
+    engine::layers::scene * application::getScene() noexcept {
         return _scene.get();
     }    
 
-    void application::setScene(const renderer::scene_info& info) noexcept {
-        _scene.reset(new renderer::scene(info));
+    void application::setScene(const engine::layers::scene_info& info) noexcept {
+        _scene = std::make_unique<engine::layers::scene> (info);
     }
 
-    std::unique_ptr<renderer::scene> application::releaseScene() noexcept {
-        return std::unique_ptr<renderer::scene>(_scene.release());
+    std::unique_ptr<engine::layers::scene> application::releaseScene() noexcept {
+        return std::move(_scene);
     }
 
     void application::setOnUpdate(const std::function<void(void*)>& callback) noexcept {
@@ -230,12 +230,10 @@ namespace {
 
         auto& nk = _pNativeResources->nuklear;        
 
-        if (_onUpdate) {            
-            _onUpdate(_pUserData.get());        
-        }
-
-        if (_scene) {
-            _scene->update();
+        if (_onUpdate && _scene) {
+            _scene->beginWrite();     
+            _onUpdate(_pUserData.get());
+            _scene->endWrite();
         }
 
         if (_onFrame) {
