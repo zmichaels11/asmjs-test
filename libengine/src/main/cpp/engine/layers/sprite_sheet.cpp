@@ -128,7 +128,7 @@ namespace engine {
                     auto sw = static_cast<float> (w) / static_cast<float> (width);
                     auto sh = static_cast<float> (h) / static_cast<float> (height);
 
-                    _sprites[currentLayer] = {currentLayer, util::unorm<std::uint16_t> (sw), util::unorm<std::uint16_t> (sh)};                    
+                    _sprites[currentLayer] = {static_cast<float> (currentLayer), util::unorm<std::uint16_t> (sw), util::unorm<std::uint16_t> (sh)};                    
                     _texture.subImage(0, 0, 0, currentLayer, w, h, 1, pixelInfo);
                     currentLayer++;
                 }
