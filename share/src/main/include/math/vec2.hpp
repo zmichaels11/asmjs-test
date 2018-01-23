@@ -10,7 +10,12 @@ namespace math {
 
         constexpr vec2() : x(0.0F), y(0.0F) {}
 
-        constexpr vec2(float x, float y) : x(x), y(y) {}        
+        constexpr vec2(float x, float y) : x(x), y(y) {}
+
+        constexpr void data(float * ptr) const {
+            ptr[0] = x;
+            ptr[1] = y;
+        }
 
         constexpr vec2 operator+ (vec2 a) const {
             return vec2(x + a.x, y + a.y);

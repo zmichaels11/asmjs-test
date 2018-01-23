@@ -1,0 +1,200 @@
+#include "engine/layers/background_layer.hpp"
+
+#include <cstdio>
+#include <cstring>
+
+#include <memory>
+#include <string>
+#include <utility>
+
+#include "graphics/operation.hpp"
+#include "graphics/program.hpp"
+#include "graphics/shader.hpp"
+#include "graphics/texture.hpp"
+#include "graphics/vertex_array.hpp"
+
+#include "engine/layers/background_layer_info.hpp"
+#include "engine/layers/base_resources.hpp"
+#include "engine/layers/context.hpp"
+#include "engine/layers/image_scroll_type.hpp"
+
+namespace engine {
+    namespace layers {
+        namespace {
+            void _onError(const std::string& msg) noexcept;
+
+            graphics::address_mode _scrollType(image_scroll_type type) noexcept;
+
+            struct background_layer_resources : public base_resources {
+                background_layer_info _info;
+
+                float _transform[4];
+                float _origin[2];
+                float _scroll[2];
+                
+                graphics::texture _texture;
+                graphics::vertex_array _vao;
+
+                background_layer_resources(
+                    const context& ctx,
+                    const background_layer_info& info) noexcept;
+
+                virtual ~background_layer_resources() {}
+            };
+
+            graphics::program _program;
+            int _uImage;
+            int _uTransform;
+            int _uOrigin;
+            int _uScroll;
+
+            const std::string BASE_SHADER_PATH = "data/shaders/background_renderer/";
+#if defined (GL)
+            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "330_core.vert";
+            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_PATH + "330_core.frag";
+#elif defined (GLES30)
+            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "300_es.vert";
+            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_PATH + "300_es.frag";
+#elif defined (GLES20)
+            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "100_es.vert";
+            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_PATH + "100_es.frag";
+#else
+            const std::string VERTEX_SHADER_PATH = "";
+            const std::string FRAGMENT_SHADER_PATH = "";
+#error "No GL defined!"
+#endif
+        }
+
+        background_layer::background_layer(
+            const context& ctx,
+            const background_layer_info& info) noexcept {
+
+            _pResources = std::make_unique<background_layer_resources> (ctx, info);
+        }
+
+        void background_layer::beginWrite() noexcept {}
+
+        void background_layer::endWrite() noexcept {}
+
+        void background_layer::render() const noexcept {
+            auto res = dynamic_cast<const background_layer_resources * > (_pResources.get());
+
+            _program.use();
+
+            graphics::uniform::setUniform1(_uImage, 0);
+            graphics::uniform::setUniform2(_uOrigin, 1, res->_origin);
+            graphics::uniform::setUniform2(_uScroll, 1, res->_scroll);
+            graphics::uniform::setUniformMatrix2(_uTransform, 1, res->_transform);
+
+            res->_texture.bind(0);
+            res->_vao.bind();
+
+            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+        }
+
+        void background_layer::invalidate() noexcept {}
+
+        void background_layer::setProjection(const math::mat4&) noexcept {}
+
+        void background_layer::setProjection(const float * projection) noexcept {}
+
+        void background_layer::scroll(float h, float v) noexcept {
+            auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
+
+            res->_scroll[0] = h;
+            res->_scroll[1] = v;
+        }
+
+        void background_layer::setOrigin(float x, float y) noexcept {
+            auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
+            
+            res->_origin[0] = x;
+            res->_origin[1] = y;
+        }
+
+        void background_layer::setTransform(const math::mat2& transform) noexcept {
+            auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
+
+            transform.data(res->_transform);
+        }
+
+        void background_layer::setTransform(const float * transform) noexcept {
+            auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
+
+            std::memcpy(res->_transform, transform, 4 * sizeof(float));
+        }
+
+        const background_layer_info& background_layer::getInfo() const noexcept {
+            auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
+
+            return res->_info;
+        }
+
+        namespace {
+            void _onError(const std::string& msg) noexcept {
+                std::printf("[render_engine] background_layer (mode7) error: %s\n", msg.c_str());
+                __builtin_trap();
+            }
+
+            graphics::address_mode _scrollType(image_scroll_type type) noexcept {
+                switch (type) {
+                    case image_scroll_type::REPEAT:
+                        return graphics::address_mode::REPEAT;
+                    case image_scroll_type::STATIC:
+                        return graphics::address_mode::CLAMP_TO_EDGE;
+                    default:
+                        _onError("Unsupported image_scroll_type!");
+                }
+            }
+
+            background_layer_resources::background_layer_resources(
+                const context& ctx,
+                const background_layer_info& info) noexcept {
+
+                _info = info;
+
+                _transform[0] = 1.0F;
+                _transform[1] = 0.0F;
+                _transform[2] = 0.0F;
+                _transform[3] = 1.0F;
+
+                auto newTex = graphics::texture({
+                    {info.pImage->getWidth(), info.pImage->getHeight(), 1},
+                    1, 1,
+                    {
+                        {graphics::mag_filter::LINEAR, graphics::min_filter::LINEAR},
+                        {_scrollType(info.scroll.horizontal), _scrollType(info.scroll.vertical), graphics::address_mode::CLAMP_TO_EDGE},
+                        {-1000.0F, 1000.0F}
+                    },
+                    graphics::internal_format::RGBA8});
+
+                std::swap(_texture, newTex);
+
+                 _texture.subImage(0, 0, 0, 0, info.pImage->getWidth(), info.pImage->getHeight(), 1, {
+                    graphics::pixel_type::UNSIGNED_BYTE,
+                    graphics::pixel_format::RGBA,
+                    const_cast<void *> (info.pImage->getData())});
+
+                auto newVao = graphics::vertex_array({nullptr});
+
+                std::swap(_vao, newVao);
+
+                if (!_program) {
+                    auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
+                    auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_PATH);
+
+                    decltype(&vsh) shaders[] = {&vsh, &fsh};
+
+                    auto newProgram = graphics::program({shaders, 2, nullptr, 0});
+
+                    std::swap(newProgram, _program);
+
+                    _uImage = _program.getUniformLocation("uImage");
+                    _uScroll = _program.getUniformLocation("uScroll");
+                    _uOrigin = _program.getUniformLocation("uOrigin");
+                    _uTransform = _program.getUniformLocation("uTransform");
+                }
+            }
+        }
+    }
+}
