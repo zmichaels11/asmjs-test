@@ -47,6 +47,8 @@ namespace engine {
             void setTransform(const float * transform) noexcept;
 
             void setTransform(const math::mat2& transform) noexcept;
+
+            void setTransform(float a, float b, float c, float d) noexcept;
         };
     }
 }

@@ -3,6 +3,7 @@
 namespace engine {
     namespace layers {
         enum class layer_type {
+            BACKGROUND_LAYER,
             BASIC_IMAGE_LAYER,
             BASIC_SPRITE_LAYER,
             BC_SPRITE_LAYER,

@@ -47,6 +47,8 @@ namespace math {
                     return c;
                 case 3:
                     return d;
+                default:
+                    __builtin_trap();
             }
         }
 
@@ -60,6 +62,8 @@ namespace math {
                     return c;
                 case 3:
                     return d;
+                default:
+                    __builtin_trap();
             }
         } 
 

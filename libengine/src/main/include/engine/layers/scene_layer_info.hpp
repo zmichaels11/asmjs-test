@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/layers/background_layer.hpp"
 #include "engine/layers/basic_image_layer.hpp"
 #include "engine/layers/basic_sprite_layer.hpp"
 #include "engine/layers/bounds.hpp"
@@ -17,6 +18,7 @@ namespace engine {
             engine::layers::bounds<int, unsigned int> viewport;
             
             union {
+                background_layer_info backgroundLayer;
                 basic_image_layer_info basicImageLayer;
                 basic_sprite_layer_info basicSpriteLayer;                
                 text_layer_info textLayer;
@@ -24,6 +26,8 @@ namespace engine {
             } info;
 
             static scene_layer_info init(const basic_image_layer_info& info) noexcept;
+
+            static scene_layer_info init(const background_layer_info& info) noexcept;
         };
     }
 }

@@ -87,7 +87,7 @@ namespace engine {
 
         namespace {
             void _onError(const std::string& msg) noexcept {
-                std::printf("[render_engine] scene error: %s\n\0", msg.c_str());
+                std::printf("[render_engine] scene error: %s\n", msg.c_str());
                 __builtin_trap();
             }
             
@@ -97,10 +97,15 @@ namespace engine {
 
                 for (auto it = info.pLayerInfos; it != (info.pLayerInfos + info.nLayerInfos); it++) {
                     switch (it->type) {
+                        case layer_type::BACKGROUND_LAYER: {
+                            _layers.push_back({
+                                *it,
+                                std::make_unique<background_layer> (_context, it->info.backgroundLayer)});                            
+                        } break;
                         case layer_type::BASIC_IMAGE_LAYER: {                            
                             _layers.push_back({
                                 *it, 
-                                std::make_unique<basic_image_layer>(_context, it->info.basicImageLayer)});
+                                std::make_unique<basic_image_layer> (_context, it->info.basicImageLayer)});
                         } break;
                         default: 
                             _onError("Invalid layer_type!");                        

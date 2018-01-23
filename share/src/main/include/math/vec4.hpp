@@ -62,6 +62,8 @@ namespace math {
                     return z;
                 case 3:
                     return w;
+                default:
+                    __builtin_trap();
             }
         }
 
@@ -75,6 +77,8 @@ namespace math {
                     return z;
                 case 3:
                     return w;
+                default:
+                    __builtin_trap();
             }
         }
     };

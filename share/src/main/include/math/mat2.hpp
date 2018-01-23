@@ -47,6 +47,14 @@ namespace math {
             return mat2(a - other.a, b - other.b);
         }
 
+        constexpr mat2 operator* (float scale) const {
+            return mat2(a * scale, b * scale);
+        }
+
+        constexpr mat2 operator/ (float scale) const {
+            return mat2(a / scale, b / scale);
+        }
+
         constexpr mat2 transpose() const {
             return mat2(
                 a.x, b.x,

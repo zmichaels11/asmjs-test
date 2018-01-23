@@ -124,6 +124,15 @@ namespace engine {
             std::memcpy(res->_transform, transform, 4 * sizeof(float));
         }
 
+        void background_layer::setTransform(float a, float b, float c, float d) noexcept {
+            auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
+
+            res->_transform[0] = a;
+            res->_transform[1] = b;
+            res->_transform[2] = c;
+            res->_transform[3] = d;
+        }
+
         const background_layer_info& background_layer::getInfo() const noexcept {
             auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
 
@@ -158,6 +167,12 @@ namespace engine {
                 _transform[2] = 0.0F;
                 _transform[3] = 1.0F;
 
+                _origin[0] = 0.0F;
+                _origin[1] = 0.0F;
+
+                _scroll[0] = 0.0F;
+                _scroll[1] = 0.0F;
+
                 auto newTex = graphics::texture({
                     {info.pImage->getWidth(), info.pImage->getHeight(), 1},
                     1, 1,
@@ -187,7 +202,7 @@ namespace engine {
 
                     auto newProgram = graphics::program({shaders, 2, nullptr, 0});
 
-                    std::swap(newProgram, _program);
+                    std::swap(_program, newProgram);
 
                     _uImage = _program.getUniformLocation("uImage");
                     _uScroll = _program.getUniformLocation("uScroll");

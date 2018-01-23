@@ -53,6 +53,8 @@ namespace math {
                     return y;
                 case 2:
                     return z;
+                default:
+                    __builtin_trap();
             }
         }
 
@@ -64,6 +66,8 @@ namespace math {
                     return y;
                 case 2:
                     return z;
+                default:
+                    __builtin_trap();
             }
         }
 

@@ -29,8 +29,16 @@ namespace math {
             return vec2(x * a.x, y * a.y);
         }
 
+        constexpr vec2 operator* (float s) const {
+            return vec2(x * s, y * s);
+        }
+
         constexpr vec2 operator/ (vec2 a) const {
             return vec2(x / a.x, y / a.y);
+        }
+
+        constexpr vec2 operator/ (float s) const {
+            return vec2(x / s, y / s);
         }
 
         constexpr float dot(vec2 a) const {
@@ -52,21 +60,11 @@ namespace math {
         }
 
         constexpr float& operator[] (std::size_t idx) {
-            switch (idx) {
-                case 0:
-                    return x;
-                case 1:
-                    return y;
-            }
+            return (idx == 0) ? x : y;
         }
 
         constexpr const float& operator[] (std::size_t idx) const {
-            switch (idx) {
-                case 0:
-                    return x;
-                case 1:
-                    return y;
-            }
+            return (idx == 0) ? x : y;
         }        
     };
 }
