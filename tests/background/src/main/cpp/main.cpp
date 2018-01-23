@@ -1,8 +1,8 @@
+#include <cmath>
 #include <cstddef>
 #include <cstdio>
 #include <cstdlib>
 
-#include <iostream>
 #include <memory>
 #include <vector>
 
@@ -12,28 +12,13 @@
 
 #include "math/mat4.hpp"
 
+#include "engine/layers/basic_image_layer.hpp"
 #include "engine/layers/basic_image_layer_info.hpp"
 #include "engine/layers/scene_info.hpp"
 #include "engine/layers/scene_layer_info.hpp"
 
-#include "nk/button.hpp"
-#include "nk/edit.hpp"
-#include "nk/layout.hpp"
-#include "nk/window.hpp"
-
-struct AppData {
-    struct calculator_t {
-        int prev, op;
-        bool set;
-        double a, b;
-        double * current;        
-    } calculator;
-};
-
-std::shared_ptr<AppData> _userData;
-
 int main(int argc, char** argv) {
-    engine::application::init({"Calculator", {640, 480}, {4, 5}, true});
+    engine::application::init({"Background Test", {640, 480}, {1, 0}, true});
 
     auto backgroundImgRes = graphics::image::read("data/images/environment.png", 4);    
     auto backgroundInfo = engine::layers::basic_image_layer_info{
@@ -50,22 +35,25 @@ int main(int argc, char** argv) {
     
     engine::application::setScene(sceneInfo);
 
-    auto userData = std::make_shared<AppData>();
-    
-    userData->calculator.current = &userData->calculator.a;
-
     engine::application::setOnUpdate([](auto userData) {
-        auto appData = reinterpret_cast<AppData*> (userData);
-        auto& calc = appData->calculator;
+        static float timestep = 0.0;
+
         auto pScene = engine::application::getScene();
-        
+        auto pLayer = dynamic_cast<engine::layers::basic_image_layer * > (pScene->getLayer(0));
+
+        auto s = 0.5F * std::sin(timestep) + 0.5F; 
+        auto t = 0.5F * std::cos(timestep) + 0.5F;
+
+        pLayer->scroll(0.0F, 0.0F, s, t);
+
+        timestep += 0.001F;
     });
 
     engine::application::setOnFrame([](auto userData) {
         
     });
 
-    engine::application::start(userData);
+    engine::application::start(nullptr);
 
     return 0;
 }

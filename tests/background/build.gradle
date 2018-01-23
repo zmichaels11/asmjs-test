@@ -95,7 +95,7 @@ model {
     }
 
     components {
-        calculator(NativeExecutableSpec) {
+        background(NativeExecutableSpec) {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
             targetPlatform 'linux32'

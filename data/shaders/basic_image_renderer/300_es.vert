@@ -1,4 +1,4 @@
-#version 330 core
+#version 300 es
 
 const vec2[4] VERTEX_SELECT = vec2[] (
     vec2(0.0, 0.0), vec2(0.0, 1.0),
