@@ -19,6 +19,18 @@ task installWindows64Data(type: Copy) {
 	into 'bin'
 }
 
+task runBackgroundTestAsmjsWebGL2(type: Exec) {
+	dependsOn ':tests:background:backgroundAsmjsGLES30Executable'
+	executable 'firefox'
+	args 'tests/background/build/exe/background/asmjs/gLES30/background.html'
+}
+
+task runBackgroundTestBinaryenWebGL2(type: Exec) {
+	dependsOn ':tests:background:backgroundBinaryenGLES30Executable'
+	executable 'firefox'
+	args 'tests/background/build/exe/background/binaryen/gLES30/background.html'
+}
+
 task runBackgroundTestWindows64GL(type: Exec) {	
 	dependsOn ':installWindows64Data'
 	dependsOn ':tests:background:backgroundWindows64GLExecutable'
