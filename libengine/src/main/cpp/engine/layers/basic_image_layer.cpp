@@ -175,7 +175,9 @@ namespace engine {
                     graphics::pixel_format::RGBA,
                     const_cast<void *> (info.pImage->getData())});
 
-                _vao = graphics::vertex_array({});
+                auto newVao = graphics::vertex_array({nullptr});
+                
+                std::swap(_vao, newVao);
 
                 if (!_program) {                    
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);

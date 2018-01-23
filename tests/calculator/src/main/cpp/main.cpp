@@ -33,7 +33,7 @@ struct AppData {
 std::shared_ptr<AppData> _userData;
 
 int main(int argc, char** argv) {
-    engine::application::init("Calculator", 640, 480);    
+    engine::application::init({"Calculator", {640, 480}, {4, 5}, true});
 
     auto backgroundImgRes = graphics::image::read("data/images/environment.png", 4);    
     auto backgroundInfo = engine::layers::basic_image_layer_info{

@@ -1,11 +1,9 @@
 #pragma once
 
-#include <cstddef>
-
 #include <functional>
 #include <memory>
-#include <string>
-#include <vector>
+
+#include "engine/application_info.hpp"
 
 #include "engine/layers/scene_info.hpp"
 #include "engine/layers/scene.hpp"
@@ -15,7 +13,7 @@ namespace engine {
         application() = delete;
         
     public:
-        static void init(const std::string& name, unsigned int width, unsigned int height) noexcept;
+        static void init(const application_info& info) noexcept;
 
         static void setOnFrame(const std::function<void(void*)>& callback) noexcept;
 

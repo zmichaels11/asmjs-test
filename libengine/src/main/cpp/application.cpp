@@ -30,6 +30,7 @@
 #include "audio.hpp"
 #include "graphics.hpp"
 
+#include "engine/application_info.hpp"
 #include "engine/layers/scene.hpp"
 #include "nk/nk_ctx.hpp"
 
@@ -47,9 +48,9 @@ namespace {
 
         native_resources() noexcept {}
 
-        native_resources(const std::string& title, unsigned int width, unsigned int height) noexcept;
+        native_resources(const engine::application_info& info) noexcept;
 
-        ~native_resources() noexcept;
+        ~native_resources();
 
         bool isValid() const noexcept;
     };
@@ -92,8 +93,8 @@ namespace engine {
         _onFrame = callback;
     }
 
-    void application::init(const std::string& name, unsigned int width, unsigned int height) noexcept {
-        _pNativeResources = std::make_unique<native_resources> (name, width, height);            
+    void application::init(const application_info& info) noexcept {
+        _pNativeResources = std::make_unique<native_resources> (info);
     }
 
     double application::getTime() noexcept {
@@ -152,7 +153,7 @@ namespace {
         }
     }
 
-    native_resources::native_resources(const std::string& title, unsigned int width, unsigned int height) noexcept {
+    native_resources::native_resources(const engine::application_info& info) noexcept {
         glfwSetErrorCallback(_onGLFWError);
 
         if (glfwInit() != GLFW_TRUE) {
@@ -185,15 +186,15 @@ namespace {
 #elif defined(GL)
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);        
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, info.apiVersion.major);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, info.apiVersion.minor);
         std::printf("[GLFW] Configured for OpenGL!\n");
 #else
 #error "No GL version specified!"
 #endif
 
 
-        if ((glfw.pWindow = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr)) == nullptr) {
+        if ((glfw.pWindow = glfwCreateWindow(info.window.width, info.window.height, info.name.c_str(), nullptr, nullptr)) == nullptr) {
             std::printf("[GLFW] Window creation failed!\n");
             __builtin_trap();
         }
@@ -209,9 +210,11 @@ namespace {
         nuklear = std::make_unique<nk::nk_ctx> (glfw.pWindow);        
     }
 
-    native_resources::~native_resources() noexcept {
+    native_resources::~native_resources() {        
+        _scene.reset(nullptr);
+        
         if (nuklear) {
-            nuklear = nullptr;
+            nuklear.reset(nullptr);
         }
 
         if (glfw.pWindow) {
