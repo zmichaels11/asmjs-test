@@ -14,6 +14,7 @@ namespace engine {
             } scroll;
 
             image_filter_type filterType;
+            graphics::image * initialImage;
         };
     }
 }

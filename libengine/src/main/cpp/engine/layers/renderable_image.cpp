@@ -69,15 +69,11 @@ namespace engine {
                 textureInfo.samplerInfo = {
                     {_magFilterType(res->_info.filterType), _minFilterType(res->_info.filterType)},
                     {_scrollType(res->_info.scroll.horizontal), _scrollType(res->_info.scroll.vertical), graphics::address_mode::CLAMP_TO_EDGE},
-                    {-1000.0F, 1000.0F}};
+                    {-1000.0F, 1000.0F}};                
 
-                bool hasMipmaps = res->_info.filterType == image_filter_type::TRILINEAR;
-
-                textureInfo.levels = hasMipmaps
+                textureInfo.levels = res->_info.filterType == image_filter_type::TRILINEAR
                     ? util::optimalMipmapCount(res->_pImage->getWidth(), res->_pImage->getHeight(), 1u)
                     : 1;
-
-
 
                 auto newTexture = graphics::texture(textureInfo);
 
@@ -85,7 +81,7 @@ namespace engine {
                 
                 res->_texture.subImage(0, 0, 0, 0, res->_pImage);
 
-                if (hasMipmaps) {
+                if (textureInfo.levels > 1) {
                     res->_texture.generateMipmaps();
                 }
 
@@ -163,7 +159,7 @@ namespace engine {
 
                 _info = info;
                 _dirty = true;
-                _pImage = nullptr;                                
+                _pImage = info.initialImage;                                
             }
         }
     }

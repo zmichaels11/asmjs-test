@@ -11,11 +11,9 @@
 #include "graphics/image.hpp"
 
 #include "math/mat2.hpp"
-#include "math/mat4.hpp"
 
 #include "engine/layers/background_layer.hpp"
 #include "engine/layers/background_layer_info.hpp"
-#include "engine/layers/renderable_image.hpp"
 #include "engine/layers/renderable_info.hpp"
 #include "engine/layers/scene_info.hpp"
 #include "engine/layers/scene_layer_info.hpp"
@@ -30,10 +28,13 @@ int main(int argc, char** argv) {
 
     auto pRenderableInfos = std::vector<engine::layers::renderable_info>();
     auto backgroundImgInfo = engine::layers::renderable_info();
+    auto backgroundImageResource = graphics::image::read("data/images/environment.png");
 
     backgroundImgInfo.type = engine::layers::renderable_type::IMAGE;
-    backgroundImgInfo.info.imageInfo.scroll = {engine::layers::image_scroll_type::STATIC};
-    backgroundImgInfo.info.imageInfo.filterType = engine::layers::image_filter_type::BILINEAR;
+    backgroundImgInfo.info.imageInfo = {
+        {engine::layers::image_scroll_type::REPEAT, engine::layers::image_scroll_type::REPEAT},
+        engine::layers::image_filter_type::TRILINEAR,
+        backgroundImageResource.get()};
 
     pRenderableInfos.push_back(backgroundImgInfo);
 
@@ -41,23 +42,13 @@ int main(int argc, char** argv) {
         {nullptr, 0, nullptr, 0, pRenderableInfos.data(), pRenderableInfos.size()},
         pLayerInfos.data(), pLayerInfos.size()};
     
-    engine::application::setScene(sceneInfo);
+    engine::application::setScene(sceneInfo);    
 
-    auto backgroundImageResource = graphics::image::read("data/images/environment.png", 4);
-
-    engine::application::setOnUpdate([&](auto userData) {
-        static float timestep = 0.0;
-        static bool runOnce = true;        
+    engine::application::setOnUpdate([](auto userData) {
+        static float timestep = 0.0;     
 
         auto pScene = engine::application::getScene();
-        auto& ctx = pScene->getContext();
-        auto pBackgroundImage = dynamic_cast<engine::layers::renderable_image * > (ctx.getRenderableImage(0));
-
-        if (runOnce) {
-            pBackgroundImage->setImage(backgroundImageResource.get());
-            runOnce = false;
-        }        
-
+        auto& ctx = pScene->getContext();        
         auto pLayer = dynamic_cast<engine::layers::background_layer * > (pScene->getLayer(0));
 
         auto h = 0.5F * std::sin(timestep);
