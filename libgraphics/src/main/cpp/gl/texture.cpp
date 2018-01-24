@@ -100,7 +100,7 @@ namespace graphics {
         return _name;
     }
 
-    void texture::generateMipmap() const noexcept {
+    void texture::generateMipmaps() const noexcept {
         if (GLEW_VERSION_4_5) {
             glGenerateTextureMipmap(_handle);
         } else {
@@ -143,7 +143,7 @@ namespace graphics {
                     break;
             }
 
-            glBindTexture(_target, _handle);
+            glBindTexture(_target, 0);
         }
     }
 

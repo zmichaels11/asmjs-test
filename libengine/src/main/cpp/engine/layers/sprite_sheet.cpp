@@ -103,7 +103,7 @@ namespace engine {
                 } else {
                     samplerInfo.filters.mag = graphics::mag_filter::NEAREST;
                     samplerInfo.filters.min = graphics::min_filter::NEAREST_MIPMAP_NEAREST;
-                    levelCount = std::max(util::optimalMipmapCount(width), util::optimalMipmapCount(height));
+                    levelCount = util::optimalMipmapCount<unsigned int>(width, height, 1);
                 }
                 
                 _sprites = std::make_unique<image_view[]> (_info.imageCount);

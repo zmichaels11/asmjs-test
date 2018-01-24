@@ -5,6 +5,7 @@
 #include "graphics/henum/texture_target.hpp"
 #include "graphics/hinfo/pixel_info.hpp"
 #include "graphics/hinfo/texture_info.hpp"
+#include "graphics/hobject/image.hpp"
 
 namespace graphics {
     class framebuffer;
@@ -47,11 +48,13 @@ namespace graphics {
 
         const graphics::texture_info& getInfo() const noexcept;
 
-        void generateMipmap() const noexcept;
+        void generateMipmaps() const noexcept;
 
         void bind(unsigned int unit) const noexcept;
 
         void subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const noexcept;
+
+        void subImage(unsigned int level, int x, int y, int z, const image * pImage) const noexcept;
 
         inline operator int() const noexcept {
             return _handle;

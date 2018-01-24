@@ -18,6 +18,14 @@ namespace math {
             ptr[3] = w;
         }
 
+        constexpr float min() const {
+            return std::min(std::min(x, y), std::min(z, w));
+        }
+
+        constexpr float max() const {
+            return std::max(std::max(x, y), std::max(z, w));
+        }
+
         constexpr vec4 operator+ (vec4 other) const {
             return vec4(x + other.x, y + other.y, z + other.z, w + other.w);
         }

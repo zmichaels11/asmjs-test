@@ -9,7 +9,15 @@ namespace math {
 
         constexpr vec3() : x(0.0F), y(0.0F), z(0.0F) {}
 
-        constexpr vec3(float x, float y, float z) : x(x), y(y), z(y) {}    
+        constexpr vec3(float x, float y, float z) : x(x), y(y), z(y) {}
+
+        constexpr float min() const {
+            return std::min(std::min(x, y), z);
+        }
+
+        constexpr float max() const {
+            return std::max(std::max(x, y), z);
+        }
 
         constexpr vec3 operator+ (vec3 other) const {
             return vec3(x + other.x, y + other.y, z + other.z);

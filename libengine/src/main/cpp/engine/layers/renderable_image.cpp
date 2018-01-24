@@ -9,6 +9,8 @@
 #include "graphics/image.hpp"
 #include "graphics/texture.hpp"
 
+#include "util.hpp"
+
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/context.hpp"
 #include "engine/layers/image_filter_type.hpp"
@@ -62,22 +64,30 @@ namespace engine {
             auto res = dynamic_cast<renderable_image_resources * > (_pResources.get());
 
             if (res->_dirty && res->_pImage) {
-                auto newTexture = graphics::texture({
-                    {res->_pImage->getWidth(), res->_pImage->getHeight(), 1},
-                    1, 1,
-                    {
-                        {_magFilterType(res->_info.filterType), _minFilterType(res->_info.filterType)},
-                        {_scrollType(res->_info.scroll.horizontal), _scrollType(res->_info.scroll.vertical), graphics::address_mode::CLAMP_TO_EDGE},
-                        {-1000.0F, 1000.0F}
-                    },
-                    graphics::internal_format::RGBA8});
+                auto textureInfo = graphics::texture_info::ofImage(res->_pImage);
+
+                textureInfo.samplerInfo = {
+                    {_magFilterType(res->_info.filterType), _minFilterType(res->_info.filterType)},
+                    {_scrollType(res->_info.scroll.horizontal), _scrollType(res->_info.scroll.vertical), graphics::address_mode::CLAMP_TO_EDGE},
+                    {-1000.0F, 1000.0F}};
+
+                bool hasMipmaps = res->_info.filterType == image_filter_type::TRILINEAR;
+
+                textureInfo.levels = hasMipmaps
+                    ? util::optimalMipmapCount(res->_pImage->getWidth(), res->_pImage->getHeight(), 1u)
+                    : 1;
+
+
+
+                auto newTexture = graphics::texture(textureInfo);
 
                 std::swap(res->_texture, newTexture);                
                 
-                res->_texture.subImage(0, 0, 0, 0, res->_pImage->getWidth(), res->_pImage->getHeight(), 1, {
-                    res->_pImage->getType(),
-                    res->_pImage->getFormat(),
-                    const_cast<void *> (res->_pImage->getData())});                
+                res->_texture.subImage(0, 0, 0, 0, res->_pImage);
+
+                if (hasMipmaps) {
+                    res->_texture.generateMipmaps();
+                }
 
                 res->_dirty = false;
             }

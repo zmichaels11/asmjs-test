@@ -70,7 +70,7 @@ namespace graphics {
         return _name;
     }
 
-    void texture::generateMipmap() const noexcept {
+    void texture::generateMipmaps() const noexcept {
         glBindTexture(_target, _handle);
         glGenerateMipmap(_target);
     }

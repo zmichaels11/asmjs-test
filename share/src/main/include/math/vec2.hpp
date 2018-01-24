@@ -17,6 +17,14 @@ namespace math {
             ptr[1] = y;
         }
 
+        constexpr float min() const {
+            return std::min(x, y);
+        }
+
+        constexpr float max() const {
+            return std::max(x, y);
+        }
+
         constexpr vec2 operator+ (vec2 a) const {
             return vec2(x + a.x, y + a.y);
         }

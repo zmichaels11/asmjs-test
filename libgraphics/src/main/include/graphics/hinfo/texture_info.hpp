@@ -3,8 +3,8 @@
 #include <cstddef>
 
 #include "graphics/henum/internal_format.hpp"
-
 #include "graphics/hinfo/sampler_info.hpp"
+#include "graphics/hobject/image.hpp"
 
 namespace graphics {
     struct texture_info {
@@ -19,5 +19,7 @@ namespace graphics {
 
         graphics::sampler_info samplerInfo;
         graphics::internal_format format;
+
+        static texture_info ofImage(const image * pImage) noexcept;
     };
 }
