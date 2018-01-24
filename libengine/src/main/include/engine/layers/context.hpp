@@ -5,6 +5,7 @@
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/bitmap_font.hpp"
 #include "engine/layers/context_info.hpp"
+#include "engine/layers/renderable.hpp"
 #include "engine/layers/sprite_sheet.hpp"
 
 namespace engine {
@@ -29,7 +30,17 @@ namespace engine {
 
             const bitmap_font * getFont(int id) const noexcept;
 
+            const renderable * getRenderableImage(int id) const noexcept;
+
+            renderable * getRenderableImage(int id) noexcept;
+
             const context_info& getInfo() const noexcept;
+
+            void beginWrite() noexcept;
+
+            void endWrite() noexcept;
+
+            void render() const noexcept;
         };
     }
 }

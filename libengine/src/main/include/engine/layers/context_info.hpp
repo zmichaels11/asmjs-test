@@ -4,6 +4,7 @@
 
 #include "graphics/image.hpp"
 
+#include "engine/layers/renderable_info.hpp"
 #include "engine/layers/sprite_sheet_info.hpp"
 
 namespace engine {
@@ -13,6 +14,8 @@ namespace engine {
             std::size_t nSpriteInfos;
             graphics::font_info * pFontInfos;
             std::size_t nFontInfos;
+            renderable_info * pRenderableInfos;
+            std::size_t nRenderableInfos;
         };
     }
 }

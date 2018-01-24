@@ -6,11 +6,7 @@
 namespace engine {
     namespace layers {
         struct background_layer_info {
-            graphics::image * pImage;
-            
-            struct scroll_t {
-                image_scroll_type horizontal, vertical;
-            } scroll;
+            int renderableID;
         };
     }
 }

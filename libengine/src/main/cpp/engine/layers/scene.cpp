@@ -27,6 +27,18 @@ namespace engine {
             };
         }
 
+        context& scene::getContext() noexcept {
+            auto res = dynamic_cast<scene_resources * > (_pResources.get());
+
+            return res->_context;
+        }
+
+        const context& scene::getContext() const noexcept {
+            auto res = dynamic_cast<scene_resources * > (_pResources.get());
+
+            return res->_context;
+        }
+
         scene::scene(const scene_info& info) noexcept {
             _pResources = std::make_unique<scene_resources> (info);
         }
@@ -35,6 +47,8 @@ namespace engine {
             auto res = dynamic_cast<scene_resources * > (_pResources.get());
             auto& layers = res->_layers;
             
+            res->_context.beginWrite();
+
             for (auto&& layer : layers) {
                 layer.layer->beginWrite();
             }
@@ -43,6 +57,8 @@ namespace engine {
         void scene::endWrite() noexcept {
             auto res = dynamic_cast<scene_resources * > (_pResources.get());
             auto& layers = res->_layers;
+
+            res->_context.endWrite();
 
             for (auto&& layer : layers) {
                 layer.layer->endWrite();
@@ -61,6 +77,8 @@ namespace engine {
         void scene::render() const noexcept {
             auto res = dynamic_cast<const scene_resources * > (_pResources.get());
             auto& layers = res->_layers;
+
+            res->_context.render();
 
             for (auto&& layer : layers) {
                 layer.layer->render();

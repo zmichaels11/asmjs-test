@@ -27,12 +27,12 @@ namespace engine {
 
             struct background_layer_resources : public base_resources {
                 background_layer_info _info;
+                const context * _pCtx;    
 
                 float _transform[4];
                 float _origin[2];
                 float _scroll[2];
                 
-                graphics::texture _texture;
                 graphics::vertex_array _vao;
 
                 background_layer_resources(
@@ -78,18 +78,22 @@ namespace engine {
 
         void background_layer::render() const noexcept {
             auto res = dynamic_cast<const background_layer_resources * > (_pResources.get());
+            auto * renderable = res->_pCtx->getRenderableImage(res->_info.renderableID);
+            auto * pTexture = reinterpret_cast<const graphics::texture * > (renderable->getTexture());
+            
+            if (pTexture) {
+                _program.use();
 
-            _program.use();
+                graphics::uniform::setUniform1(_uImage, 0);
+                graphics::uniform::setUniform2(_uOrigin, 1, res->_origin);
+                graphics::uniform::setUniform2(_uScroll, 1, res->_scroll);
+                graphics::uniform::setUniformMatrix2(_uTransform, 1, res->_transform);            
+                
+                pTexture->bind(0);
+                res->_vao.bind();
 
-            graphics::uniform::setUniform1(_uImage, 0);
-            graphics::uniform::setUniform2(_uOrigin, 1, res->_origin);
-            graphics::uniform::setUniform2(_uScroll, 1, res->_scroll);
-            graphics::uniform::setUniformMatrix2(_uTransform, 1, res->_transform);
-
-            res->_texture.bind(0);
-            res->_vao.bind();
-
-            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+                graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+            }            
         }
 
         void background_layer::invalidate() noexcept {}
@@ -173,22 +177,7 @@ namespace engine {
                 _scroll[0] = 0.0F;
                 _scroll[1] = 0.0F;
 
-                auto newTex = graphics::texture({
-                    {info.pImage->getWidth(), info.pImage->getHeight(), 1},
-                    1, 1,
-                    {
-                        {graphics::mag_filter::LINEAR, graphics::min_filter::LINEAR},
-                        {_scrollType(info.scroll.horizontal), _scrollType(info.scroll.vertical), graphics::address_mode::CLAMP_TO_EDGE},
-                        {-1000.0F, 1000.0F}
-                    },
-                    graphics::internal_format::RGBA8});
-
-                std::swap(_texture, newTex);
-
-                 _texture.subImage(0, 0, 0, 0, info.pImage->getWidth(), info.pImage->getHeight(), 1, {
-                    graphics::pixel_type::UNSIGNED_BYTE,
-                    graphics::pixel_format::RGBA,
-                    const_cast<void *> (info.pImage->getData())});
+                _pCtx = &ctx;
 
                 auto newVao = graphics::vertex_array({nullptr});
 

@@ -122,7 +122,7 @@ namespace graphics {
     void texture::subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const noexcept {        
         if (GLEW_VERSION_4_5) {
             switch (_target) {
-                case GL_TEXTURE_2D:
+                case GL_TEXTURE_2D:                    
                     glTextureSubImage2D(_handle, level, x, y, w, h, static_cast<GLenum> (px.format), static_cast<GLenum> (px.type), px.pData);
                     break;
                 case GL_TEXTURE_2D_ARRAY:

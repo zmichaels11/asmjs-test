@@ -35,6 +35,10 @@ namespace engine {
             const base_layer * getLayer(int layerId) const noexcept;
 
             const scene_info& getInfo() const noexcept;
+
+            context& getContext() noexcept;
+
+            const context& getContext() const noexcept;
         };
     }
 }
