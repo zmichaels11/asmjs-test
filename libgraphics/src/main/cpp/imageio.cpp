@@ -1,11 +1,12 @@
+#include <cstdio>
 #include <cstddef>
 #include <cstring>
 
-#include <iostream>
 #include <memory>
 #include <string>
 
 #include "graphics/henum/pixel_format.hpp"
+#include "graphics/henum/pixel_type.hpp"
 #include "graphics/hobject/image.hpp"
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -20,8 +21,8 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
+        static void _onError(const std::string& msg) noexcept {            
+            std::printf("[STB] stb_image error: %s\n", msg.c_str());
             __builtin_trap();
         }
 
@@ -46,8 +47,9 @@ namespace graphics {
                 _height = static_cast<decltype(_height)> (height);
 
                 auto npixels = _width * _height;
+                auto channelsAdjust = forcedComponents ? forcedComponents : channels;
 
-                switch (channels) {
+                switch (channelsAdjust) {
                     case 1:
                         _pixelSize = 1;
                         _dataSize = static_cast<decltype(_dataSize)> (npixels);
@@ -74,8 +76,12 @@ namespace graphics {
                 }                                                
             }
 
-            ~stb_image() noexcept {
+            virtual ~stb_image() {
                 stbi_image_free(_data);
+            }
+
+            virtual pixel_type getType() const noexcept {
+                return pixel_type::UNSIGNED_BYTE;
             }
 
             virtual unsigned int getWidth() const noexcept {

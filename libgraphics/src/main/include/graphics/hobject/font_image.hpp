@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "graphics/henum/pixel_format.hpp"
+#include "graphics/henum/pixel_type.hpp"
 #include "graphics/hinfo/font_info.hpp"
 #include "graphics/hobject/image.hpp"
 
@@ -54,6 +55,8 @@ namespace graphics {
         virtual std::size_t getSize() const noexcept;
 
         virtual pixel_format getFormat() const noexcept;
+
+        virtual pixel_type getType() const noexcept;
 
         virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const image& subimg) noexcept;
 

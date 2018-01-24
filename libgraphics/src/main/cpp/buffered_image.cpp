@@ -1,9 +1,9 @@
 #include "graphics/hobject/buffered_image.hpp"
 
+#include <cstdio>
 #include <cstddef>
 #include <cstring>
 
-#include <iostream>
 #include <memory>
 #include <string>
 
@@ -12,35 +12,17 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
-            __builtin_trap();
-        }
+        void _onError(const std::string& msg) noexcept;
+
+        unsigned int _calcPixelSize(pixel_format fmt, pixel_type type) noexcept;
     }
 
-    buffered_image::buffered_image(unsigned int width, unsigned int height, pixel_format format) noexcept {
+    buffered_image::buffered_image(unsigned int width, unsigned int height, pixel_format format, pixel_type type) noexcept {
         _width = width;
         _height = height;
         _format = format;
-
-        switch (format) {
-            case pixel_format::RED:                            
-                _pixelSize = 1;
-                break;
-            case pixel_format::RG:
-                _pixelSize = 2;
-                break;
-            case pixel_format::RGB:
-                _pixelSize = 3;
-                break;
-            case pixel_format::RGBA:
-                _pixelSize = 4;
-                break;
-            default:
-                _onError("Unsupported pixel format");
-                break;
-        }
-
+        _type = type;
+        _pixelSize = _calcPixelSize(format, type);
         _dataSize = _pixelSize * width * height;
         _data = std::make_unique<unsigned char[]> (_dataSize);
     }
@@ -79,5 +61,95 @@ namespace graphics {
 
     pixel_format buffered_image::getFormat() const noexcept {
         return _format;
+    }
+
+    namespace {
+        void _onError(const std::string& msg) noexcept {
+            std::printf("[gfx] buffered_image error: %s\n", msg.c_str());
+            __builtin_trap();
+        }
+
+        unsigned int _calcPixelSize(pixel_format fmt, pixel_type type) noexcept {
+            switch (type) {
+                case pixel_type::UNSIGNED_SHORT_5_6_5:
+                    if (fmt == pixel_format::RGB) {
+                        return 2;
+                    } else {
+                        _onError("Packed type [UNSIGNED_SHORT_5_6_5] requires RGB!");
+                    }
+                case pixel_type::UNSIGNED_SHORT_5_5_5_1:
+                    if (fmt == pixel_format::RGBA) {
+                        return 2;
+                    } else {
+                        _onError("Packed type [UNSIGNED_SHORT_5_5_5_1] requires RGBA!");
+                    }
+                case pixel_type::UNSIGNED_SHORT_4_4_4_4:
+                    if (fmt == pixel_format::RGBA) {
+                        return 2;
+                    } else {
+                        _onError("Packed type [UNSIGNED_SHORT_4_4_4_4] requires RGBA!");
+                    }
+                case pixel_type::UNSIGNED_INT_5_9_9_9_REV:
+                    if (fmt == pixel_format::RGBA) {
+                        return 4;
+                    } else {
+                        _onError("Packed type [UNSIGNED_INT_5_9_9_9_REV] requires RGBA!");
+                    }
+                case pixel_type::UNSIGNED_INT_2_10_10_10_REV:
+                    if (fmt == pixel_format::RGBA) {
+                        return 4;
+                    } else {
+                        _onError("Packed type [UNSIGNED_INT_2_10_10_10_REV] requires RGBA!");
+                    }
+                default:
+                    // determine the packed size using normal means
+                    break;
+            }
+
+
+            unsigned int size;
+
+            switch (fmt) {
+                case pixel_format::RED:
+                case pixel_format::RED_INTEGER:
+                    size = 1;
+                    break;
+                case pixel_format::RG:
+                case pixel_format::RG_INTEGER:
+                    size = 2;
+                    break;
+                case pixel_format::RGB:
+                case pixel_format::RGB_INTEGER:                    
+                    size = 3;
+                    break;
+                case pixel_format::RGBA:
+                case pixel_format::RGBA_INTEGER:
+                    size = 4;
+                    break;
+                default:
+                    _onError("Unsupported pixel_format!");
+            }
+
+            switch (type) {
+                case pixel_type::UNSIGNED_BYTE:
+                case pixel_type::BYTE:
+                    // size doesn't change
+                    break;
+                case pixel_type::UNSIGNED_SHORT:
+                case pixel_type::SHORT:
+                case pixel_type::HALF_FLOAT:
+                    size *= 2;
+                    break;
+                case pixel_type::UNSIGNED_INT:
+                case pixel_type::INT:
+                case pixel_type::FLOAT:
+                    size *= 4;
+                    break;
+                default:
+                    _onError("Unsupported pixel_type!");
+            }
+
+            return size;
+        }
     }
 }

@@ -72,11 +72,11 @@ namespace engine {
                     },
                     graphics::internal_format::RGBA8});
 
-                std::swap(res->_texture, newTexture);
+                std::swap(res->_texture, newTexture);                
                 
                 res->_texture.subImage(0, 0, 0, 0, res->_pImage->getWidth(), res->_pImage->getHeight(), 1, {
-                    graphics::pixel_type::UNSIGNED_BYTE,
-                    graphics::pixel_format::RGBA,
+                    res->_pImage->getType(),
+                    res->_pImage->getFormat(),
                     const_cast<void *> (res->_pImage->getData())});                
 
                 res->_dirty = false;

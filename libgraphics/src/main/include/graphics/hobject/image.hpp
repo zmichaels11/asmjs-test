@@ -6,6 +6,7 @@
 #include <string>
 
 #include "graphics/henum/pixel_format.hpp"
+#include "graphics/henum/pixel_type.hpp"
 
 namespace graphics {
     class image {
@@ -21,6 +22,8 @@ namespace graphics {
         virtual std::size_t getSize() const noexcept = 0;
 
         virtual graphics::pixel_format getFormat() const noexcept = 0;
+
+        virtual graphics::pixel_type getType() const noexcept = 0;
 
         virtual void setSubimage(int x, int y, unsigned int w, unsigned int h, const graphics::image& subimg) noexcept = 0;        
 

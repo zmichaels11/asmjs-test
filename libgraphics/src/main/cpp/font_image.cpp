@@ -9,6 +9,8 @@
 #include <vector>
 
 #include "graphics/hinfo/font_info.hpp"
+#include "graphics/henum/pixel_format.hpp"
+#include "graphics/henum/pixel_type.hpp"
 
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
@@ -92,6 +94,10 @@ namespace graphics {
 
     pixel_format font_image::getFormat() const noexcept {
         return pixel_format::RED;
+    }
+
+    pixel_type font_image::getType() const noexcept {
+        return pixel_type::UNSIGNED_BYTE;
     }
 
     void font_image::setSubimage(int, int, unsigned int, unsigned int, const image&) noexcept {
