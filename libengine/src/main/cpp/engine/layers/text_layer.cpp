@@ -197,15 +197,15 @@ namespace engine {
                 _vbo = graphics::buffer({
                         graphics::buffer_target::ARRAY,
                         graphics::buffer_usage::STREAM_DRAW,
-                        {nullptr, _bufferSize}});
+                        {nullptr, _bufferSize}});                            
                 
-                auto binding = graphics::vertex_binding_description{0, 16, 0, &_vbo};
-                auto aPosition = graphics::vertex_attribute_description {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
-                auto aTexCoord = graphics::vertex_attribute_description {1, graphics::vertex_format::X16Y16_UNORM, 8, 0};
-                auto aColor = graphics::vertex_attribute_description {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 12, 0};
-                
-                decltype(&aPosition) attribs[] = {&aPosition, &aTexCoord, &aColor};
-                decltype(&binding) bindings[] = {&binding};
+                graphics::vertex_attribute_description attribs[] = {
+                    {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},
+                    {1, graphics::vertex_format::X16Y16_UNORM, 8, 0},
+                    {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 12, 0}};
+
+                graphics::vertex_binding_description bindings[] = {
+                    {0, 16, 0, &_vbo}};
 
                 _vao = graphics::vertex_array({attribs, 3, bindings, 1, nullptr});
                 _pFont = ctx.getFont(info.fontID);

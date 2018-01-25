@@ -9,9 +9,9 @@ namespace graphics {
     class buffer;
     
     struct vertex_array_info {
-        graphics::vertex_attribute_description ** ppAttributes;
+        graphics::vertex_attribute_description * pAttributes;
         std::size_t attributeCount;
-        graphics::vertex_binding_description ** ppBindings;
+        graphics::vertex_binding_description * pBindings;
         std::size_t bindingCount;
         graphics::buffer * pIndexBuffer;
     };

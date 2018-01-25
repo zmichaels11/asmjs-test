@@ -41,7 +41,7 @@ namespace graphics {
         }
 
         for (int i = 0; i < info.attributeCount; i++) {
-            auto pCurrent = info.ppAttributes[i];            
+            auto pCurrent = info.pAttributes + i;
             auto pBinding = _findBinding(info, pCurrent->binding);
 
             glBindBuffer(GL_ARRAY_BUFFER, pBinding->buffer->_handle);
@@ -327,7 +327,7 @@ namespace graphics {
 
         vertex_binding_description * _findBinding(const vertex_array_info& info, unsigned int binding) noexcept {
             for (int i = 0; i < info.bindingCount; i++) {
-                auto pCurrent = info.ppBindings[i];
+                auto pCurrent = info.pBindings + i;
 
                 if (pCurrent && pCurrent->binding == binding) {
                     return pCurrent;

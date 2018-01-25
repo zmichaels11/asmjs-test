@@ -164,23 +164,22 @@ namespace engine {
                 _vbo = graphics::buffer(graphics::buffer_info{
                     graphics::buffer_target::ARRAY,
                     usage,
-                    {nullptr, vertexDataSize}});
+                    {nullptr, vertexDataSize}});                                            
 
-                auto vboBinding = graphics::vertex_binding_description{0, sizeof(tint_sprite_slot), 1, &_vbo, 0};
-                
-                auto aUpperLeft = graphics::vertex_attribute_description{0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
-                auto aUpperRight = graphics::vertex_attribute_description{1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0};
-                auto aLowerLeft = graphics::vertex_attribute_description{2, graphics::vertex_format::X32Y32_SFLOAT, 16, 0};
-                auto aFrameIndex = graphics::vertex_attribute_description{3, graphics::vertex_format::X32_SFLOAT, 24, 0};
-                auto aFrameSize = graphics::vertex_attribute_description{4, graphics::vertex_format::X16Y16_UNORM, 28, 0};
-                auto aTint = graphics::vertex_attribute_description{5, graphics::vertex_format::X32Y32Z32W32_SFLOAT, 32, 0};
+                graphics::vertex_attribute_description attributes[] = {
+                    {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},
+                    {1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0},
+                    {2, graphics::vertex_format::X32Y32_SFLOAT, 16, 0},
+                    {3, graphics::vertex_format::X32_SFLOAT, 24, 0},
+                    {4, graphics::vertex_format::X16Y16_UNORM, 28, 0},
+                    {5, graphics::vertex_format::X32Y32Z32W32_SFLOAT, 32, 0}};
 
-                decltype(&vboBinding) pBindings[] = {&vboBinding};
-                decltype(&aUpperLeft) pAttributes[] = {&aUpperLeft, &aUpperRight, &aLowerLeft, &aFrameIndex, &aFrameSize, &aTint};
+                graphics::vertex_binding_description bindings[] = {
+                    {0, sizeof(tint_sprite_slot), 1, &_vbo, 0}};                
 
                 _vao = graphics::vertex_array(graphics::vertex_array_info{
-                    pAttributes, 6,
-                    pBindings, 1,
+                    attributes, 6,
+                    bindings, 1,
                     nullptr});
 
                 if (!_program) {

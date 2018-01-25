@@ -333,16 +333,15 @@ namespace nk {
                 auto ebo = graphics::buffer({graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW, {nullptr, MAX_ELEMENT_BUFFER}});             
 
                 vbo.setName("gui_layer.vertices");
-                ebo.setName("gui_layer.indices");
+                ebo.setName("gui_layer.indices");                                
 
-                auto aPosition = graphics::vertex_attribute_description{0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
-                auto aTexCoord = graphics::vertex_attribute_description{1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0};
-                auto aColor = graphics::vertex_attribute_description{2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0};
+                graphics::vertex_attribute_description attribs[] = {
+                    {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},
+                    {1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0},
+                    {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0}};
 
-                auto binding = graphics::vertex_binding_description{0, 20, 0, &vbo, 0};                
-
-                decltype(&aPosition) attribs[] = {&aPosition, &aTexCoord, &aColor};
-                decltype(&binding) bindings[] = {&binding};
+                graphics::vertex_binding_description bindings[] = {
+                    {0, 20, 0, &vbo, 0}};
 
                 auto err = glGetError();
 

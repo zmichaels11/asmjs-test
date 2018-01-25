@@ -176,21 +176,20 @@ namespace engine {
                 _tiles = graphics::buffer(graphics::buffer_info{
                     graphics::buffer_target::ARRAY,
                     graphics::buffer_usage::STREAM_DRAW,
-                    {nullptr, tileCount * sizeof(tile_slot)}});
+                    {nullptr, tileCount * sizeof(tile_slot)}});                            
 
-                auto verticesBinding = graphics::vertex_binding_description{0, sizeof(float) * 8, 0, &_vertices, 0};
-                auto tileBinding = graphics::vertex_binding_description{1, sizeof(tile_slot), 1, &_tiles, 0};
+                graphics::vertex_attribute_description attributes[] = {
+                    {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},
+                    {1, graphics::vertex_format::X32_SFLOAT, 0, 1},
+                    {2, graphics::vertex_format::X16Y16_UNORM, 4, 1}};
 
-                auto aPosition = graphics::vertex_attribute_description{0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0};
-                auto aFrameIndex = graphics::vertex_attribute_description{1, graphics::vertex_format::X32_SFLOAT, 0, 1};
-                auto aFrameSize = graphics::vertex_attribute_description{2, graphics::vertex_format::X16Y16_UNORM, 4, 1};
-
-                decltype(&verticesBinding) pBindings[] = {&verticesBinding, &tileBinding};
-                decltype(&aPosition) pAttributes[] = {&aPosition, &aFrameIndex, &aFrameSize};
+                graphics::vertex_binding_description bindings[] = {
+                    {0, sizeof(float) * 8, 0, &_vertices, 0},
+                    {1, sizeof(tile_slot), 1, &_tiles, 0}};
 
                 _vao = graphics::vertex_array(graphics::vertex_array_info{
-                    pAttributes, 3,
-                    pBindings, 2,
+                    attributes, 3,
+                    bindings, 2,
                     nullptr});
 
                 if (!_program) {

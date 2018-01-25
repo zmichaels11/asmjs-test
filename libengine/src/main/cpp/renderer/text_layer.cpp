@@ -68,13 +68,14 @@ namespace renderer {
         
         vboName << "text_layer[" << textLayerId << "].vertices";        
         vtext.setName(vboName.str());
+        
+        graphics::vertex_attribute_description attribs[] = {
+            {0, graphics::vertex_format::X32Y32_SFLOAT, offsetof(vertex, x), 0},
+            {1, graphics::vertex_format::X16Y16_UNORM, offsetof(vertex, s), 0},
+            {2, graphics::vertex_format::X8Y8Z8W8_UNORM, offsetof(vertex, r), 0}};
 
-        auto binding = graphics::vertex_binding_description {0, sizeof(vertex), 0, &vtext};
-        auto aPosition = graphics::vertex_attribute_description {0, graphics::vertex_format::X32Y32_SFLOAT, offsetof(vertex, x), 0};
-        auto aTexCoord = graphics::vertex_attribute_description {1, graphics::vertex_format::X16Y16_UNORM, offsetof(vertex, s), 0};
-        auto aColor = graphics::vertex_attribute_description {2, graphics::vertex_format::X8Y8Z8W8_UNORM, offsetof(vertex, r), 0};
-        decltype(&aPosition) attribs[] = {&aPosition, &aTexCoord, &aColor};
-        decltype(&binding) bindings[] = {&binding};
+        graphics::vertex_binding_description bindings[] {
+            {0, sizeof(vertex), 0, &vtext}};    
 
         auto model = graphics::vertex_array({attribs, 3, bindings, 1, nullptr});
         auto vaoName = std::stringstream();
