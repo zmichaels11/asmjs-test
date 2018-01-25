@@ -22,9 +22,14 @@ namespace engine {
                 image_scroll_type vertical;
             } scroll;
 
-            tile_offset_type offsetType;
             image_filter_type filter;
-            int renderableSrcID;
+            int tileSheetID;
+
+            inline int index(int col, int row) const noexcept;
         };
+
+        int tiled_image_info::index(int col, int row) const noexcept {
+            return dim.columns * row + col;
+        }
     }
 }

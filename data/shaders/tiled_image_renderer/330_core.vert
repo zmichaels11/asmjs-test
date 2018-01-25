@@ -6,6 +6,7 @@ const vec2 VERTICES[] = vec2[4](
 
 in vec2 vPosition;
 in vec2 vOffset;
+in float vFrame;
 in vec3 vImageView;
 
 out vec3 fTexCoord;
@@ -15,4 +16,5 @@ void main() {
     vec2 uv = mix(vec2(0.0, 0.0), vImageView.xy, select);
 
     gl_Position = vec4(vPosition + vOffset + select, 0.0, 1.0);
+    fTexCoord = vec3(vFrame, uv);
 }

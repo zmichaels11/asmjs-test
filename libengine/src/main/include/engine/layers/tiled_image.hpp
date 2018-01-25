@@ -5,6 +5,7 @@
 #include "engine/layers/context.hpp"
 #include "engine/layers/image_view.hpp"
 #include "engine/layers/renderable.hpp"
+#include "engine/layers/tile_slot.hpp"
 #include "engine/layers/tiled_image_info.hpp"
 
 namespace engine {
@@ -37,7 +38,7 @@ namespace engine {
 
             void setTile(int col, int row, const image_view& view) noexcept;
 
-            void setOffset(int rowOrCol, float offset) noexcept;
+            tile_slot ** fetchTileSlots() noexcept;
 
             const tiled_image_info& getInfo() const noexcept;            
         };

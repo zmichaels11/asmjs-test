@@ -17,6 +17,7 @@
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/context.hpp"
 #include "engine/layers/image_view.hpp"
+#include "engine/layers/tile_slot.hpp"
 #include "engine/layers/tiled_image_info.hpp"
 
 namespace engine {
@@ -30,14 +31,15 @@ namespace engine {
                 bool _dirty;
                 bool _redraw;
 
+                tile_slot * _pTileSlots;
+
                 struct vbo_t {
                     graphics::buffer position;
-                    graphics::buffer offset;
                     graphics::buffer imageView;
                 } _vbos;
 
                 graphics::framebuffer _fb;
-                graphics::texture _texture;
+                graphics::texture _texture;                
                 graphics::vertex_array _vao;                
 
                 tiled_image_resources(
@@ -104,7 +106,24 @@ namespace engine {
                 return;
             }
 
+            auto pTileSheet = res->_pctx->getSpriteSheet(res->_info.tileSheetID);
+            auto pTexture = reinterpret_cast<const graphics::texture * > (pTileSheet->getTexture());            
+
+            pTexture->bind(0);
+
             _program.use();
+
+            graphics::uniform::setUniform1(_uImage, 0);
+
+            res->_fb.bind();
+            
+            auto color0 = graphics::draw_buffer::COLOR_ATTACHMENT0;
+
+            graphics::framebuffer::drawBuffers(&color0);
+
+            auto drawCount = res->_info.dim.columns * res->_info.dim.rows;
+
+            graphics::draw::arraysInstanced(graphics::draw_mode::TRIANGLE_STRIP, 0, 4, drawCount);
         }
 
         const void * tiled_image::getTexture() const noexcept {
@@ -117,12 +136,22 @@ namespace engine {
             }
         }
 
-        void tiled_image::setTile(int col, int row, const image_view& view) noexcept {
+        tile_slot ** tiled_image::fetchTileSlots() noexcept {
+            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());            
 
+            return &res->_pTileSlots;
         }
 
-        void tiled_image::setOffset(int rowOrCol, float offset) noexcept {
+        void tiled_image::setTile(int col, int row, const image_view& view) noexcept {
+            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
 
+            if (res->_pTileSlots == nullptr) {
+                _onError("Unable to write to tile_slot!");
+            }
+
+            auto idx = res->_info.index(col, row);
+
+            res->_pTileSlots[idx].view = view;
         }
 
         const tiled_image_info& tiled_image::getInfo() const noexcept {
@@ -159,6 +188,27 @@ namespace engine {
 
                 std::swap(_texture, newTexture);
 
+                auto newPosition = graphics::buffer({});
+
+                std::swap(_vbos.position, newPosition);                
+
+                auto newImageView = graphics::buffer({});
+
+                std::swap(_vbos.imageView, newImageView);
+
+                graphics::vertex_attribute_description attributes[] = {
+                    {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},                    
+                    {1, graphics::vertex_format::X32_SFLOAT, 0, 1},
+                    {2, graphics::vertex_format::X16Y16_UNORM, 4, 1}};
+
+                graphics::vertex_binding_description bindings[] = {
+                    {0, 8, 1, &_vbos.position, 0},
+                    {1, 8, 1, &_vbos.imageView, 0}};                
+
+                auto newVao = graphics::vertex_array({attributes, 3, bindings, 2, nullptr});
+
+                std::swap(_vao, newVao);
+
                 if (!_program) {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
                     auto fsh = graphics::shader::makeVertex(FRAGMENT_SHADER_PATH);
@@ -167,7 +217,7 @@ namespace engine {
 
                     graphics::attribute_state_info attribs[] = {
                         {"vPosition", 0},
-                        {"vOffset", 1},
+                        {"vFrame", 1},
                         {"vImageView", 2}};
 
                     auto newProgram = graphics::program({shaders, 2, attribs, 3});
