@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cmath>
 
+#include <algorithm>
+
 
 namespace math {
     struct vec2 {

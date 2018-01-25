@@ -19,7 +19,7 @@ namespace engine {
                 scene_layer_hint hints;
                 clear_operation clear;
                 engine::layers::bounds<int, int> scissor;
-                engine::layers::bounds<int, unsigned int> viewport;
+                engine::layers::bounds<int, int> viewport;
             } ext;
             
             union {

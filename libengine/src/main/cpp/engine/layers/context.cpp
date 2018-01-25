@@ -2,6 +2,7 @@
 
 #include <cstdio>
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <vector>
@@ -23,6 +24,9 @@ namespace engine {
                 std::vector<sprite_sheet> _spriteSheets;
                 std::vector<bitmap_font> _fonts;
                 std::vector<std::unique_ptr<renderable>> _renderables;
+                std::vector<std::function<void()>> _beginWriteCommands;
+                std::vector<std::function<void()>> _endWriteCommands;
+                std::vector<std::function<void()>> _renderCommands;
 
                 context_resources(
                     const context * pctx,
@@ -35,24 +39,24 @@ namespace engine {
         void context::beginWrite() noexcept {
             auto res = dynamic_cast<context_resources * > (_pResources.get());
 
-            for (auto&& renderable : res->_renderables) {
-                renderable->beginWrite();
+            for (auto&& cmd : res->_beginWriteCommands) {
+                cmd();
             }
         }
 
         void context::endWrite() noexcept {
             auto res = dynamic_cast<context_resources * > (_pResources.get());
 
-            for (auto&& renderable : res->_renderables) {
-                renderable->endWrite();
+            for (auto&& cmd : res->_endWriteCommands) {
+                cmd();
             }
         }
 
         void context::render() const noexcept {
             auto res = dynamic_cast<const context_resources * > (_pResources.get());
 
-            for (auto&& renderable : res->_renderables) {
-                renderable->render();
+            for (auto&& cmd : res->_renderCommands) {
+                cmd();
             }
         }
 
@@ -117,9 +121,13 @@ namespace engine {
                     auto pInfo = info.pRenderableInfos + i;
 
                     switch (pInfo->type) {
-                        case renderable_type::IMAGE:                            
-                            _renderables.push_back(std::make_unique<renderable_image>(pctx, pInfo->info.imageInfo));
-                            break;
+                        case renderable_type::IMAGE:{
+                            auto ptr = std::make_unique<renderable_image>(pctx, pInfo->info.imageInfo);
+
+                            _endWriteCommands.push_back(std::bind(&renderable_image::endWrite, ptr.get()));
+
+                            _renderables.push_back(std::move(ptr));
+                        } break;
                         case renderable_type::TILED_IMAGE:
                             _renderables.push_back(std::make_unique<tiled_image>(pctx, pInfo->info.tiledImageInfo));
                             break;

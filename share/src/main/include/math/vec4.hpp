@@ -3,6 +3,8 @@
 #include <cstddef>
 #include <cmath>
 
+#include <algorithm>
+
 namespace math {
     struct vec4 {
         float x, y, z, w;

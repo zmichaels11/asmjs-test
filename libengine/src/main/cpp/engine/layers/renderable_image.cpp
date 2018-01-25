@@ -56,9 +56,7 @@ namespace engine {
             res->_dirty = true;
         }
 
-        void renderable_image::beginWrite() noexcept {
-            
-        }
+        void renderable_image::beginWrite() noexcept {}
 
         void renderable_image::endWrite() noexcept {
             auto res = dynamic_cast<renderable_image_resources * > (_pResources.get());
