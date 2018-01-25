@@ -4,10 +4,12 @@
 
 #include <GLES3/gl3.h>
 
+#include <cstddef>
 #include <cstdio>
 
 #include <string>
 
+#include "graphics/henum/draw_buffer.hpp"
 #include "graphics/henum/internal_format.hpp"
 #include "graphics/hobject/renderbuffer.hpp"
 #include "graphics/hobject/texture.hpp"
@@ -91,10 +93,14 @@ namespace graphics {
 
     void framebuffer::bind() const noexcept {
         glBindFramebuffer(GL_FRAMEBUFFER, _handle);
-    }
+    }    
 
     const framebuffer_info& framebuffer::getInfo() const noexcept {
         return _info;
+    }
+
+    void framebuffer::drawBuffers(const draw_buffer * pBuffers, std::size_t count) noexcept {
+        glDrawBuffers(static_cast<GLsizei> (count), reinterpret_cast<const GLenum * > (pBuffers));
     }
 
     void framebuffer::readPixels(int x, int y, std::size_t width, std::size_t height, pixel_info& info) noexcept {

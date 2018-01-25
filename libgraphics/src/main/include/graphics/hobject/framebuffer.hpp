@@ -1,7 +1,10 @@
 #pragma once
 
+#include <cstddef>
+
 #include <string>
 
+#include "graphics/henum/draw_buffer.hpp"
 #include "graphics/hinfo/framebuffer_info.hpp"
 #include "graphics/hinfo/pixel_info.hpp"
 
@@ -44,7 +47,11 @@ namespace graphics {
         const std::string& getName() const noexcept;
 
         void bind() const noexcept;
+        
+        static void drawBuffers(const draw_buffer * pBuffers, std::size_t count = 1) noexcept;
 
         static void readPixels(int x, int y, std::size_t width, std::size_t height, graphics::pixel_info& info) noexcept;
+
+        static const framebuffer& getDefault() noexcept;
     };
 }

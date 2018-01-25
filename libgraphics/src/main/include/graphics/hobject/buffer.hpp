@@ -39,7 +39,7 @@ namespace graphics {
             _handle(handle),
             _info(),
             _external(true),
-            _name(std::to_string(handle)) {}
+            _name(std::to_string(handle)) {}        
 
         ~buffer() noexcept;
 
