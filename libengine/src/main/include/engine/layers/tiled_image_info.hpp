@@ -15,7 +15,7 @@ namespace engine {
             struct tile_size_t {
                 unsigned int width;
                 unsigned int height;
-            } size;
+            } tileSize;
 
             struct scroll_t {
                 image_scroll_type horizontal;
@@ -24,6 +24,7 @@ namespace engine {
 
             tile_offset_type offsetType;
             image_filter_type filter;
+            int renderableSrcID;
         };
     }
 }
