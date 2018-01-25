@@ -39,6 +39,7 @@ namespace engine {
                     graphics::buffer imageView;
                 } _vbos;
 
+                graphics::scissor_state_info _scissor;
                 graphics::viewport_state_info _viewport;
                 graphics::framebuffer _fb;
                 graphics::texture _texture;                
@@ -126,6 +127,7 @@ namespace engine {
             auto drawCount = res->_info.dim.columns * res->_info.dim.rows;
 
             graphics::apply(res->_viewport);
+            graphics::apply(res->_scissor);
 
             graphics::draw::arraysInstanced(graphics::draw_mode::TRIANGLE_STRIP, 0, 4, drawCount);
         }
@@ -181,6 +183,7 @@ namespace engine {
                 auto textureHeight = info.dim.rows * info.tileSize.width;
 
                 _viewport = {0, 0, static_cast<int> (textureWidth), static_cast<int> (textureHeight)};
+                _scissor = {true, 0, 0, static_cast<int> (textureWidth), static_cast<int> (textureHeight)};
 
                 auto textureInfo = graphics::texture_info();
 
