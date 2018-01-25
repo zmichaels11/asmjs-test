@@ -31,6 +31,7 @@
 #include "graphics.hpp"
 #include "graphics/state.hpp"
 
+#include "engine/application_hint.hpp"
 #include "engine/application_info.hpp"
 #include "engine/layers/scene.hpp"
 #include "nk/nk_ctx.hpp"
@@ -66,6 +67,7 @@ namespace {
     std::function<void(void*)> _onUpdate(nullptr);
     std::shared_ptr<void> _pUserData;
 
+    graphics::scissor_state_info _scissorRect;
     graphics::viewport_state_info _viewport;
 
     double _time(0.0);            
@@ -104,6 +106,10 @@ namespace engine {
 
     const void * application::getViewport() noexcept {
         return reinterpret_cast<const void * > (&_viewport);
+    }
+
+    const void * application::getScissorRect() noexcept {
+        return reinterpret_cast<const void * > (&_scissorRect);
     }
 
     double application::getTime() noexcept {
@@ -213,7 +219,11 @@ namespace {
 
         graphics::init();
         
-        glfwSwapInterval(info.vsync ? 1 : 0);
+        if (static_cast<unsigned int> (info.hints & engine::application_hint::VSYNC)) {
+            glfwSwapInterval(1);
+        } else {
+            glfwSwapInterval(0);
+        }
 
         glfwSetFramebufferSizeCallback(glfw.pWindow, updateFramebufferSize);
 
@@ -242,6 +252,7 @@ namespace {
     void updateFramebufferSize(GLFWwindow *, int width, int height) noexcept {
         _viewport.width = width;
         _viewport.height = height;
+        _scissorRect = {true, 0, 0, width, height};
     }
 
     void doFrame() noexcept {        

@@ -2,6 +2,8 @@
 
 #include <string>
 
+#include "engine/application_hint.hpp"
+
 namespace engine {
     struct application_info {
         std::string name;
@@ -15,6 +17,6 @@ namespace engine {
             unsigned int minor;
         } apiVersion;
 
-        bool vsync;
+        application_hint hints;
     };
 }

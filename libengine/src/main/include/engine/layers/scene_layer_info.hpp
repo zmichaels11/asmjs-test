@@ -6,6 +6,7 @@
 #include "engine/layers/bounds.hpp"
 #include "engine/layers/clear_operation.hpp"
 #include "engine/layers/layer_type.hpp"
+#include "engine/layers/scene_layer_hint.hpp"
 #include "engine/layers/text_layer_info.hpp"
 #include "engine/layers/tile_layer_info.hpp"
 
@@ -13,9 +14,13 @@ namespace engine {
     namespace layers {
         struct scene_layer_info {
             layer_type type;
-            clear_operation clear;
-            engine::layers::bounds<int, int> scissor;
-            engine::layers::bounds<int, unsigned int> viewport;
+
+            struct extension_operations_t {
+                scene_layer_hint hints;
+                clear_operation clear;
+                engine::layers::bounds<int, int> scissor;
+                engine::layers::bounds<int, unsigned int> viewport;
+            } ext;
             
             union {
                 background_layer_info backgroundLayer;
@@ -24,6 +29,8 @@ namespace engine {
                 text_layer_info textLayer;
                 tile_layer_info tileLayer;            
             } info;
+
+            
 
             static scene_layer_info init(const basic_image_layer_info& info) noexcept;
 

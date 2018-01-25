@@ -30,5 +30,7 @@ namespace engine {
         static double getTime() noexcept;
 
         static const void * getViewport() noexcept;
+
+        static const void * getScissorRect() noexcept;
     };
 }

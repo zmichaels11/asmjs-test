@@ -79,8 +79,8 @@ namespace engine {
         void background_layer::render() const noexcept {
             auto res = dynamic_cast<const background_layer_resources * > (_pResources.get());
             auto * renderable = res->_pCtx->getRenderableImage(res->_info.renderableID);
-            auto * pTexture = reinterpret_cast<const graphics::texture * > (renderable->getTexture());
-            
+            auto * pTexture = reinterpret_cast<const graphics::texture * > (renderable->getTexture());                    
+
             if (pTexture) {
                 _program.use();
 

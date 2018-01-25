@@ -1,18 +1,13 @@
 #include "engine/layers/scene.hpp"
 
+#include <functional>
 #include <memory>
 #include <string>
 #include <utility>
 #include <vector>
 
 #include "graphics/framebuffer.hpp"
-#include "graphics/operation.hpp"
-#include "graphics/program.hpp"
-#include "graphics/renderbuffer.hpp"
-#include "graphics/shader.hpp"
 #include "graphics/state.hpp"
-#include "graphics/texture.hpp"
-#include "graphics/vertex_array.hpp"
 
 #include "util.hpp"
 
@@ -26,42 +21,21 @@
 namespace engine {
     namespace layers {
         namespace {
-            void _onError(const std::string& msg) noexcept;
+            void _onError(const std::string& msg) noexcept;            
 
             struct scene_resources : public base_resources {                
                 scene_info _info;
                 context _context;
                 std::vector<scene_layer> _layers;
-
-                graphics::viewport_state_info _viewport;
-                graphics::framebuffer _fb;
-                graphics::renderbuffer _depthStencil;
-                graphics::texture _color;                
-                graphics::vertex_array _vao;
+                std::vector<std::function<void()>> _beginWriteCommands;
+                std::vector<std::function<void()>> _endWriteCommands;
+                std::vector<std::function<void()>> _renderCommands;
+                std::vector<std::function<void()>> _invalidateCommands;          
 
                 scene_resources(const scene_info& info) noexcept;
 
                 virtual ~scene_resources() {}
             };
-
-            graphics::program _program;
-            int _uImage;
-
-            const std::string BASE_SHADER_PATH = "data/shaders/fullscreen_quad/";
-#if defined (GL)
-            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "330_core.vert";
-            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_PATH + "330_core.frag";
-#elif defined (GLES30)
-            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "300_es.vert";
-            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_PATH + "300_es.frag";
-#elif defined (GLES20)
-            const std::string VERTEX_SHADER_PATH = BASE_SHADER_PATH + "100_es.vert";
-            const std::string FRAGMENT_SHADER_PATH = BASE_SHADER_PATH + "100_es.frag";
-#else
-            const std::string VERTEX_SHADER_PATH = "";
-            const std::string FRAGMENT_SHADER_PATH = "";
-#error "No GL defined!"
-#endif
         }
 
         context& scene::getContext() noexcept {
@@ -82,70 +56,34 @@ namespace engine {
 
         void scene::beginWrite() noexcept {
             auto res = dynamic_cast<scene_resources * > (_pResources.get());
-            auto& layers = res->_layers;
             
-            res->_context.beginWrite();
-
-            for (auto&& layer : layers) {
-                layer.layer->beginWrite();
+            for (auto&& cmd : res->_beginWriteCommands) {
+                cmd();
             }
         }
 
         void scene::endWrite() noexcept {
             auto res = dynamic_cast<scene_resources * > (_pResources.get());
-            auto& layers = res->_layers;
-
-            res->_context.endWrite();
-
-            for (auto&& layer : layers) {
-                layer.layer->endWrite();
+            
+            for (auto&& cmd : res->_endWriteCommands) {
+                cmd();
             }
         }
 
         void scene::invalidate() noexcept {
             auto res = dynamic_cast<scene_resources * > (_pResources.get());
-            auto& layers = res->_layers;
-
-            for (auto&& layer : layers) {
-                layer.layer->invalidate();
+            
+            for (auto&& cmd : res->_invalidateCommands) {
+                cmd();
             }
         }
 
         void scene::render() const noexcept {
-            auto res = dynamic_cast<const scene_resources * > (_pResources.get());
-            auto& layers = res->_layers;
-
-            // render any context objects; these *may* write to other render targets
-            res->_context.render();            
+            auto res = dynamic_cast<const scene_resources * > (_pResources.get());                                                  
             
-            // render to the indirect surface
-            res->_fb.bind();
-
-            graphics::apply(res->_viewport);
-
-            graphics::draw_buffer drawBuffers[] = {graphics::draw_buffer::COLOR_ATTACHMENT0};
-
-            graphics::framebuffer::drawBuffers(drawBuffers, 1);
-
-            for (auto&& layer : layers) {
-                layer.layer->render();
-            }
-
-            graphics::framebuffer::getDefault().bind();
-
-            auto pDefaultViewport = reinterpret_cast<const graphics::viewport_state_info * > (application::getViewport());
-
-            graphics::apply(*pDefaultViewport);
-
-            _program.use();
-
-            graphics::uniform::setUniform1(_uImage, 0);
-
-            res->_color.bind(0);
-
-            res->_vao.bind();
-
-            graphics::draw::arrays(graphics::draw_mode::TRIANGLE_STRIP, 0, 4);
+            for (auto&& cmd : res->_renderCommands) {
+                cmd();
+            }   
         }
 
         base_layer * scene::getLayer(int layerId) noexcept {
@@ -176,12 +114,80 @@ namespace engine {
                 _info = info;
                 _context = context(info.contextInfo);
 
+                // register all of the context commands.
+                _beginWriteCommands.push_back(std::bind(&context::beginWrite, &_context));
+                _endWriteCommands.push_back(std::bind(&context::endWrite, &_context));                               
+                _renderCommands.push_back(std::bind(&context::render, &_context));
+
+                _renderCommands.push_back([](){                    
+                    // switch back to the default framebuffer in case we switched away from it.
+                    auto pViewport = reinterpret_cast<const graphics::viewport_state_info * > (application::getViewport());
+                    auto pScissor = reinterpret_cast<const graphics::scissor_state_info * > (application::getScissorRect());
+
+                    graphics::framebuffer::getDefault().bind();                    
+                    graphics::apply(*pViewport);                    
+                    graphics::apply(*pViewport);
+                });
+
                 for (auto it = info.pLayerInfos; it != (info.pLayerInfos + info.nLayerInfos); it++) {
+                    if (static_cast<unsigned int> (it->ext.hints & scene_layer_hint::CLEAR)) {                        
+                        auto buffers = static_cast<graphics::clear_buffer> (0);
+
+                        if (static_cast<unsigned int> (it->ext.clear.type & clear_type::COLOR)) {
+                            buffers |= graphics::clear_buffer::COLOR;
+                        }
+
+                        if (static_cast<unsigned int> (it->ext.clear.type & clear_type::DEPTH)) {
+                            buffers |= graphics::clear_buffer::DEPTH;
+                        }
+
+                        if (static_cast<unsigned int> (it->ext.clear.type & clear_type::STENCIL)) {
+                            buffers |= graphics::clear_buffer::STENCIL;
+                        }
+
+                        auto clearStateInfo = graphics::clear_state_info{
+                            buffers,
+                            {
+                                util::normalize(it->ext.clear.clearColor.r),
+                                util::normalize(it->ext.clear.clearColor.g),
+                                util::normalize(it->ext.clear.clearColor.b),
+                                util::normalize(it->ext.clear.clearColor.a)},
+                            it->ext.clear.clearDepth,
+                            it->ext.clear.clearStencil
+                        };
+
+                        _renderCommands.push_back(std::bind(&graphics::apply<graphics::clear_state_info>, clearStateInfo));
+                    }
+
+                    if (static_cast<unsigned int> (it->ext.hints & scene_layer_hint::SCISSOR)) {
+                        //NOTE: this is actually wrong, scissor rect is from bottom-left
+                        auto scissorStateInfo = graphics::scissor_state_info{
+                            true,
+                            it->ext.scissor.x,
+                            it->ext.scissor.y,
+                            it->ext.scissor.width,
+                            it->ext.scissor.height};
+
+                        _renderCommands.push_back(std::bind(&graphics::apply<graphics::scissor_state_info>, scissorStateInfo));
+                    }
+
+                    if (static_cast<unsigned int> (it->ext.hints& scene_layer_hint::VIEWPORT)) {
+                        auto viewportStateInfo = graphics::viewport_state_info{
+                            it->ext.viewport.x,
+                            it->ext.viewport.y,
+                            it->ext.viewport.width,
+                            it->ext.viewport.height
+                        };
+
+                        _renderCommands.push_back(std::bind(&graphics::apply<graphics::viewport_state_info>, viewportStateInfo));
+                    }
+
                     switch (it->type) {
                         case layer_type::BACKGROUND_LAYER: {
-                            _layers.push_back({
-                                *it,
-                                std::make_unique<background_layer> (_context, it->info.backgroundLayer)});                            
+                            auto ptr = std::make_unique<background_layer> (_context, it->info.backgroundLayer);
+
+                            _renderCommands.push_back(std::bind(&background_layer::render, ptr.get()));
+                            _layers.push_back({*it, std::move(ptr)});              
                         } break;
                         case layer_type::BASIC_IMAGE_LAYER: {                            
                             _layers.push_back({
@@ -191,51 +197,6 @@ namespace engine {
                         default: 
                             _onError("Invalid layer_type!");                        
                     }
-                }
-
-                _viewport = graphics::viewport_state_info{0, 0, static_cast<int> (info.surface.width), static_cast<int> (info.surface.height)};                
-
-                auto newColor = graphics::texture({
-                    {info.surface.width, info.surface.height, 1},
-                    1, 1,
-                    {
-                        {graphics::mag_filter::NEAREST, graphics::min_filter::LINEAR},
-                        {graphics::address_mode::CLAMP_TO_EDGE, graphics::address_mode::CLAMP_TO_EDGE, graphics::address_mode::CLAMP_TO_EDGE},
-                        {-1000.0F, 10000.F}
-                    },
-                    graphics::internal_format::RGB8});
-
-                std::swap(_color, newColor);
-
-                auto newDepthStencil = graphics::renderbuffer({
-                    graphics::internal_format::DEPTH24_STENCIL8,
-                    info.surface.width, info.surface.height});
-
-                std::swap(_depthStencil, newDepthStencil);
-
-                graphics::attachment_info attachments[] = {
-                    {0, nullptr, &_color},
-                    {1, &_depthStencil, nullptr}};
-
-                auto newFb = graphics::framebuffer({attachments, 1});
-
-                std::swap(_fb, newFb);
-
-                auto newVao = graphics::vertex_array({nullptr});
-
-                std::swap(_vao, newVao);
-
-                if (!_program) {
-                    auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
-                    auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_PATH);
-
-                    decltype(&vsh) shaders[] = {&vsh, &fsh};
-
-                    auto newProgram = graphics::program({shaders, 2});
-
-                    std::swap(_program, newProgram);
-
-                    _uImage = _program.getUniformLocation("uImage");
                 }
             }
         }

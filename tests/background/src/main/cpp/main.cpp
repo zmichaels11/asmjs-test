@@ -19,7 +19,7 @@
 #include "engine/layers/scene_layer_info.hpp"
 
 int main(int argc, char** argv) {
-    engine::application::init({"Background Test", {640, 480}, {1, 0}, true});
+    engine::application::init({"Background Test", {640, 480}, {1, 0}, engine::application_hint::VSYNC});
         
     auto backgroundInfo = engine::layers::background_layer_info{0};
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
@@ -49,7 +49,6 @@ int main(int argc, char** argv) {
         static float timestep = 0.0;     
 
         auto pScene = engine::application::getScene();
-        auto& ctx = pScene->getContext();        
         auto pLayer = dynamic_cast<engine::layers::background_layer * > (pScene->getLayer(0));
 
         auto h = 0.5F * std::sin(timestep);
