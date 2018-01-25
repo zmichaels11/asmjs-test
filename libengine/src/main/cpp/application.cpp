@@ -29,6 +29,7 @@
 
 #include "audio.hpp"
 #include "graphics.hpp"
+#include "graphics/state.hpp"
 
 #include "engine/application_info.hpp"
 #include "engine/layers/scene.hpp"
@@ -38,6 +39,8 @@ namespace {
     void _onGLFWError(int error, const char * desc);
 
     void doFrame() noexcept;
+
+    void updateFramebufferSize(GLFWwindow * pWindow, int width, int height) noexcept;
 
     struct native_resources {
         struct glfw_resources_t {
@@ -62,6 +65,8 @@ namespace {
     std::function<void(void*)> _onFrame(nullptr);
     std::function<void(void*)> _onUpdate(nullptr);
     std::shared_ptr<void> _pUserData;
+
+    graphics::viewport_state_info _viewport;
 
     double _time(0.0);            
 }
@@ -95,6 +100,10 @@ namespace engine {
 
     void application::init(const application_info& info) noexcept {
         _pNativeResources = std::make_unique<native_resources> (info);
+    }
+
+    const void * application::getViewport() noexcept {
+        return reinterpret_cast<const void * > (&_viewport);
     }
 
     double application::getTime() noexcept {
@@ -187,8 +196,7 @@ namespace {
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
         glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);        
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, info.apiVersion.major);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, info.apiVersion.minor);
-        std::printf("[GLFW] Configured for OpenGL!\n");
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, info.apiVersion.minor);        
 #else
 #error "No GL version specified!"
 #endif
@@ -199,11 +207,15 @@ namespace {
             __builtin_trap();
         }
 
+        _viewport = {0, 0, static_cast<int> (info.window.width), static_cast<int> (info.window.height)};
+
         glfwMakeContextCurrent(glfw.pWindow);
 
         graphics::init();
+        
+        glfwSwapInterval(info.vsync ? 1 : 0);
 
-        glfwSwapInterval(1);
+        glfwSetFramebufferSizeCallback(glfw.pWindow, updateFramebufferSize);
 
         audio::init();
 
@@ -225,6 +237,11 @@ namespace {
 
     bool native_resources::isValid() const noexcept {
         return glfw.pWindow && !glfwWindowShouldClose(glfw.pWindow);
+    }
+
+    void updateFramebufferSize(GLFWwindow *, int width, int height) noexcept {
+        _viewport.width = width;
+        _viewport.height = height;
     }
 
     void doFrame() noexcept {        

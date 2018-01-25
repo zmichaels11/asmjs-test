@@ -11,6 +11,7 @@
 #include "graphics/operation.hpp"
 #include "graphics/program.hpp"
 #include "graphics/shader.hpp"
+#include "graphics/state.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/vertex_array.hpp"
 
@@ -38,6 +39,7 @@ namespace engine {
                     graphics::buffer imageView;
                 } _vbos;
 
+                graphics::viewport_state_info _viewport;
                 graphics::framebuffer _fb;
                 graphics::texture _texture;                
                 graphics::vertex_array _vao;                
@@ -123,6 +125,8 @@ namespace engine {
 
             auto drawCount = res->_info.dim.columns * res->_info.dim.rows;
 
+            graphics::apply(res->_viewport);
+
             graphics::draw::arraysInstanced(graphics::draw_mode::TRIANGLE_STRIP, 0, 4, drawCount);
         }
 
@@ -175,6 +179,8 @@ namespace engine {
 
                 auto textureWidth = info.dim.columns * info.tileSize.width;
                 auto textureHeight = info.dim.rows * info.tileSize.width;
+
+                _viewport = {0, 0, static_cast<int> (textureWidth), static_cast<int> (textureHeight)};
 
                 auto textureInfo = graphics::texture_info();
 

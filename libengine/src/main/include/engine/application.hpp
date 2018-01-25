@@ -28,5 +28,7 @@ namespace engine {
         static void start(const std::shared_ptr<void>& pUserData) noexcept;
 
         static double getTime() noexcept;
+
+        static const void * getViewport() noexcept;
     };
 }

@@ -40,6 +40,10 @@ namespace graphics {
 
         ~framebuffer() noexcept;        
 
+        inline operator int() const noexcept {
+            return _handle;
+        }
+
         const graphics::framebuffer_info& getInfo() const noexcept;
 
         void setName(const std::string& name) noexcept;

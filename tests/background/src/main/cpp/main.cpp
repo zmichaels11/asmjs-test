@@ -40,7 +40,8 @@ int main(int argc, char** argv) {
 
     auto sceneInfo = engine::layers::scene_info{
         {nullptr, 0, nullptr, 0, pRenderableInfos.data(), pRenderableInfos.size()},
-        pLayerInfos.data(), pLayerInfos.size()};
+        pLayerInfos.data(), pLayerInfos.size(),
+        {128, 96}};
     
     engine::application::setScene(sceneInfo);    
 

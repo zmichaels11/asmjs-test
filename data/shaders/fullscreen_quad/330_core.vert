@@ -1,12 +1,16 @@
 #version 330 core
 
-in vec2 vPosition;
+const vec4[4] VERTICES = vec4[] (
+    vec4(-1.0, 1.0, 0.0, 1.0), vec4(-1.0, -1.0, 0.0, 1.0),
+    vec4(1.0, 1.0, 0.0, 1.0), vec4(1.0, -1.0, 0.0, 1.0));
+
+const vec2[4] FRAGMENTS = vec2[] (
+    vec2(0.0, 0.0), vec2(0.0, 1.0),
+    vec2(1.0, 0.0), vec2(1.0, 1.0));
 
 out vec2 fTexCoord;
 
-uniform vec4 uImageView;
-
 void main() {
-    gl_Position = vec4(vIndex, 0.0, 1.0);
-    fTexCoord = mix(uImageView.xy, uImageView.zw, vIndex);
+    gl_Position = VERTICES[gl_VertexID];
+    fTexCoord = FRAGMENTS[gl_VertexID];
 }

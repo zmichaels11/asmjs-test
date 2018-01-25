@@ -11,6 +11,11 @@ namespace engine {
             context_info contextInfo;
             scene_layer_info * pLayerInfos;
             std::size_t nLayerInfos;
+            
+            struct surface_size_t {
+                unsigned int width;
+                unsigned int height;
+            } surface;
         };
     }
 }

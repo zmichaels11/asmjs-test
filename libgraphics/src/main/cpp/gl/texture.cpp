@@ -19,6 +19,8 @@ namespace graphics {
     }
 
     texture::texture(const texture_info& info) noexcept {
+        _info = info;
+        
         auto internalFormat = static_cast<GLenum> (info.format);
         _target = _getTarget(info);   
         _handle = 0;
