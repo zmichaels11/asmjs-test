@@ -2,13 +2,8 @@
 
 #include <cstddef>
 
-#include "graphics/tokens/cmd_push_constant1i.hpp"
-
 namespace graphics {
     namespace uniform {
-        inline graphics::tokens::cmd_push_constant1i createPushConstantToken(int location, int value) noexcept {
-            return graphics::tokens::cmd_push_constant1i::create(location, value);
-        }
 
         void setUniform1(int locaction, std::size_t count, const unsigned int * value) noexcept;
 

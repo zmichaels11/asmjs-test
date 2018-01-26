@@ -8,8 +8,6 @@
 #include "graphics/henum/buffer_target.hpp"
 #include "graphics/hinfo/buffer_info.hpp"
 
-#include "graphics/tokens/cmd_bind_buffer_range.hpp"
-
 namespace graphics {
     class vertex_array;
     
@@ -43,20 +41,7 @@ namespace graphics {
             _external(true),
             _name(std::to_string(handle)) {}        
 
-        ~buffer() noexcept;
-
-        inline graphics::tokens::cmd_bind_buffer_range createBindBufferRangeToken(
-            unsigned int index, 
-            long offset, 
-            long range) noexcept {
-                
-            return graphics::tokens::cmd_bind_buffer_range::create(
-                static_cast<unsigned int> (_info.target),
-                _handle,
-                index,
-                offset,
-                range);
-        }
+        ~buffer() noexcept;        
 
         void bind(buffer_target target) const noexcept;
 

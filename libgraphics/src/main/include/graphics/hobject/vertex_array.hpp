@@ -3,7 +3,6 @@
 #include <string>
 
 #include "graphics/hinfo/vertex_array_info.hpp"
-#include "graphics/tokens/header.hpp"
 
 namespace graphics { 
     class command_buffer;

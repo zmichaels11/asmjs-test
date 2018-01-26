@@ -7,8 +7,6 @@
 #include "graphics/hinfo/texture_info.hpp"
 #include "graphics/hobject/image.hpp"
 
-#include "graphics/tokens/cmd_bind_texture.hpp"
-
 namespace graphics {
     class framebuffer;
     
@@ -47,10 +45,6 @@ namespace graphics {
             _name(std::to_string(handle)) {}
 
         ~texture() noexcept;
-
-        inline graphics::tokens::cmd_bind_texture createBindToken(unsigned int binding) const noexcept {
-            return graphics::tokens::cmd_bind_texture::create(_target, binding, _handle);
-        }       
 
         const graphics::texture_info& getInfo() const noexcept;
 
