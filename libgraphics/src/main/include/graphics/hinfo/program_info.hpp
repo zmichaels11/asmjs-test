@@ -8,9 +8,10 @@ namespace graphics {
     class shader;
 
     struct program_info {
-        graphics::shader ** ppShaders;
+        shader ** ppShaders;
         std::size_t shaderCount;
-        graphics::attribute_state_info * pAttributeStates;
+        attribute_state_info * pAttributeStates;
         std::size_t attributeCount;
+        unsigned int uuid;
     };
 }

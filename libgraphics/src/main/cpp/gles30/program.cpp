@@ -82,6 +82,10 @@ namespace graphics {
         return glGetUniformBlockIndex(_handle, name.c_str());
     }
 
+    void program::setUniformBlockBinding(unsigned int blockIndex, unsigned int bindingPoint) const noexcept {
+        glUniformBlockBinding(_handle, blockIndex, bindingPoint);
+    }
+
     namespace {
         void _onError(const std::string& msg) noexcept {
             std::printf("[GLES] Program error: %s\n", msg.c_str());

@@ -3,6 +3,7 @@
 #include <string>
 
 #include "graphics/hinfo/program_info.hpp"
+#include "graphics/tokens/cmd_use_program.hpp"
 
 namespace graphics {
     class program {
@@ -34,9 +35,15 @@ namespace graphics {
             _external(true),
             _name(std::to_string(handle)) {}        
 
-        ~program() noexcept;        
+        ~program() noexcept;
+
+        inline graphics::tokens::cmd_use_program createUseToken() const noexcept {
+            return graphics::tokens::cmd_use_program::create(_handle);
+        }
 
         unsigned int getUniformBlockIndex(const std::string& name) const noexcept;
+
+        void setUniformBlockBinding(unsigned int blockIndex, unsigned int bindingPoint) const noexcept;
 
         int getUniformLocation(const std::string& name) const noexcept;
 

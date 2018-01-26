@@ -3,9 +3,14 @@
 #include <string>
 
 #include "graphics/hinfo/vertex_array_info.hpp"
+#include "graphics/tokens/header.hpp"
 
-namespace graphics {    
+namespace graphics { 
+    class command_buffer;
+
     class vertex_array {
+        friend class command_buffer;
+        
         vertex_array_info _info;
         unsigned int _handle;
         bool _external;
