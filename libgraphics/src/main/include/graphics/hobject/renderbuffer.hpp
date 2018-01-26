@@ -40,6 +40,10 @@ namespace graphics {
 
         ~renderbuffer() noexcept;
 
+        inline operator unsigned int() const noexcept {
+            return _handle;
+        }
+
         void setName(const std::string& name) noexcept;   
 
         const std::string& getName() const noexcept;

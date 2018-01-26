@@ -5,6 +5,8 @@
 
 #include <vector>
 
+#include "graphics/henum/pipeline_bind_point.hpp"
+
 #include "graphics/hutil/uniform.hpp"
 
 namespace graphics {
@@ -44,13 +46,15 @@ namespace graphics {
         _bytecode = cat;
     }
 
-    void command_buffer::pushDescriptorSet() noexcept {}
+    void command_buffer::pushDescriptorSets() noexcept {}
 
     void command_buffer::bindVertexBuffers() noexcept {}
 
     void command_buffer::bindIndexBuffer() noexcept {}
 
-    void command_buffer::bindPipeline(const pipeline& pipeline) noexcept {        
+    void command_buffer::bindPipeline(
+        pipeline_bind_point bindpoint,
+        const pipeline& pipeline) noexcept {        
         
     }
 

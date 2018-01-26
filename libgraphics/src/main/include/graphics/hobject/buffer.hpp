@@ -63,7 +63,7 @@ namespace graphics {
 
         const graphics::buffer_info& getInfo() const noexcept;
 
-        inline operator int() const noexcept {
+        inline operator unsigned int() const noexcept {
             return _handle;
         }
 

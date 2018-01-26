@@ -54,9 +54,9 @@ namespace graphics {
 
         void subImage(unsigned int level, int x, int y, int z, unsigned int w, unsigned int h, unsigned int d, const pixel_info& px) const noexcept;
 
-        void subImage(unsigned int level, int x, int y, int z, const image * pImage) const noexcept;
+        void subImage(unsigned int level, int x, int y, int z, const image * pImage) const noexcept;        
 
-        inline operator int() const noexcept {
+        inline operator unsigned int() const noexcept {
             return _handle;
         }
 

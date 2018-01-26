@@ -2,6 +2,8 @@
 
 #include <vector>
 
+#include "graphics/henum/pipeline_bind_point.hpp"
+
 #include "graphics/hinfo/clear_info.hpp"
 #include "graphics/hinfo/vertex_array_info.hpp"
 
@@ -26,9 +28,9 @@ namespace graphics {
             const command_buffer * pCommandBuffers, 
             unsigned int count) noexcept;
 
-        void bindPipeline(const pipeline& pipeline) noexcept;
+        void bindPipeline(pipeline_bind_point bindpoint, const pipeline& pipeline) noexcept;
 
-        void pushDescriptorSet() noexcept;
+        void pushDescriptorSets() noexcept;
 
         void bindVertexBuffers() noexcept;
 
@@ -37,6 +39,32 @@ namespace graphics {
         void setViewport(const viewport_state_info&) noexcept;
 
         void setScissor(const scissor_state_info& info) noexcept;
+
+        //void setDepthBounds() noexcept;
+
+        //void setLineWidth() noexcept;
+
+        //void setDepthBias() noexcept;
+
+        //void setStencilCompareMask() noexcept;
+
+        //void setStencilWriteMask() noexcept;
+
+        //void setStencilReference() noexcept;
+
+        //void setBlendConstants() noexcept;
+
+        //void drawIndirect() noexcept;
+
+        //void drawIndexedIndirect() noexcept;
+
+        //void dispatch() noexcept;
+
+        //void dispatchIndirect() noexcept;        
+
+        //void pushDescriptorSet() noexcept;
+
+        //void pushConstants() noexcept;
 
         void draw(
             unsigned int vertexCount,

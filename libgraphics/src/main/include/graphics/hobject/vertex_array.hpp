@@ -42,7 +42,7 @@ namespace graphics {
 
         void bind() const noexcept;
 
-        inline operator int() const noexcept {
+        inline operator unsigned int() const noexcept {
             return _handle;
         }
 
