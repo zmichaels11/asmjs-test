@@ -35,43 +35,14 @@ namespace renderer {
         std::size_t height = 0;
 
         for (auto pSpriteInfo = info.pSpriteImages; pSpriteInfo != (info.pSpriteImages + info.spriteImageCount); pSpriteInfo++) {
-            width = std::max(width, static_cast<std::size_t> (pSpriteInfo->image.width));
-            height = std::max(height, static_cast<std::size_t> (pSpriteInfo->image.height));
+            width = std::max(width, static_cast<std::size_t> (pSpriteInfo->pImage->getWidth()));
+            height = std::max(height, static_cast<std::size_t> (pSpriteInfo->pImage->getHeight()));
         }            
 
         width = util::bestFitPowerOf2(width);
         height = util::bestFitPowerOf2(height);
-
-        auto imageSize = width * height * 4;
-        auto stagingBufferSize = imageSize * info.spriteImageCount;
-        auto stagingBuffer = std::make_unique<char[]> (stagingBufferSize);
-        auto writeBuffer = stagingBuffer.get();
+        
         std::int32_t imageId = 0;
-
-        for (auto pSpriteInfo = info.pSpriteImages; pSpriteInfo != (info.pSpriteImages + info.spriteImageCount); pSpriteInfo++) {
-            auto src = reinterpret_cast<const char *> (pSpriteInfo->image.pData);
-            auto dst = writeBuffer;
-            auto s1 = static_cast<float> (pSpriteInfo->image.width) / static_cast<float> (width);
-            auto t1 = static_cast<float> (pSpriteInfo->image.height) / static_cast<float> (height);
-
-            constexpr int scale = 4;
-            
-            auto lineSize = pSpriteInfo->image.width * scale;
-            
-            for (int i = 0; i < pSpriteInfo->image.height; i++) {
-                auto srcOff = i * pSpriteInfo->image.width;
-                auto dstOff = i * width;
-                auto lineSrc = src + srcOff * scale;
-                auto lineDst = dst + dstOff * scale;
-
-                std::memcpy(lineDst, lineSrc, lineSize);
-            }
-
-            pResources->spriteRefs.push_back({imageId, 0, 0, util::unorm<std::uint16_t>(s1), util::unorm<std::uint16_t>(t1)});
-            imageId++;
-
-            writeBuffer += imageSize;
-        }
 
         auto samplerInfo = graphics::sampler_info::defaults();
 
@@ -84,11 +55,11 @@ namespace renderer {
             {{width, height, 1}, 
             info.spriteImageCount, 1, 
             samplerInfo, 
-            graphics::internal_format::RGBA8});
+            graphics::internal_format::RGBA8});                
 
-        auto pixelInfo = graphics::pixel_info{graphics::pixel_type::UNSIGNED_BYTE, graphics::pixel_format::RGBA, stagingBuffer.get()};
-
-        texture.subImage(0, 0, 0, 0, width, height, info.spriteImageCount, pixelInfo);
+        for (auto pSpriteInfo = info.pSpriteImages; pSpriteInfo != (info.pSpriteImages + info.spriteImageCount); pSpriteInfo++) {
+            texture.subImage(0, 0, 0, imageId++, pSpriteInfo->pImage);
+        }            
 
         std::swap(pResources->texture, texture);
 
