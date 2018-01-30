@@ -1,0 +1,149 @@
+model {
+    repositories {
+        libs (PrebuiltLibraries) {            
+            angle {
+                headers.srcDir file(projectDir.path + '/../../share/src/angle/include')
+                binaries.withType(SharedLibraryBinary) { binary ->                    
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        if (binary.flavor == flavors.GLES20 || binary.flavor == flavors.GLES30) {
+                            switch (binary.targetPlatform.architecture.name) {
+                                case 'x86':
+                                case 'i386':
+                                case 'ia-32':
+                                case 'i686':
+                                    sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows32/angle/libGLESv2.dll')
+                                    break
+                                case 'x86_64':
+                                case 'amd64':
+                                case 'x64':
+                                case 'x86-64':
+                                    sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/angle/libGLESv2.dll')
+                                    break
+                                default:
+                                    sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
+                                    break
+                            }                            
+                        } else {
+                            sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
+                        }
+                    } else {
+                        sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.so')
+                    }
+                }
+            }
+            
+            glfw3 {
+				headers.srcDir file(projectDir.path + '/../../share/src/glfw3/include')
+				binaries.withType(SharedLibraryBinary) { binary ->					
+					if (binary.targetPlatform.operatingSystem.windows) {
+                        switch (binary.targetPlatform.architecture.name) {
+                            case 'x86':
+                            case 'i386':
+                            case 'i686':
+                            case 'ia-32':
+                                sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows32/glfw3/glfw3.dll')
+                                break
+                            case 'x86_64':
+                            case 'amd64':
+                            case 'x64':
+                            case 'x86-64':
+						        sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/glfw3/glfw3.dll')
+                                break
+                            default:
+                                sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
+                                break
+                        }
+					} else {
+                        sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.so')
+                    }
+				}
+			}
+
+            openal_soft {
+                headers.srcDir file(projectDir.path + '/../../share/src/openal-soft/include')
+                binaries.withType(SharedLibraryBinary) { binary ->                    
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        switch (binary.targetPlatform.architecture.name) {
+                            case 'x86':
+                            case 'i386':
+                            case 'i686':
+                            case 'ia-32':
+                                sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows32/openal-soft/OpenAL32.dll')
+                                break
+                            case 'x86_64':
+                            case 'amd64':
+                            case 'x64':
+                            case 'x86-64':                                
+                                sharedLibraryFile = file(projectDir.path + '/../../share/bin/windows64/openal-soft/OpenAL32.dll')
+                                break
+                            default:
+                                sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.dll')
+                                break
+                        }
+                    } else {
+                        sharedLibraryFile = file(projectDir.path + '/../../share/bin/dummy.so')
+                    }
+                }
+            }
+        }
+    }
+
+    flavors {
+        GLES20
+        GLES30
+        GL
+    }
+
+    components {
+        sprites(NativeExecutableSpec) {
+            targetPlatform 'asmjs'
+            targetPlatform 'binaryen'
+            targetPlatform 'linux32'
+            targetPlatform 'linux64'
+            targetPlatform 'windows32'
+            targetPlatform 'windows64'
+
+            sources {
+                cpp {                    
+                    lib library: 'glfw3'
+                    lib library: 'openal_soft'
+                    lib library: 'angle'                                        
+                    lib project: ':libengine', library: 'engine', linkage: 'static'
+                    lib project: ':libaudio', library: 'audio', linkage: 'static'
+                    lib project: ':libgraphics', library: 'graphics', linkage: 'static'
+
+                    source {
+                        srcDir 'src/main/cpp'
+                        include '**/*.cpp'
+                    }
+
+                    exportedHeaders {
+                        srcDirs '../share/src/main/include', 'src/main/include'
+                        include '**/*.hpp'
+                    }
+                }
+            }
+
+            binaries.all {  
+                if (flavor == flavors.GLES20) {
+                    cppCompiler.define 'GLES20'
+                } else if (flavor == flavors.GLES30) {
+                    if (toolChain.name == 'emscripten') {
+                        cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
+                        linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
+                    } else if (targetPlatform.operatingSystem.linux) {
+                        linker.args '-lopenal', '-lGL', '-lglfw', '-lGLEW'
+                    } else if (targetPlatform.operatingSystem.windows) {
+                        // already included
+                    }
+                } else if (flavor == flavors.GL) {
+                    if (targetPlatform.operatingSystem.linux) {
+                        linker.args '-lopenal', '-lGL', '-lglfw', '-lGLEW'
+                    } else if (targetPlatform.operatingSystem.windows) {
+                        linker.args '-lopengl32'
+                    }
+                }
+            }
+        }
+    }
+}

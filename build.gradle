@@ -25,10 +25,22 @@ task runBackgroundTestAsmjsWebGL2(type: Exec) {
 	args 'tests/background/build/exe/background/asmjs/gLES30/background.html'
 }
 
+task runSpriteTestAsmjsWebGL2(type: Exec) {
+	dependsOn ':tests:sprites:spritesAsmjsGLES30Executable'
+	executable 'firefox'
+	args 'tests/sprites/build/exe/sprites/asmjs/gLES30/sprites.html'
+}
+
 task runBackgroundTestBinaryenWebGL2(type: Exec) {
 	dependsOn ':tests:background:backgroundBinaryenGLES30Executable'
 	executable 'firefox'
 	args 'tests/background/build/exe/background/binaryen/gLES30/background.html'
+}
+
+task runSpriteTestBinaryenWebGL2(type: Exec) {
+	dependsOn ':tests:sprites:spritesBinaryenGLES30Executable'
+	executable 'firefox'
+	args 'tests/sprites/build/exe/sprites/binaryen/gLES30/sprites.html'
 }
 
 task runBackgroundTestWindows64GL(type: Exec) {	
@@ -36,6 +48,14 @@ task runBackgroundTestWindows64GL(type: Exec) {
 	dependsOn ':tests:background:backgroundWindows64GLExecutable'
 	workingDir 'bin'
 	executable '../tests/background/build/exe/background/windows64/gL/background.exe'
+	args ''
+}
+
+task runSpriteTestWindows64GL(type: Exec) {
+	dependsOn ':installWindows64Data'
+	dependsOn ':tests:sprites:spritesWindows64GLExecutable'
+	workingDir 'bin'
+	executable '../tests/sprites/build/exe/sprites/windows64/gL/sprites.exe'
 	args ''
 }
 
@@ -47,9 +67,23 @@ task runBackgroundTestWindows64GLES30(type: Exec) {
 	args ''
 }
 
+task runSpriteTestWindows64GLES30(type: Exec) {
+	dependsOn ':installWindows64Data'
+	dependsOn ':tests:sprites:spritesWindows64GLES30Executable'
+	workingDir 'bin'
+	executable '../tests/sprites/build/exe/sprites/windows64/gLES30/sprites.exe'
+	args ''
+}
+
 task runBackgroundTestLinux64GL(type: Exec) {
 	dependsOn ':tests:background:backgroundLinux64GLExecutable'	
 	executable 'tests/background/build/exe/background/linux64/gL/background'
+	args ''
+}
+
+task runSpriteTestLinux64GL(type: Exec) {
+	dependsOn ':tests:sprites:spritesLinux64GLExecutable'
+	executable 'tests/sprites/build/exe/sprites/linux64/gL/sprites'
 	args ''
 }
 
@@ -59,14 +93,32 @@ task runBackgroundTestLinux64GLES30(type: Exec) {
 	args ''
 }
 
+task runSpriteTestLinux64GLES30(type: Exec) {
+	dependsOn ':tests:sprites:spritesLinux64GLES30Executable'
+	executable 'tests/sprites/build/exe/sprites/linux64/gLES30/sprites'
+	args ''
+}
+
 task debugBackgroundTestLinux64GL(type: Exec) {
 	dependsOn ':tests:background:backgroundLinux64GLExecutable'
 	executable 'valgrind'
 	args 'tests/background/build/exe/background/linux64/gL/background'
 }
 
+task debugSpriteTestLinux64GL(type: Exec) {
+	dependsOn ':tests:sprites:spritesLinux64GLExecutable'
+	executable 'valgrind'
+	args 'tests/sprites/build/exe/sprites/linux64/gL/sprites'
+}
+
 task debugBackgroundTestLinux64GLES30(type: Exec) {
 	dependsOn ':tests:background:backgroundLinux64GLES30Executable'
 	executable 'valgrind'
 	args 'tests/background/build/exe/background/linux64/gLES30/background'
+}
+
+task debugSpriteTestLinux64GLES30(type: Exec) {
+	dependsOn ':tests:sprites:spritesLinux64GLES30Executable'
+	executable 'valgrind'
+	args 'tests/sprites/build/exe/sprites/linux64/gLES30/sprites'
 }
