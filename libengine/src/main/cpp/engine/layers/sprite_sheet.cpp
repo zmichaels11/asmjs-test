@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <memory>
+#include <utility>
 
 #include "engine/image_cache.hpp"
 #include "engine/layers/image_view.hpp"
@@ -107,7 +108,8 @@ namespace engine {
                 }
                 
                 _sprites = std::make_unique<image_view[]> (_info.imageCount);
-                _texture = graphics::texture(graphics::texture_info{
+                
+                auto newTexture = graphics::texture(graphics::texture_info{
                     {width, height, 1},
                     _info.imageCount,
                     levelCount,
@@ -115,22 +117,23 @@ namespace engine {
                     graphics::internal_format::RGBA8
                 });
 
+                std::swap(_texture, newTexture);
+
                 unsigned int currentLayer = 0;
 
                 for (decltype(_info.imageCount) i = 0; i < _info.imageCount; i++) {
-                    auto pImage = _info.ppImages[i];
-                    auto pixelInfo = graphics::pixel_info{
-                        graphics::pixel_type::UNSIGNED_BYTE,
-                        graphics::pixel_format::RGBA,
-                        const_cast<void*> (pImage->getData())};
+                    auto pImage = _info.ppImages[i];                    
                     auto w = pImage->getWidth();
                     auto h = pImage->getHeight();
                     auto sw = static_cast<float> (w) / static_cast<float> (width);
                     auto sh = static_cast<float> (h) / static_cast<float> (height);
 
-                    _sprites[currentLayer] = {static_cast<float> (currentLayer), util::unorm<std::uint16_t> (sw), util::unorm<std::uint16_t> (sh)};                    
-                    _texture.subImage(0, 0, 0, currentLayer, w, h, 1, pixelInfo);
-                    currentLayer++;
+                    _sprites[currentLayer] = {
+                        static_cast<float> (currentLayer), 
+                        util::unorm<std::uint16_t> (sw), 
+                        util::unorm<std::uint16_t> (sh)};
+
+                    _texture.subImage(0, 0, 0, currentLayer++, pImage);
                 }
             }
 
