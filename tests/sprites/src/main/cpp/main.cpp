@@ -9,6 +9,7 @@
 
 #include "graphics/image.hpp"
 
+#include "engine/layers/basic_sprite_layer_info.hpp"
 #include "engine/layers/scene_info.hpp"
 #include "engine/layers/scene_layer_info.hpp"
 #include "engine/layers/sprite_sheet_info.hpp"
@@ -37,14 +38,26 @@ int main(int argc, char** argv) {
         engine::layers::sprite_sheet_hint::LAYERED
     });
 
-    auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();    
+    auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
+    auto spriteInfo = engine::layers::basic_sprite_layer_info{256, engine::layers::write_hint::OFTEN, 0};    
+    auto spriteLayerInfo = engine::layers::scene_layer_info::init(spriteInfo);
+
+    spriteLayerInfo.ext = {
+        engine::layers::scene_layer_hint::CLEAR,
+        {
+            engine::layers::clear_type::COLOR,
+            engine::layers::color::rgb(20, 80, 120)
+        }};
+
+    pLayerInfos.push_back(spriteLayerInfo);
+    
 
     auto sceneInfo = engine::layers::scene_info{
         {
             pSpritesheetInfos.data(), pSpritesheetInfos.size(), 
             nullptr, 0, 
             nullptr, 0},
-            
+
         pLayerInfos.data(), pLayerInfos.size()};
     
     engine::application::setScene(sceneInfo);    

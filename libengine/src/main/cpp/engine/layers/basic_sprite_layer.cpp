@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <string>
+#include <utility>
 
 #include "graphics/buffer.hpp"
 #include "graphics/operation.hpp"
@@ -170,10 +171,12 @@ namespace engine {
 
                 auto vertexDataSize = info.maxSprites * sizeof(basic_sprite_slot);
 
-                _vbo = graphics::buffer(graphics::buffer_info{
+                auto newVbo = graphics::buffer(graphics::buffer_info{
                     graphics::buffer_target::ARRAY,
                     usage,
-                    {nullptr, vertexDataSize}});                
+                    {nullptr, vertexDataSize}});
+
+                std::swap(_vbo, newVbo);
 
                 graphics::vertex_attribute_description attributes[] = {
                     {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},
@@ -185,10 +188,12 @@ namespace engine {
                 graphics::vertex_binding_description bindings[] = {
                     {0, sizeof(basic_sprite_slot), 1, &_vbo, 0}};
 
-                _vao = graphics::vertex_array(graphics::vertex_array_info{
+                auto newVao = graphics::vertex_array(graphics::vertex_array_info{
                     attributes, 5,
                     bindings, 1,
                     nullptr});
+
+                std::swap(_vao, newVao);
 
                 if (!_program) {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
@@ -203,9 +208,11 @@ namespace engine {
                         {"vFrameIndex", 3},
                         {"vFrameSize", 4}};
 
-                    _program = graphics::program(graphics::program_info{
+                    auto newProgram = graphics::program(graphics::program_info{
                         shaders, 2,
                         attributes, 5});
+
+                    std::swap(_program, newProgram);
 
                     _uProjection = _program.getUniformLocation("uProjection");
                     _uImage = _program.getUniformLocation("uImage");

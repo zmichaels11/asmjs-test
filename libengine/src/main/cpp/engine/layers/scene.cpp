@@ -153,8 +153,7 @@ namespace engine {
                                 util::normalize(it->ext.clear.clearColor.b),
                                 util::normalize(it->ext.clear.clearColor.a)},
                             it->ext.clear.clearDepth,
-                            it->ext.clear.clearStencil
-                        };
+                            it->ext.clear.clearStencil};                        
 
                         _renderCommands.push_back(std::bind(&graphics::apply<graphics::clear_state_info>, clearStateInfo));
                     }
@@ -193,6 +192,11 @@ namespace engine {
                             _layers.push_back({
                                 *it, 
                                 std::make_unique<basic_image_layer> (_context, it->info.basicImageLayer)});
+                        } break;
+                        case layer_type::BASIC_SPRITE_LAYER: {
+                            _layers.push_back({
+                                *it,
+                                std::make_unique<basic_sprite_layer> (_context, it->info.basicSpriteLayer)});
                         } break;
                         default: 
                             _onError("Invalid layer_type!");                        
