@@ -1,8 +1,8 @@
-#ifdef GL
+#if defined(GL)
 
 #include "graphics/hutil/draw.hpp"
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
 namespace graphics {    
     void draw::arrays(draw_mode mode, int first, std::size_t count) noexcept {

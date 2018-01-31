@@ -1,4 +1,4 @@
-#ifdef GLES30
+#if defined(GLES30)
 
 #include "graphics/hobject/renderbuffer.hpp"
 

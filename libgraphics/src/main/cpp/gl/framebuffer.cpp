@@ -1,11 +1,11 @@
-#ifdef GL
+#if defined(GL)
 
 #include "graphics/hobject/framebuffer.hpp"
 
-#include "GL/glew.h"
-
 #include <cstddef>
 #include <cstdio>
+
+#include <GL/glew.h>
 
 #include <string>
 

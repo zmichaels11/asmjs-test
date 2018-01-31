@@ -1,10 +1,10 @@
-#ifdef GL
+#if defined(GL)
 
 #include "graphics/hobject/buffer.hpp"
 
-#include "GL/glew.h"
-
 #include <cstdio>
+
+#include <GL/glew.h>
 
 #include <string>
 

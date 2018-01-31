@@ -1,4 +1,4 @@
-#ifdef GLES30
+#if defined(GLES30)
 
 #include "graphics/hstate/blend_state_info.hpp"
 

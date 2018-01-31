@@ -1,11 +1,11 @@
-#ifdef GLES30
+#if defined(GLES30)
 
 #include "graphics/hobject/framebuffer.hpp"
 
-#include <GLES3/gl3.h>
-
 #include <cstddef>
 #include <cstdio>
+
+#include <GLES3/gl3.h>
 
 #include <string>
 

@@ -1,4 +1,4 @@
-#ifdef GLES30
+#if defined(GLES30)
 
 #include "graphics/hstate/pixel_store_state_info.hpp"
 

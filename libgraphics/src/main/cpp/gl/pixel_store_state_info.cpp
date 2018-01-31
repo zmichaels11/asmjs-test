@@ -1,8 +1,8 @@
-#ifdef GL
+#if defined(GL)
 
 #include "graphics/hstate/pixel_store_state_info.hpp"
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
 namespace graphics {
     template<>

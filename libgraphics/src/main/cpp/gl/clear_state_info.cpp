@@ -1,8 +1,8 @@
-#ifdef GL
+#if defined(GL)
 
 #include "graphics/hstate/clear_state_info.hpp"
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
 #include "graphics/hbitfield/clear_buffer.hpp"
 

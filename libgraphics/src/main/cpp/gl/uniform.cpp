@@ -1,10 +1,10 @@
-#ifdef GL
+#if defined(GL)
 
 #include "graphics/hutil/uniform.hpp"
 
 #include <cstddef>
 
-#include "GL/glew.h"
+#include <GL/glew.h>
 
 namespace graphics {
     void uniform::setUniform1(int location, std::size_t count, const unsigned int * value) noexcept {

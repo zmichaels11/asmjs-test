@@ -16,5 +16,5 @@ namespace graphics {
     };
 
     template<>
-    void apply(const graphics::clear_state_info& info) noexcept;
+    void apply(const clear_state_info& info) noexcept;
 }

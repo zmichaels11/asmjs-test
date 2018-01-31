@@ -1,9 +1,9 @@
-#ifdef GL
+#if defined(GL)
 #include "graphics.hpp"
 
-#include <GL/glew.h>
-
 #include <cstdio>
+
+#include <GL/glew.h>
 
 #include <string>
 

@@ -1,10 +1,10 @@
-#ifdef GLES30
+#if defined(GLES30)
 
 #include "graphics/hobject/texture.hpp"
 
-#include <GLES3/gl3.h>
-
 #include <cstdio>
+
+#include <GLES3/gl3.h>
 
 #include <string>
 
