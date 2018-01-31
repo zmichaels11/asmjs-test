@@ -1,4 +1,4 @@
-#version 330 core
+#version 300 es
 
 in vec2 vUpperLeft;
 in vec2 vUpperRight;
