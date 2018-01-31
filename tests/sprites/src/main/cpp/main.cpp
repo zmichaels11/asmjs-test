@@ -1,9 +1,13 @@
 #include <cstdio>
 
 #include <memory>
+#include <random>
 #include <sstream>
 #include <utility>
 #include <vector>
+
+#include "math/vec2.hpp"
+#include "math/mat4.hpp"
 
 #include "engine/application.hpp"
 
@@ -17,19 +21,28 @@
 
 constexpr unsigned int MAX_SPRITES = 256;
 constexpr unsigned int FRAME_COUNT = 10;
+constexpr unsigned int SCREEN_WIDTH = 640;
+constexpr unsigned int SCREEN_HEIGHT = 480;
+constexpr float SPRITE_WIDTH = 32.0F;
+constexpr float SPRITE_HEIGHT = 64.0F;
 
 struct sprite_test_data {
     engine::layers::basic_sprite_slot ** ppSpriteSlots;
     engine::layers::image_view frames[FRAME_COUNT];
+
+    struct sprite_data_t {
+        math::vec2 pos, vel;
+        int frameID;        
+    } sprites[MAX_SPRITES];
 };
 
 int main(int argc, char** argv) {
-    engine::application::init({"Background Test", {640, 480}, {1, 0}, engine::application_hint::VSYNC});
+    engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, engine::application_hint::VSYNC});
             
     auto pSpriteImages = std::vector<std::unique_ptr<graphics::image>>();
     auto ppSpriteImages = std::vector<graphics::image*>();
 
-    for (int i = 0; i < FRAME_COUNT; i++) {
+    for (unsigned int i = 0; i < FRAME_COUNT; i++) {
         auto imgName = std::stringstream();
 
         imgName << "data/images/duke/duke" << i << ".png";
@@ -48,7 +61,7 @@ int main(int argc, char** argv) {
     });
 
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
-    auto spriteInfo = engine::layers::basic_sprite_layer_info{256, engine::layers::write_hint::OFTEN, 0};    
+    auto spriteInfo = engine::layers::basic_sprite_layer_info{MAX_SPRITES, engine::layers::write_hint::OFTEN, 0};    
     auto spriteLayerInfo = engine::layers::scene_layer_info::init(spriteInfo);
 
     spriteLayerInfo.ext = {
@@ -67,25 +80,42 @@ int main(int argc, char** argv) {
             nullptr, 0, 
             nullptr, 0},
 
-        pLayerInfos.data(), pLayerInfos.size()};        
+        pLayerInfos.data(), pLayerInfos.size()};
 
-    engine::application::setOnUpdate([](auto pUserData) {        
-        static int frameID = 0;        
-        
+    std::random_device rd;    
+    std::mt19937 mt(rd());
+    std::uniform_real_distribution<double> xdist(0.0, SCREEN_WIDTH);
+    std::uniform_real_distribution<double> ydist(0.0, SCREEN_HEIGHT);
+    std::uniform_int_distribution<int> fdist(0, FRAME_COUNT);
+    std::uniform_real_distribution<double> vdist(-1.0, 1.0);
+
+    engine::application::setOnUpdate([&](auto pUserData) {        
         auto pSpriteTestData = reinterpret_cast<sprite_test_data * > (pUserData);
         auto pSpriteSlots = *pSpriteTestData->ppSpriteSlots;
-                
-        pSpriteSlots[0].shape = {
-            {16, 16},
-            {48, 16},
-            {16, 16 + 64}};        
-        
-        pSpriteSlots[0].view = pSpriteTestData->frames[frameID]; 
 
-        frameID = (frameID + 1) % FRAME_COUNT;
+        for (unsigned int i = 0; i < MAX_SPRITES; i++) {
+            auto pSprite = pSpriteTestData->sprites + i;
+            auto pSlot = pSpriteSlots + i;
+
+            pSlot->shape = engine::layers::parallelogram<float>::quad(pSprite->pos.x, pSprite->pos.y, SPRITE_WIDTH, SPRITE_HEIGHT);
+            pSlot->view = pSpriteTestData->frames[pSprite->frameID];
+
+            pSprite->pos += pSprite->vel;
+            pSprite->frameID = (pSprite->frameID+1) % FRAME_COUNT;
+
+            if (pSprite->pos.x > static_cast<float> (SCREEN_WIDTH) 
+                || pSprite->pos.x < -SPRITE_WIDTH 
+                || pSprite->pos.y > static_cast<float> (SCREEN_HEIGHT)
+                || pSprite->pos.y < -SPRITE_HEIGHT) {
+
+                pSprite->pos = math::vec2(
+                    static_cast<float> (xdist(mt)),
+                    static_cast<float> (ydist(mt)));
+            }
+        }
     });
 
-    engine::application::setOnInit([](auto pUserData) {
+    engine::application::setOnInit([&](auto pUserData) {
         auto pScene = engine::application::getScene();
         auto pLayer = dynamic_cast<engine::layers::basic_sprite_layer * > (pScene->getLayer(0));
         auto pSpriteTestData = reinterpret_cast<sprite_test_data * > (pUserData);
@@ -98,7 +128,21 @@ int main(int argc, char** argv) {
             pSpriteTestData->frames[i] = view;
         }
 
-        pLayer->setProjection(math::mat4::ortho(0, 640, 480, 0, 0, 1));
+        for (unsigned int i = 0; i < MAX_SPRITES; i++) {
+            auto pSprite = pSpriteTestData->sprites + i;
+
+            pSprite->pos = math::vec2(
+                static_cast<float> (xdist(mt)), 
+                static_cast<float> (ydist(mt)));
+
+            pSprite->vel = math::vec2(
+                static_cast<float> (vdist(mt)),
+                static_cast<float> (vdist(mt)));
+
+            pSprite->frameID = fdist(mt);
+        }
+
+        pLayer->setProjection(math::mat4::ortho(0, SCREEN_WIDTH, SCREEN_HEIGHT, 0, 0, 1));
     });    
 
     engine::application::setUserData(std::make_shared<sprite_test_data> ());

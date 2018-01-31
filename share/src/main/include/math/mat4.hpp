@@ -10,9 +10,9 @@ namespace math {
     struct mat4 {
         vec4 a, b, c, d;
 
-        constexpr mat4() : a(), b(), c(), d() {}
+        constexpr mat4() noexcept: a(), b(), c(), d() {}
 
-        constexpr mat4(vec4 a, vec4 b, vec4 c, vec4 d) : 
+        constexpr mat4(vec4 a, vec4 b, vec4 c, vec4 d) noexcept: 
 
         a(a), 
         b(b), 
@@ -23,21 +23,21 @@ namespace math {
             float ax, float ay, float az, float aw,
             float bx, float by, float bz, float bw,
             float cx, float cy, float cz, float cw,
-            float dx, float dy, float dz, float dw) :
+            float dx, float dy, float dz, float dw) noexcept:
             
             a(ax, ay, az, aw),
             b(bx, by, bz, bw),
             c(cx, cy, cz, cw),
             d(dx, dy, dz, dw) {}
 
-        constexpr void data(float * ptr) const {
+        constexpr void data(float * ptr) const noexcept {
             a.data(ptr);
             b.data(ptr+4);
             c.data(ptr+8);
             d.data(ptr+12);
         }
 
-        constexpr vec4& operator[] (std::size_t idx) {
+        constexpr vec4& operator[] (std::size_t idx) noexcept {
             switch (idx) {
                 case 0:
                     return a;
@@ -52,7 +52,7 @@ namespace math {
             }
         }
 
-        constexpr const vec4& operator[] (std::size_t idx) const {
+        constexpr const vec4& operator[] (std::size_t idx) const noexcept {
             switch (idx) {
                 case 0:
                     return a;
@@ -67,15 +67,15 @@ namespace math {
             }
         } 
 
-        constexpr mat4 operator+ (mat4 other) const {
+        constexpr mat4 operator+ (mat4 other) const noexcept {
             return mat4(a + other.a, b + other.b, c + other.c, d + other.d);
         }
 
-        constexpr mat4 operator- (mat4 other) const {
+        constexpr mat4 operator- (mat4 other) const noexcept {
             return mat4(a - other.a, b - other.b, c - other.c, d - other.d);
         }
 
-        constexpr mat4 transpose() const {
+        constexpr mat4 transpose() const noexcept {
             return mat4(
                 a.x, b.x, c.x, d.x,
                 a.y, b.y, c.y, d.y,
@@ -83,7 +83,7 @@ namespace math {
                 a.w, b.w, c.w, d.w);
         }
 
-        constexpr mat4 operator* (mat4 m) const {
+        constexpr mat4 operator* (mat4 m) const noexcept {
             return mat4(
                 a.x * m.a.x + b.x * m.a.y + c.x * m.a.z + d.x * m.a.w,
                 a.y * m.a.x + b.y * m.a.y + c.y * m.a.z + d.y * m.a.w,
@@ -106,7 +106,7 @@ namespace math {
                 a.w * m.d.x + b.w * m.d.y + c.w * m.d.z + d.w * m.d.w);
         }
 
-        constexpr vec4 operator* (vec4 v) const {
+        constexpr vec4 operator* (vec4 v) const noexcept {
             return vec4(
                 a.x * v.x + b.x * v.y + c.x * v.z + d.x * v.w,
                 a.y * v.x + b.y * v.y + c.y * v.z + d.y * v.w,
@@ -114,7 +114,7 @@ namespace math {
                 a.w * v.x + b.w * v.y + c.w * v.z + d.w * v.w);
         }  
         
-        static constexpr mat4 translation(float x, float y, float z, float w) {
+        static constexpr mat4 translation(float x, float y, float z, float w) noexcept {
             return mat4(
                 1.0F, 0.0F, 0.0F, 0.0F,
                 0.0F, 1.0F, 0.0F, 0.0F,
@@ -122,11 +122,11 @@ namespace math {
                 x, y, z, w);
         }
 
-        static constexpr mat4 translation(vec4 tv) {
+        static constexpr mat4 translation(vec4 tv) noexcept {
             return translation(tv.x, tv.y, tv.z, tv.w);
         }
 
-        static constexpr mat4 scale(float sx, float sy, float sz, float sw) {
+        static constexpr mat4 scale(float sx, float sy, float sz, float sw) noexcept {
             return mat4(
                 sx, 0.0F, 0.0F, 0.0F,
                 0.0F, sy, 0.0F, 0.0F,
@@ -134,19 +134,19 @@ namespace math {
                 0.0F, 0.0F, 0.0F, sw);
         }
 
-        static constexpr mat4 zero() {
+        static constexpr mat4 zero() noexcept {
             return scale(0.0F, 0.0F, 0.0F, 0.0F);
         }
 
-        static constexpr mat4 identity() {
+        static constexpr mat4 identity() noexcept {
             return scale(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
-        static constexpr mat4 scale(vec4 sv) {
+        static constexpr mat4 scale(vec4 sv) noexcept {
             return scale(sv.x, sv.y, sv.z, sv.w);
         }
 
-        static constexpr mat4 ortho(float left, float right, float bottom, float top, float near, float far) {
+        static constexpr mat4 ortho(float left, float right, float bottom, float top, float near, float far) noexcept {
             return mat4(
                 2.0F / (right - left), 0.0F, 0.0F, 0.0F,
                 0.0F, 2.0F / (top - bottom), 0.0F, 0.0F,
@@ -155,7 +155,7 @@ namespace math {
         }
 
         private:
-            static constexpr mat4 _perspective(float fov, float aspect, float near, float far) {
+            static constexpr mat4 _perspective(float fov, float aspect, float near, float far) noexcept {
                 return mat4(
                     fov / aspect, 0.0F, 0.0F, 0.0F,
                     0.0F, fov, 0.0F, 0.0F,
@@ -163,7 +163,7 @@ namespace math {
                     0.0F, 0.0F, (2.0F * far * near) / (near - far), 0.0F);
             }
 
-            static constexpr mat4 _rotateZ(float sa, float ca) {
+            static constexpr mat4 _rotateZ(float sa, float ca) noexcept {
                 return mat4(
                     ca, sa, 0.0F, 0.0F,
                     -sa, ca, 0.0F, 0.0F,
@@ -171,7 +171,7 @@ namespace math {
                     0.0F, 0.0F, 0.0F, 1.0F);
             }
 
-            static constexpr mat4 _rotateY(float sa, float ca) {
+            static constexpr mat4 _rotateY(float sa, float ca) noexcept {
                 return mat4(
                     ca, 0.0F, -sa, 0.0F,
                     0.0F, 1.0F, 0.0F, 0.0F,
@@ -179,7 +179,7 @@ namespace math {
                     0.0F, 0.0F, 0.0F, 1.0F);
             }
 
-            static constexpr mat4 _rotateX(float sa, float ca) {
+            static constexpr mat4 _rotateX(float sa, float ca) noexcept {
                 return mat4(
                     1.0F, 0.0F, 0.0F, 0.0F,
                     0.0F, ca, sa, 0.0F,
@@ -188,23 +188,23 @@ namespace math {
             }
 
         public:            
-            static inline mat4 perspective(float fov, float aspect, float near, float far) {
+            static inline mat4 perspective(float fov, float aspect, float near, float far) noexcept {
                 return _perspective(std::tan(fov * 0.5F), aspect, near, far);
             }
 
-            static inline mat4 rotateX(float angle) {
+            static inline mat4 rotateX(float angle) noexcept {
                 return _rotateX(std::sin(angle), std::cos(angle));
             }
 
-            static inline mat4 rotateY(float angle) {
+            static inline mat4 rotateY(float angle) noexcept {
                 return _rotateY(std::sin(angle), std::cos(angle));
             }
 
-            static inline mat4 rotateZ(float angle) {
+            static inline mat4 rotateZ(float angle) noexcept {
                 return _rotateZ(std::sin(angle), std::cos(angle));
             }
 
-            static inline mat4 lookat(vec3 eye, vec3 center, vec3 up) {
+            static inline mat4 lookat(vec3 eye, vec3 center, vec3 up) noexcept {
                 auto forward = (center - eye).normalize();
                 auto side = vec3::cross(forward, up).normalize();                
                 up = side * forward;
