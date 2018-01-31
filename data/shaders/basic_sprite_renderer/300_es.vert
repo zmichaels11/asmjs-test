@@ -1,5 +1,6 @@
 #version 300 es
 
+in vec2 vSelect;
 in vec2 vUpperLeft;
 in vec2 vUpperRight;
 in vec2 vLowerLeft;
@@ -11,27 +12,13 @@ out vec3 fTexCoord;
 uniform mat4 uProjection;
 
 void main() {
-    vec2 vLowerRight = vUpperRight + (vLowerLeft - vUpperLeft);
-    vec4 select;
+    vec2 vLowerRight = vUpperRight + (vLowerLeft - vUpperLeft);    
 
-    switch (gl_VertexID) {
-        case 0: 
-            select = vec4(vUpperLeft, 0.0, 1.0);
-            fTexCoord = vec3(0.0, 0.0, vFrameIndex);
-            break;
-        case 1:
-            select = vec4(vLowerLeft, 0.0, 1.0);
-            fTexCoord = vec3(0.0, vFrameSize.y, vFrameIndex);
-            break;
-        case 2:
-            select = vec4(vUpperRight, 0.0, 1.0);
-            fTexCoord = vec3(vFrameSize.x, 0.0, vFrameIndex);
-            break;
-        case 3:
-            select = vec4(vLowerRight, 0.0, 1.0);
-            fTexCoord = vec3(vFrameSize, vFrameIndex);
-            break;
+    if (vSelect.x < 0.5) {
+        gl_Position = uProjection * vec4(mix(vUpperLeft, vLowerLeft, vSelect.y), 0.0, 1.0);
+    } else {
+        gl_Position = uProjection * vec4(mix(vUpperRight, vLowerRight, vSelect.y), 0.0, 1.0);
     }
 
-    gl_Position = uProjection * select;
+    fTexCoord = vec3(mix(vec2(0.0), vFrameSize, vSelect), vFrameIndex);
 }

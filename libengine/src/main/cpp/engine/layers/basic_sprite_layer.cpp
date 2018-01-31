@@ -5,6 +5,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "graphics/buffer.hpp"
 #include "graphics/operation.hpp"
@@ -35,6 +36,7 @@ namespace engine {
 
                 float _projection[16];
 
+                graphics::buffer _select;
                 graphics::buffer _vbo;
                 graphics::vertex_array _vao;
 
@@ -169,30 +171,49 @@ namespace engine {
                         break;
                 }
 
-                auto vertexDataSize = info.maxSprites * sizeof(basic_sprite_slot);
+                {
+                    auto vertexDataSize = info.maxSprites * sizeof(basic_sprite_slot);
 
-                auto newVbo = graphics::buffer(graphics::buffer_info{
-                    graphics::buffer_target::ARRAY,
-                    usage,
-                    {nullptr, vertexDataSize}});
+                    auto newVbo = graphics::buffer(graphics::buffer_info{
+                        graphics::buffer_target::ARRAY,
+                        usage,
+                        {nullptr, vertexDataSize}});
 
-                std::swap(_vbo, newVbo);
+                    std::swap(_vbo, newVbo);
+                }
+
+                {
+                    float select[] = {
+                        0.0F, 0.0F,
+                        0.0F, 1.0F,
+                        1.0F, 0.0F,
+                        1.0F, 1.0F};
+
+                    auto newSelect = graphics::buffer({
+                        graphics::buffer_target::ARRAY,
+                        graphics::buffer_usage::STATIC_DRAW,
+                        {select, sizeof(float) * 8}});
+
+                    std::swap(_select, newSelect);
+                }
 
                 //TODO: ANGLE requires the first vertex to not be instanced. This needs to be rewritten a bit.
 
                 graphics::vertex_attribute_description attributes[] = {
                     {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},
-                    {1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0},
-                    {2, graphics::vertex_format::X32Y32_SFLOAT, 16, 0},
-                    {3, graphics::vertex_format::X32_SFLOAT, 24, 0},
-                    {4, graphics::vertex_format::X16Y16_UNORM, 28, 0}};
+                    {1, graphics::vertex_format::X32Y32_SFLOAT, 0, 1},
+                    {2, graphics::vertex_format::X32Y32_SFLOAT, 8, 1},
+                    {3, graphics::vertex_format::X32Y32_SFLOAT, 16, 1},
+                    {4, graphics::vertex_format::X32_SFLOAT, 24, 1},
+                    {5, graphics::vertex_format::X16Y16_UNORM, 28, 1}};
 
                 graphics::vertex_binding_description bindings[] = {
-                    {0, sizeof(basic_sprite_slot), 1, &_vbo, 0}};
+                    {0, 0, 0, &_select, 0},
+                    {1, sizeof(basic_sprite_slot), 1, &_vbo, 0}};
 
                 auto newVao = graphics::vertex_array(graphics::vertex_array_info{
-                    attributes, 5,
-                    bindings, 1,
+                    attributes, 6,
+                    bindings, 2,
                     nullptr});
 
                 std::swap(_vao, newVao);
@@ -204,15 +225,16 @@ namespace engine {
                     decltype(&vsh) shaders[] = {&vsh, &fsh};
 
                     graphics::attribute_state_info attributes[] = {
-                        {"vUpperLeft", 0},
-                        {"vUpperRight", 1},
-                        {"vLowerLeft", 2},
-                        {"vFrameIndex", 3},
-                        {"vFrameSize", 4}};
+                        {"vSelect", 0},
+                        {"vUpperLeft", 1},
+                        {"vUpperRight", 2},
+                        {"vLowerLeft", 3},
+                        {"vFrameIndex", 4},
+                        {"vFrameSize", 5}};
 
                     auto newProgram = graphics::program(graphics::program_info{
                         shaders, 2,
-                        attributes, 5});
+                        attributes, 6});
 
                     std::swap(_program, newProgram);
 

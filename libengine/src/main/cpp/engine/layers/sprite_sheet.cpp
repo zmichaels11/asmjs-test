@@ -133,7 +133,7 @@ namespace engine {
                         util::unorm<std::uint16_t> (sw), 
                         util::unorm<std::uint16_t> (sh)};
 
-                    _texture.subImage(0, 0, 0, currentLayer++, pImage);
+                    _texture.subImage(0, 0, 0, currentLayer++, pImage);     
                 }
             }
 

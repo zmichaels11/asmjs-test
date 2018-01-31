@@ -40,7 +40,7 @@ namespace graphics {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, info.pIndexBuffer->_handle);
         }
 
-        for (int i = 0; i < info.attributeCount; i++) {
+        for (decltype(info.attributeCount) i = 0; i < info.attributeCount; i++) {
             auto pCurrent = info.pAttributes + i;
             auto pBinding = _findBinding(info, pCurrent->binding);
 
