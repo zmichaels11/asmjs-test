@@ -30,11 +30,26 @@ namespace engine {
                 tile_layer_info tileLayer;            
             } info;
 
-            
+            static constexpr scene_layer_info init(const basic_sprite_layer_info& info) noexcept {
+                return engine::layers::scene_layer_info{
+                    layer_type::BASIC_SPRITE_LAYER, 
+                    {static_cast<scene_layer_hint> (0)}, 
+                    {.basicSpriteLayer = info}};
+            }
 
-            static scene_layer_info init(const basic_image_layer_info& info) noexcept;
+            static constexpr scene_layer_info init(const basic_image_layer_info& info) noexcept {
+                return engine::layers::scene_layer_info{
+                    layer_type::BASIC_IMAGE_LAYER,
+                    {static_cast<scene_layer_hint> (0)},
+                    {.basicImageLayer = info}};
+            }
 
-            static scene_layer_info init(const background_layer_info& info) noexcept;
+            static scene_layer_info init(const background_layer_info& info) noexcept {
+                return engine::layers::scene_layer_info{
+                    layer_type::BACKGROUND_LAYER,
+                    {static_cast<scene_layer_hint> (0)},
+                    {.backgroundLayer = info}};
+            }
         };
     }
 }
