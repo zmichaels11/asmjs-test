@@ -9,10 +9,19 @@
 
 #include "graphics/image.hpp"
 
+#include "engine/layers/basic_sprite_layer.hpp"
 #include "engine/layers/basic_sprite_layer_info.hpp"
 #include "engine/layers/scene_info.hpp"
 #include "engine/layers/scene_layer_info.hpp"
 #include "engine/layers/sprite_sheet_info.hpp"
+
+constexpr unsigned int MAX_SPRITES = 256;
+constexpr unsigned int FRAME_COUNT = 10;
+
+struct sprite_test_data {
+    engine::layers::basic_sprite_slot ** ppSpriteSlots;
+    engine::layers::image_view frames[FRAME_COUNT];
+};
 
 int main(int argc, char** argv) {
     engine::application::init({"Background Test", {640, 480}, {1, 0}, engine::application_hint::VSYNC});
@@ -20,7 +29,7 @@ int main(int argc, char** argv) {
     auto pSpriteImages = std::vector<std::unique_ptr<graphics::image>>();
     auto ppSpriteImages = std::vector<graphics::image*>();
 
-    for (int i = 0; i < 10; i++) {
+    for (int i = 0; i < FRAME_COUNT; i++) {
         auto imgName = std::stringstream();
 
         imgName << "data/images/duke/duke" << i << ".png";
@@ -58,21 +67,45 @@ int main(int argc, char** argv) {
             nullptr, 0, 
             nullptr, 0},
 
-        pLayerInfos.data(), pLayerInfos.size()};
-    
-    engine::application::setScene(sceneInfo);    
+        pLayerInfos.data(), pLayerInfos.size()};        
 
-    engine::application::setOnUpdate([](auto userData) {
-        static float timestep = 0.0;     
+    engine::application::setOnUpdate([](auto pUserData) {        
+        static int frameID = 0;        
         
-        timestep += 0.005F;
+        auto pSpriteTestData = reinterpret_cast<sprite_test_data * > (pUserData);
+        auto pSpriteSlots = *pSpriteTestData->ppSpriteSlots;
+                
+        pSpriteSlots[0].shape = {
+            {16, 16},
+            {48, 16},
+            {16, 16 + 64}};        
+        
+        pSpriteSlots[0].view = pSpriteTestData->frames[frameID]; 
+
+        frameID = (frameID + 1) % FRAME_COUNT;
     });
 
-    engine::application::setOnFrame([](auto userData) {
-        
-    });
+    engine::application::setOnInit([](auto pUserData) {
+        auto pScene = engine::application::getScene();
+        auto pLayer = dynamic_cast<engine::layers::basic_sprite_layer * > (pScene->getLayer(0));
+        auto pSpriteTestData = reinterpret_cast<sprite_test_data * > (pUserData);
 
-    engine::application::start(nullptr);
+        pSpriteTestData->ppSpriteSlots = pLayer->fetchSpriteSlots();
+
+        for (unsigned int i = 0; i < FRAME_COUNT; i++) {
+            auto& view = pLayer->getImageView(i);
+
+            pSpriteTestData->frames[i] = view;
+        }
+
+        pLayer->setProjection(math::mat4::ortho(0, 640, 480, 0, 0, 1));
+    });    
+
+    engine::application::setUserData(std::make_shared<sprite_test_data> ());
+
+    engine::application::setScene(sceneInfo);
+
+    engine::application::start();
 
     return 0;
 }

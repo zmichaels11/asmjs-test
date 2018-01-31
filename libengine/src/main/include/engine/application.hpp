@@ -15,6 +15,8 @@ namespace engine {
     public:
         static void init(const application_info& info) noexcept;
 
+        static void setOnInit(const std::function<void(void*)>& callback) noexcept;
+
         static void setOnFrame(const std::function<void(void*)>& callback) noexcept;
 
         static void setOnUpdate(const std::function<void(void*)>& callback) noexcept;
@@ -25,7 +27,9 @@ namespace engine {
 
         static engine::layers::scene * getScene() noexcept;
 
-        static void start(const std::shared_ptr<void>& pUserData) noexcept;
+        static void setUserData(const std::shared_ptr<void>& pUserData) noexcept;
+
+        static void start() noexcept;
 
         static double getTime() noexcept;
 

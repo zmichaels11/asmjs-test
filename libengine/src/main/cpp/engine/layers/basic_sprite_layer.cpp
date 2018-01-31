@@ -178,6 +178,8 @@ namespace engine {
 
                 std::swap(_vbo, newVbo);
 
+                //TODO: ANGLE requires the first vertex to not be instanced. This needs to be rewritten a bit.
+
                 graphics::vertex_attribute_description attributes[] = {
                     {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},
                     {1, graphics::vertex_format::X32Y32_SFLOAT, 8, 0},

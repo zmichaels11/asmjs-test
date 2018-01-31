@@ -127,6 +127,7 @@ namespace engine {
                     graphics::framebuffer::getDefault().bind();                    
                     graphics::apply(*pViewport);                    
                     graphics::apply(*pViewport);
+                    graphics::apply(graphics::blend_state_info::premultipliedAlpha());
                 });
 
                 for (auto it = info.pLayerInfos; it != (info.pLayerInfos + info.nLayerInfos); it++) {
@@ -194,9 +195,13 @@ namespace engine {
                                 std::make_unique<basic_image_layer> (_context, it->info.basicImageLayer)});
                         } break;
                         case layer_type::BASIC_SPRITE_LAYER: {
-                            _layers.push_back({
-                                *it,
-                                std::make_unique<basic_sprite_layer> (_context, it->info.basicSpriteLayer)});
+                            auto ptr = std::make_unique<basic_sprite_layer> (_context, it->info.basicSpriteLayer);
+
+                            _renderCommands.push_back(std::bind(&basic_sprite_layer::render, ptr.get()));
+                            _beginWriteCommands.push_back(std::bind(&basic_sprite_layer::beginWrite, ptr.get()));
+                            _endWriteCommands.push_back(std::bind(&basic_sprite_layer::endWrite, ptr.get()));
+
+                            _layers.push_back({*it, std::move(ptr)});
                         } break;
                         default: 
                             _onError("Invalid layer_type!");                        

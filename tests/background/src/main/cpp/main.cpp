@@ -62,11 +62,7 @@ int main(int argc, char** argv) {
         timestep += 0.005F;
     });
 
-    engine::application::setOnFrame([](auto userData) {
-        
-    });
-
-    engine::application::start(nullptr);
+    engine::application::start();
 
     return 0;
 }

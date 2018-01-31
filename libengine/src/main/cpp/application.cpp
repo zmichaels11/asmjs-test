@@ -65,6 +65,7 @@ namespace {
     std::unique_ptr<native_resources> _pNativeResources(nullptr);
     std::function<void(void*)> _onFrame(nullptr);
     std::function<void(void*)> _onUpdate(nullptr);
+    std::function<void(void*)> _onInit(nullptr);
     std::shared_ptr<void> _pUserData;
 
     graphics::scissor_state_info _scissorRect;
@@ -86,10 +87,18 @@ namespace engine {
 
     void application::setScene(const engine::layers::scene_info& info) noexcept {
         _scene = std::make_unique<engine::layers::scene> (info);
+
+        if (_onInit) {
+            _onInit(_pUserData.get());
+        }
     }
 
     std::unique_ptr<engine::layers::scene> application::releaseScene() noexcept {
         return std::move(_scene);
+    }
+
+    void application::setOnInit(const std::function<void(void*)>& callback) noexcept {
+        _onInit = callback;
     }
 
     void application::setOnUpdate(const std::function<void(void*)>& callback) noexcept {
@@ -116,9 +125,11 @@ namespace engine {
         return _time;
     }
 
-    void application::start(const std::shared_ptr<void>& pUserData) noexcept {
+    void application::setUserData(const std::shared_ptr<void>& pUserData) noexcept {
         _pUserData = pUserData;
+    }
 
+    void application::start() noexcept {
 #if defined(__EMSCRIPTEN__)
         emscripten_set_main_loop(doFrame, 0, 1);
 #else
