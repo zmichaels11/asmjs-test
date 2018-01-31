@@ -91,7 +91,7 @@ T util::bestFitPowerOf2(T value) {
         result <<= 1;
     }
 
-    return (result >> 1);
+    return result;
 }
 
 template<class T>
