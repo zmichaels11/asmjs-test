@@ -25,6 +25,7 @@ constexpr unsigned int SCREEN_WIDTH = 640;
 constexpr unsigned int SCREEN_HEIGHT = 480;
 constexpr float SPRITE_WIDTH = 32.0F;
 constexpr float SPRITE_HEIGHT = 64.0F;
+constexpr auto HINTS = engine::application_hint::VSYNC | engine::application_hint::DEBUG;
 
 struct sprite_test_data {
     engine::layers::basic_sprite_slot ** ppSpriteSlots;
@@ -37,7 +38,7 @@ struct sprite_test_data {
 };
 
 int main(int argc, char** argv) {
-    engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, engine::application_hint::VSYNC});
+    engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, HINTS});
             
     auto pSpriteImages = std::vector<std::unique_ptr<graphics::image>>();
     auto ppSpriteImages = std::vector<graphics::image*>();

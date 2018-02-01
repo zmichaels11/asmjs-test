@@ -211,7 +211,11 @@ namespace {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 0);
 #elif defined(GL)
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);        
+
+        if (static_cast<unsigned int> (info.hints & engine::application_hint::DEBUG)) {
+            glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GLFW_TRUE);        
+        }        
+        
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, info.apiVersion.major);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, info.apiVersion.minor);        
 #else

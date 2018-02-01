@@ -30,9 +30,14 @@ namespace engine {
 
             struct basic_sprite_layer_resources : public engine::layers::base_resources {
                 const sprite_sheet * _pSpriteSheet;
-                basic_sprite_layer_info _info;
-                std::unique_ptr<basic_sprite_slot[]> _spriteSlots;
+                basic_sprite_layer_info _info;                
                 basic_sprite_slot * _spriteSlotAccessor;
+
+#if defined(__EMSCRIPTEN__)
+                std::unique_ptr<basic_sprite_slot[]> _spriteSlots;
+#endif
+
+                unsigned int _vboSize;
 
                 float _projection[16];
 
@@ -86,18 +91,30 @@ namespace engine {
         }
 
         void basic_sprite_layer::beginWrite() noexcept {
-            auto res = dynamic_cast<basic_sprite_layer_resources * > (_pResources.get());
+            constexpr static auto MAP_ACCESS = graphics::buffer_access::WRITE | graphics::buffer_access::INVALIDATE_BUFFER;
             
-            //NOTE: this could be the result of a buffer map
+            auto res = dynamic_cast<basic_sprite_layer_resources * > (_pResources.get());                        
+            
+#if defined(__EMSCRIPTEN__)
             res->_spriteSlotAccessor = res->_spriteSlots.get();
+#else
+            auto mappedData = res->_vbo.map(0, res->_vboSize, MAP_ACCESS);            
+            
+            res->_spriteSlotAccessor = reinterpret_cast<basic_sprite_slot * > (mappedData);
+#endif
         }
 
         void basic_sprite_layer::endWrite() noexcept {
-            auto res = dynamic_cast<basic_sprite_layer_resources * > (_pResources.get());
-            auto vertexDataSize = res->_info.maxSprites * sizeof(basic_sprite_slot);
+            auto res = dynamic_cast<basic_sprite_layer_resources * > (_pResources.get());            
 
+            res->_spriteSlotAccessor = nullptr;
+
+#if defined(__EMSCRIPTEN__)
             res->_vbo.invalidate();
-            res->_vbo.subData(0, res->_spriteSlots.get(), vertexDataSize);
+            res->_vbo.subData(0, res->_spriteSlots.get(), res->_vboSize);
+#else
+            res->_vbo.unmap();
+#endif
         }
 
         void basic_sprite_layer::render() const noexcept {
@@ -152,35 +169,11 @@ namespace engine {
 
                 _info = info;
                 _pSpriteSheet = ctx.getSpriteSheet(info.spriteSheetID);
+                _vboSize = info.maxSprites * sizeof(basic_sprite_slot);
+
+#if defined(__EMSCRIPTEN__)
                 _spriteSlots = std::make_unique<basic_sprite_slot[]> (info.maxSprites);
-
-                graphics::buffer_usage usage;
-
-                switch (info.writeHint) {
-                    case engine::layers::write_hint::ONCE:
-                        usage = graphics::buffer_usage::STATIC_DRAW;
-                        break;
-                    case engine::layers::write_hint::SOMETIMES:
-                        usage = graphics::buffer_usage::DYNAMIC_DRAW;
-                        break;
-                    case engine::layers::write_hint::OFTEN:
-                        usage = graphics::buffer_usage::STREAM_DRAW;
-                        break;
-                    default:
-                        _onError("Invalid write hint!");
-                        break;
-                }
-
-                {
-                    auto vertexDataSize = info.maxSprites * sizeof(basic_sprite_slot);
-
-                    auto newVbo = graphics::buffer(graphics::buffer_info{
-                        graphics::buffer_target::ARRAY,
-                        usage,
-                        {nullptr, vertexDataSize}});
-
-                    std::swap(_vbo, newVbo);
-                }
+#endif
 
                 {
                     float select[] = {
@@ -197,44 +190,73 @@ namespace engine {
                     std::swap(_select, newSelect);
                 }
 
-                //TODO: ANGLE requires the first vertex to not be instanced. This needs to be rewritten a bit.
+                {
+                    graphics::buffer_usage usage;
 
-                graphics::vertex_attribute_description attributes[] = {
-                    {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},
-                    {1, graphics::vertex_format::X32Y32_SFLOAT, 0, 1},
-                    {2, graphics::vertex_format::X32Y32_SFLOAT, 8, 1},
-                    {3, graphics::vertex_format::X32Y32_SFLOAT, 16, 1},
-                    {4, graphics::vertex_format::X32_SFLOAT, 24, 1},
-                    {5, graphics::vertex_format::X16Y16_UNORM, 28, 1}};
+                    switch (info.writeHint) {
+                        case engine::layers::write_hint::ONCE:
+                            usage = graphics::buffer_usage::STATIC_DRAW;
+                            break;
+                        case engine::layers::write_hint::SOMETIMES:
+                            usage = graphics::buffer_usage::DYNAMIC_DRAW;
+                            break;
+                        case engine::layers::write_hint::OFTEN:
+                            usage = graphics::buffer_usage::STREAM_DRAW;
+                            break;
+                        default:
+                            _onError("Invalid write hint!");
+                            break;
+                    }
 
-                graphics::vertex_binding_description bindings[] = {
-                    {0, 0, 0, &_select, 0},
-                    {1, sizeof(basic_sprite_slot), 1, &_vbo, 0}};
+                    auto newVbo = graphics::buffer(graphics::buffer_info{
+                        graphics::buffer_target::ARRAY,
+                        usage,
+                        {nullptr, _vboSize}});
 
-                auto newVao = graphics::vertex_array(graphics::vertex_array_info{
-                    attributes, 6,
-                    bindings, 2,
-                    nullptr});
+                    std::swap(_vbo, newVbo);
+                }                                
 
-                std::swap(_vao, newVao);
+                {
+                    auto attributes = std::vector<graphics::vertex_attribute_description>();
 
-                if (!_program) {
+                    attributes.push_back({0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0});
+                    attributes.push_back({1, graphics::vertex_format::X32Y32_SFLOAT, 0, 1});
+                    attributes.push_back({2, graphics::vertex_format::X32Y32_SFLOAT, 8, 1});
+                    attributes.push_back({3, graphics::vertex_format::X32Y32_SFLOAT, 16, 1});
+                    attributes.push_back({4, graphics::vertex_format::X32_SFLOAT, 24, 1});
+                    attributes.push_back({5, graphics::vertex_format::X16Y16_UNORM, 28, 1});
+
+                    auto bindings = std::vector<graphics::vertex_binding_description>();
+
+                    bindings.push_back({0, 0, 0, &_select, 0});
+                    bindings.push_back({1, sizeof(basic_sprite_slot), 1, &_vbo, 0});
+
+                    auto newVao = graphics::vertex_array(graphics::vertex_array_info{
+                        attributes.data(), attributes.size(),
+                        bindings.data(), bindings.size(),
+                        nullptr});
+
+                    std::swap(_vao, newVao);
+                }
+
+                if (!_program) {                    
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
                     auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_PATH);
 
                     decltype(&vsh) shaders[] = {&vsh, &fsh};
 
-                    graphics::attribute_state_info attributes[] = {
-                        {"vSelect", 0},
-                        {"vUpperLeft", 1},
-                        {"vUpperRight", 2},
-                        {"vLowerLeft", 3},
-                        {"vFrameIndex", 4},
-                        {"vFrameSize", 5}};
+                    auto attributes = std::vector<graphics::attribute_state_info>();
+
+                    attributes.push_back({"vSelect", 0});
+                    attributes.push_back({"vUpperLeft", 1});
+                    attributes.push_back({"vUpperRight", 2});
+                    attributes.push_back({"vLowerLeft", 3});
+                    attributes.push_back({"vFrameIndex", 4});
+                    attributes.push_back({"vFrameSize", 5});
 
                     auto newProgram = graphics::program(graphics::program_info{
                         shaders, 2,
-                        attributes, 6});
+                        attributes.data(), attributes.size()});
 
                     std::swap(_program, newProgram);
 

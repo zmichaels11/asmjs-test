@@ -52,7 +52,7 @@ namespace graphics {
 
             glBindBuffer(tgt, _handle);
             
-            auto res = glMapBufferRange(_handle, static_cast<GLintptr> (offset), static_cast<GLsizeiptr> (length), static_cast<GLbitfield> (access));
+            auto res = glMapBufferRange(tgt, static_cast<GLintptr> (offset), static_cast<GLsizeiptr> (length), static_cast<GLbitfield> (access));
 
             glBindBuffer(tgt, 0);
 

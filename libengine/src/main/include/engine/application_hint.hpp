@@ -2,7 +2,8 @@
 
 namespace engine {
     enum class application_hint : unsigned int {
-        VSYNC = 0x1
+        VSYNC = 0x1,
+        DEBUG = 0x2,
     };
 
     constexpr application_hint operator| (application_hint lhs, application_hint rhs) {
