@@ -27,6 +27,8 @@ namespace engine {
 
         static engine::layers::scene * getScene() noexcept;
 
+        static void step() noexcept;
+
         static void setUserData(const std::shared_ptr<void>& pUserData) noexcept;
 
         static void start() noexcept;
@@ -36,5 +38,7 @@ namespace engine {
         static const void * getViewport() noexcept;
 
         static const void * getScissorRect() noexcept;
+
+        static void * getContext() noexcept;
     };
 }

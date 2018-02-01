@@ -34,7 +34,6 @@
 #include "engine/application_hint.hpp"
 #include "engine/application_info.hpp"
 #include "engine/layers/scene.hpp"
-#include "nk/nk_ctx.hpp"
 
 namespace {    
     void _onGLFWError(int error, const char * desc);
@@ -43,12 +42,8 @@ namespace {
 
     void updateFramebufferSize(GLFWwindow * pWindow, int width, int height) noexcept;
 
-    struct native_resources {
-        struct glfw_resources_t {
-            GLFWwindow * pWindow;
-        } glfw;
-        
-        std::unique_ptr<nk::nk_ctx> nuklear;     
+    struct native_resources {        
+        GLFWwindow * pWindow;        
 
         native_resources() noexcept {}
 
@@ -74,16 +69,14 @@ namespace {
     double _time(0.0);            
 }
 
-namespace nk {
-    nk_ctx * getContext() {
-        return _pNativeResources->nuklear.get();
-    }
-}
-
 namespace engine {
     engine::layers::scene * application::getScene() noexcept {
         return _scene.get();
-    }    
+    }
+
+    void application::step() noexcept {
+        doFrame();
+    }
 
     void application::setScene(const engine::layers::scene_info& info) noexcept {
         _scene = std::make_unique<engine::layers::scene> (info);
@@ -119,6 +112,10 @@ namespace engine {
 
     const void * application::getScissorRect() noexcept {
         return reinterpret_cast<const void * > (&_scissorRect);
+    }
+
+    void * application::getContext() noexcept {
+        return reinterpret_cast<void * > (_pNativeResources->pWindow);
     }
 
     double application::getTime() noexcept {
@@ -223,14 +220,14 @@ namespace {
 #endif
 
 
-        if ((glfw.pWindow = glfwCreateWindow(info.window.width, info.window.height, info.name.c_str(), nullptr, nullptr)) == nullptr) {
+        if ((pWindow = glfwCreateWindow(info.window.width, info.window.height, info.name.c_str(), nullptr, nullptr)) == nullptr) {
             std::printf("[GLFW] Window creation failed!\n");
             __builtin_trap();
         }
 
         _viewport = {0, 0, static_cast<int> (info.window.width), static_cast<int> (info.window.height)};
 
-        glfwMakeContextCurrent(glfw.pWindow);
+        glfwMakeContextCurrent(pWindow);
 
         graphics::init();
         
@@ -240,28 +237,22 @@ namespace {
             glfwSwapInterval(0);
         }
 
-        glfwSetFramebufferSizeCallback(glfw.pWindow, updateFramebufferSize);
+        glfwSetFramebufferSizeCallback(pWindow, updateFramebufferSize);
 
-        audio::init();
-
-        nuklear = std::make_unique<nk::nk_ctx> (glfw.pWindow);        
+        audio::init(); 
     }
 
     native_resources::~native_resources() {        
-        _scene.reset(nullptr);
-        
-        if (nuklear) {
-            nuklear.reset(nullptr);
-        }
+        _scene.reset(nullptr);        
 
-        if (glfw.pWindow) {
-            glfwDestroyWindow(glfw.pWindow);
+        if (pWindow) {
+            glfwDestroyWindow(pWindow);
             glfwTerminate();
         }
     }
 
     bool native_resources::isValid() const noexcept {
-        return glfw.pWindow && !glfwWindowShouldClose(glfw.pWindow);
+        return pWindow && !glfwWindowShouldClose(pWindow);
     }
 
     void updateFramebufferSize(GLFWwindow *, int width, int height) noexcept {
@@ -271,10 +262,7 @@ namespace {
     }
 
     void doFrame() noexcept {        
-        glfwPollEvents();
-        _time = glfwGetTime();
-
-        auto& nk = _pNativeResources->nuklear;        
+        glfwPollEvents();     
 
         if (_onUpdate && _scene) {
             _scene->beginWrite();     
@@ -290,6 +278,6 @@ namespace {
             _scene->render();
         }
         
-        glfwSwapBuffers(_pNativeResources->glfw.pWindow);    
+        glfwSwapBuffers(_pNativeResources->pWindow);    
     }
 }
