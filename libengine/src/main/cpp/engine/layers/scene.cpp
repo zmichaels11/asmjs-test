@@ -1,6 +1,7 @@
 #include "engine/layers/scene.hpp"
 
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -106,7 +107,7 @@ namespace engine {
 
         namespace {
             void _onError(const std::string& msg) noexcept {
-                std::printf("[render_engine] scene error: %s\n", msg.c_str());
+                std::cerr << "[render_engine] scene error: " << msg << std::endl;
                 __builtin_trap();
             }
             

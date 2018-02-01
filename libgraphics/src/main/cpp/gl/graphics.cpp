@@ -1,51 +1,19 @@
 #if defined(GL)
 #include "graphics.hpp"
 
-#include <cstdio>
-
 #include <GL/glew.h>
 
+#include <iostream>
 #include <string>
 
-void onDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam) {
-    if (message == nullptr) {
-        std::printf("Message is null!\n");
-        return;
-    }
+namespace {
+    void _onError(const std::string& reason, const std::string& msg) noexcept;
 
-    switch (type) {
-        case GL_DEBUG_TYPE_ERROR:
-            std::printf("[GL] Error: %s\n", message);
-            __builtin_trap();
-            break;
-        case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
-            std::printf("[GL] Warning (deprecated): %s\n", message);
-            break;
-        case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
-            std::printf("[GL] Warning (undefined behavior): %s\n", message);
-            break;
-        case GL_DEBUG_TYPE_PORTABILITY:
-            std::printf("[GL] Warning (portability): %s\n", message);
-            break;
-        case GL_DEBUG_TYPE_PERFORMANCE:
-            std::printf("[GL] Warning (performance): %s\n", message);
-            break;
-        case GL_DEBUG_TYPE_MARKER:
-            std::printf("[GL] Info (marker): %s\n", message);
-            break;
-        case GL_DEBUG_TYPE_PUSH_GROUP:
-            std::printf("[GL] Info (push_group): %s\n", message);
-            break;
-        case GL_DEBUG_TYPE_POP_GROUP:
-            std::printf("[GL] Info (pop_group): %s\n", message);
-            break;
-        case GL_DEBUG_TYPE_OTHER:
-            std::printf("[GL] Info: %s\n", message);
-            break;
-        default:
-            std::printf("[GL] Unknown debug message!\n");
-            break;
-    }
+    void _onWarning(const std::string& reason, const std::string& msg) noexcept;
+
+    void _onInfo(const std::string& reason, const std::string& msg) noexcept;
+
+    void _onDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam);
 }
 
 namespace graphics {                         
@@ -53,24 +21,102 @@ namespace graphics {
         glewExperimental = true;
 
         if (glewInit() != GLEW_OK) {
-            std::printf("[GLEW] Error: Failed to initialize GLEW!\n");
+            std::cerr << "[GLEW] error: Failed to initialize GLEW!" << std::endl;
             __builtin_trap();
         }
 
-        std::printf("[GL] OpenGL Version: %s\n", glGetString(GL_VERSION));
-        std::printf("[GL] OpenGL Renderer: %s\n", glGetString(GL_RENDERER));
-        std::printf("[GL] OpenGL Vendor: %s\n", glGetString(GL_VENDOR));
-        std::printf("[GL] OpenGL Shading Language Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+        {
+            auto strVersion = std::string(reinterpret_cast<const char * > (glGetString(GL_VERSION)));
+            auto strRenderer = std::string(reinterpret_cast<const char * > (glGetString(GL_RENDERER)));
+            auto strVendor = std::string(reinterpret_cast<const char * > (glGetString(GL_VENDOR)));
+            auto strGLSL = std::string(reinterpret_cast<const char * > (glGetString(GL_SHADING_LANGUAGE_VERSION)));
+
+            std::cout << "[GL] OpenGL Version: " << strVersion << std::endl;
+            std::cout << "[GL] OpenGL Renderer: " << strRenderer << std::endl;
+            std::cout << "[GL] OpenGL Vendor: " << strVendor << std::endl;
+            std::cout << "[GL] OpenGL Shading Language Version: " << strGLSL << std::endl;
+        }
 
         if (GLEW_VERSION_4_3) {
             glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
-            glDebugMessageCallback(onDebugMessage, nullptr);            
+            glDebugMessageCallback(_onDebugMessage, nullptr);            
             glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DONT_CARE, 0, nullptr, true);
             
             const GLchar * message = "Debug enabled!\0";
-            glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, sizeof(message), message);
+            glDebugMessageInsert(GL_DEBUG_SOURCE_APPLICATION, GL_DEBUG_TYPE_OTHER, 0, GL_DEBUG_SEVERITY_NOTIFICATION, -1, message);
         } else {
-            std::printf("[GL] Debug not supported!\n");
+            _onInfo("", "Debug not supported!");
+        }
+    }
+}
+
+namespace {
+    void _onError(const std::string& reason, const std::string& msg) noexcept {
+        if (reason.empty()) {
+            std::cerr << "[GL] error: " << msg << std::endl;
+        } else {
+            std::cerr << "[GL error (" << reason << "): " << msg << std::endl;
+        }
+
+        __builtin_trap();
+    }
+
+    void _onWarning(const std::string& reason, const std::string& msg) noexcept {
+        if (reason.empty()) {
+            std::cerr << "[GL] warning: " << msg << std::endl;
+        } else {
+            std::cerr << "[GL] warning (" << reason << "): " << msg << std::endl;
+        }
+    }
+
+    void _onInfo(const std::string& reason, const std::string& msg) noexcept {
+        if (reason.empty()) {
+            std::cout << "[GL] info: " << msg << std::endl;
+        } else {
+            std::cout << "[GL] info (" << reason << "): " << msg << std::endl;
+        }
+    }
+
+    void _onDebugMessage(GLenum source, GLenum type, GLuint id, GLenum severity, GLsizei length, const GLchar * message, const void * userParam) {
+        std::string strMessage;
+
+        if (message == nullptr) {
+            strMessage = "<null>";
+        } else {
+            strMessage = std::string(message, length);
+        }
+
+        switch (type) {
+            case GL_DEBUG_TYPE_ERROR:
+                _onError("", strMessage);
+                break;
+            case GL_DEBUG_TYPE_DEPRECATED_BEHAVIOR:
+                _onWarning("deprecated", strMessage);
+                break;
+            case GL_DEBUG_TYPE_UNDEFINED_BEHAVIOR:
+                _onWarning("undefined behavior", strMessage);
+                break;
+            case GL_DEBUG_TYPE_PORTABILITY:
+                _onWarning("portability", strMessage);
+                break;
+            case GL_DEBUG_TYPE_PERFORMANCE:
+                _onWarning("performance", strMessage);
+                break;
+            case GL_DEBUG_TYPE_MARKER:
+                _onInfo("marker", strMessage);
+                break;
+            case GL_DEBUG_TYPE_PUSH_GROUP:
+                _onInfo("push_group", strMessage);
+                break;
+            case GL_DEBUG_TYPE_POP_GROUP:
+                _onInfo("pop_group", strMessage);
+                break;
+            case GL_DEBUG_TYPE_OTHER:
+                _onInfo("", strMessage);
+                break;
+            default:
+                _onInfo("unknown", strMessage);
+                break;
         }
     }
 }

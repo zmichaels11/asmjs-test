@@ -3,10 +3,10 @@
 #include "graphics/hobject/framebuffer.hpp"
 
 #include <cstddef>
-#include <cstdio>
 
 #include <GLES3/gl3.h>
 
+#include <iostream>
 #include <string>
 
 #include "graphics/henum/draw_buffer.hpp"
@@ -109,7 +109,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[GLES] Framebuffer error: %s\n", msg.c_str());
+            std::cerr << "[GLES] framebuffer error: " << msg << std::endl;
             __builtin_trap();
         }    
 

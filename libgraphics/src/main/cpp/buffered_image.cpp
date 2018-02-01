@@ -1,9 +1,9 @@
 #include "graphics/hobject/buffered_image.hpp"
 
-#include <cstdio>
 #include <cstddef>
 #include <cstring>
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -65,7 +65,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[gfx] buffered_image error: %s\n", msg.c_str());
+            std::cerr << "[gfx] buffered_image error: " << msg << std::endl;
             __builtin_trap();
         }
 

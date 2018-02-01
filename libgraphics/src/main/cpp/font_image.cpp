@@ -124,7 +124,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::cerr << "Err: " << msg << std::endl;
+            std::cerr << "[gfx] font_image error: " << msg << std::endl;
             __builtin_trap();
         }
 

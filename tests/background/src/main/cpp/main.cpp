@@ -18,8 +18,12 @@
 #include "engine/layers/scene_info.hpp"
 #include "engine/layers/scene_layer_info.hpp"
 
+constexpr unsigned int SCREEN_WIDTH = 640;
+constexpr unsigned int SCREEN_HEIGHT = 480;
+constexpr auto HINTS = engine::application_hint::VSYNC | engine::application_hint::DEBUG;
+
 int main(int argc, char** argv) {
-    engine::application::init({"Background Test", {640, 480}, {1, 0}, engine::application_hint::VSYNC});
+    engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, HINTS});
         
     auto backgroundInfo = engine::layers::background_layer_info{0};
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();

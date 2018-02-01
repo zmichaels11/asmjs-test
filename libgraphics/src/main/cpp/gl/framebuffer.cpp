@@ -3,10 +3,10 @@
 #include "graphics/hobject/framebuffer.hpp"
 
 #include <cstddef>
-#include <cstdio>
 
 #include <GL/glew.h>
 
+#include <iostream>
 #include <string>
 
 #include "graphics/henum/draw_buffer.hpp"
@@ -111,8 +111,8 @@ namespace graphics {
     }
 
     namespace {
-        void _onError(const std::string& msg) noexcept {            
-            std::printf("[GL] Framebuffer error: %s\n", msg.c_str());
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << "[GL] framebuffer error: " << msg << std::endl;
             __builtin_trap();
         }    
 

@@ -1,8 +1,8 @@
 #include "audio/sound.hpp"
 
 #include <cstddef>
-#include <cstdio>
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -162,7 +162,7 @@ namespace audio {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[AL] Sound error: %s\n", msg.c_str());
+            std::cerr << "[AL] sound error: " << msg << std::endl;
             __builtin_trap();
         }
     }

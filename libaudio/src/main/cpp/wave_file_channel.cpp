@@ -1,7 +1,6 @@
 #include "audio/wave_file_channel.hpp"
 
 #include <cstdint>
-#include <cstdio>
 
 #include <iostream>
 #include <fstream>
@@ -10,7 +9,7 @@
 namespace audio {    
     namespace {
         void _onError(const std::string& msg) {
-            std::printf("[AL] Wave error: %s\n", msg.c_str());
+            std::cerr << "[AL] wave_file_channel error: " << msg << std::endl;
             __builtin_trap();        
         }    
     }
@@ -219,8 +218,6 @@ namespace audio {
         _file.read(reinterpret_cast<char *> (&chunkSize), sizeof(chunkSize));
 
         chunkId = __builtin_bswap32(chunkId);
-
-        std::cout << "ChunkId: " << chunkId << " ChunkSize: " << chunkSize << std::endl;
         
         switch (chunkId) {
             case 0x666d7420:                

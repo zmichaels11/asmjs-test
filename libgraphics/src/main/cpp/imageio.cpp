@@ -1,7 +1,7 @@
-#include <cstdio>
 #include <cstddef>
 #include <cstring>
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -21,8 +21,8 @@
 
 namespace graphics {
     namespace {
-        static void _onError(const std::string& msg) noexcept {            
-            std::printf("[STB] stb_image error: %s\n", msg.c_str());
+        static void _onError(const std::string& msg) noexcept {
+            std::cerr << "[STB] stb_image error: " << msg << std::endl;
             __builtin_trap();
         }
 

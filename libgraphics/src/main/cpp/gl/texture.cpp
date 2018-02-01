@@ -2,10 +2,9 @@
 
 #include "graphics/hobject/texture.hpp"
 
-#include <cstdio>
-
 #include <GL/glew.h>
 
+#include <iostream>
 #include <string>
 
 #include "graphics/hinfo/pixel_info.hpp"
@@ -151,7 +150,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[GL] Texture error: %s\n", msg.c_str());
+            std::cerr << "[GL] texture error: " << msg << std::endl;
             __builtin_trap();
         }
 

@@ -1,8 +1,8 @@
 #include "engine/layers/background_layer.hpp"
 
-#include <cstdio>
 #include <cstring>
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -145,7 +145,7 @@ namespace engine {
 
         namespace {
             void _onError(const std::string& msg) noexcept {
-                std::printf("[render_engine] background_layer (mode7) error: %s\n", msg.c_str());
+                std::cerr << "[render engine] background_layer error: " << msg << std::endl;
                 __builtin_trap();
             }
 

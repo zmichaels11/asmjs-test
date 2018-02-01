@@ -1,8 +1,8 @@
 #include "engine/layers/tile_layer.hpp"
 
-#include <cstdio>
 #include <cstring>
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -148,7 +148,7 @@ namespace engine {
 
         namespace {
             void _onError(const std::string& msg) noexcept {
-                std::printf("[render_engine] tile_layer error: %s\n", msg.c_str());
+                std::cerr << "[render_engine] tile_layer error: " << msg << std::endl;
                 __builtin_trap();
             }
 

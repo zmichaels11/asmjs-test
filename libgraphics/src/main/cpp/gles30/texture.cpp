@@ -2,10 +2,9 @@
 
 #include "graphics/hobject/texture.hpp"
 
-#include <cstdio>
-
 #include <GLES3/gl3.h>
 
+#include <iostream>
 #include <string>
 
 #include "graphics/hinfo/pixel_info.hpp"
@@ -95,8 +94,8 @@ namespace graphics {
     }
 
     namespace {
-        void _onError(const std::string& msg) noexcept {            
-            std::printf("[GLES] Texture error: %s\n", msg.c_str());
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << "[GLES] texture error: " << msg << std::endl;
             __builtin_trap();
         }
 

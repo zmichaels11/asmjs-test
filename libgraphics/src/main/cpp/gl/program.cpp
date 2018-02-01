@@ -2,10 +2,9 @@
 
 #include "graphics/hobject/program.hpp"
 
-#include <cstdio>
-
 #include <GL/glew.h>
 
+#include <iostream>
 #include <string>
 
 #include "graphics/hinfo/attribute_state_info.hpp"
@@ -92,7 +91,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[GL] Program error: %s\n", msg.c_str());
+            std::cerr << "[GL] program error: " << msg << std::endl;
             __builtin_trap();
         }
     }

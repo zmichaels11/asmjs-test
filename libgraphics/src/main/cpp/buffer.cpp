@@ -1,8 +1,5 @@
 #include "graphics/hobject/buffer.hpp"
 
-#include <cstddef>
-#include <iostream>
-
 #include "graphics/hinfo/buffer_info.hpp"
 
 namespace graphics {

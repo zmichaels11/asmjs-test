@@ -1,7 +1,6 @@
 #include "engine/layers/tiled_image.hpp"
 
-#include <cstdio>
-
+#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -168,7 +167,7 @@ namespace engine {
 
         namespace {
             void _onError(const std::string& msg) noexcept {
-                std::printf("[render_engine] tiled_image error: %s\n", msg.c_str());
+                std::cerr << "[render_engine] tiled_image error: " << msg << std::endl;
                 __builtin_trap();
             }
 

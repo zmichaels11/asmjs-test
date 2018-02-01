@@ -1,7 +1,5 @@
 #include "graphics/hobject/shader.hpp"
 
-#include <cstdio>
-
 #include "graphics/hinfo/shader_info.hpp"
 
 #include "util.hpp"
@@ -53,7 +51,7 @@ namespace graphics {
 
     namespace {
         std::string _srcFromSrcOrFile(const std::string& srcOrFile) noexcept {
-            static const std::string PREFIX("#version");
+            static const std::string PREFIX(u8"#version");
 
             if (!srcOrFile.compare(0, PREFIX.size(), PREFIX)) {
                 return srcOrFile;

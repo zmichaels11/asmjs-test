@@ -2,10 +2,9 @@
 
 #include "graphics/hobject/shader.hpp"
 
-#include <cstdio>
-
 #include <GLES3/gl3.h>
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -65,7 +64,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[GLES] Shader error: %s\n", msg.c_str());
+            std::cerr << "[GLES] shader error: " << msg << std::endl;
             __builtin_trap();
         }
     }

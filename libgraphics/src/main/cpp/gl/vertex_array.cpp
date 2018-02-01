@@ -2,10 +2,9 @@
 
 #include "graphics/hobject/vertex_array.hpp"
 
-#include <cstdio>
-
 #include <GL/glew.h>
 
+#include <iostream>
 #include <string>
 
 #include "graphics/hinfo/vertex_array_info.hpp"
@@ -90,7 +89,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[GL] Vertex Array error: %s\n", msg.c_str());
+            std::cerr << "[GL] vertex_array error: " << msg << std::endl;
             __builtin_trap();
         }
 

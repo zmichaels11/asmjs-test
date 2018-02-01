@@ -2,10 +2,9 @@
 
 #include "graphics/hobject/shader.hpp"
 
-#include <cstdio>
-
 #include <GL/glew.h>
 
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -70,7 +69,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[GL] Shader error: %s\n", msg.c_str());
+            std::cerr << "[GL] shader error: " << msg << std::endl;
             __builtin_trap();
         }
     }

@@ -1,8 +1,7 @@
 #include "engine/layers/context.hpp"
 
-#include <cstdio>
-
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -95,8 +94,8 @@ namespace engine {
         }
 
         namespace {
-            void _onError(const std::string& msg) noexcept {
-                std::printf("[render_engine] context error: %s\n", msg.c_str());
+            void _onError(const std::string& msg) noexcept {                
+                std::cerr << "[render_engine] context error: " << msg << std::endl;
                 __builtin_trap();
             }
 

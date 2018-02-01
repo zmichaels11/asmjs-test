@@ -1,8 +1,6 @@
 #include "engine/application.hpp"
 
 #include <cstddef>
-#include <cstring>
-#include <cstdio>
 
 #ifdef __EMSCRIPTEN__
 #include <emscripten/emscripten.h>
@@ -21,9 +19,8 @@
 #error No GL version specified!
 #endif
 
-#include <cstdio>
-
 #include <functional>
+#include <iostream>
 #include <memory>
 #include <string>
 
@@ -36,7 +33,9 @@
 #include "engine/layers/scene.hpp"
 
 namespace {    
-    void _onGLFWError(int error, const char * desc);
+    void _onError(const std::string& src, const std::string& err, const std::string& msg) noexcept;
+
+    void _onGLFWError(int error, const char * desc) noexcept;
 
     void doFrame() noexcept;
 
@@ -138,40 +137,51 @@ namespace engine {
 }
 
 namespace {
-    void _onGLFWError(int error, const char * description) {
+    void _onError(const std::string& src, const std::string& err, const std::string& msg) noexcept {
+        std::cerr << "[" << src << "] " << err << ": " << msg << std::endl;
+        __builtin_trap();
+    }
+
+    void _onGLFWError(int error, const char * description) noexcept { 
+        auto __fmtErr = [](auto strErr, auto strDesc){
+            _onError("GLFW",
+                (strErr) ? strErr : "<null>",
+                (strDesc) ? strDesc : "<null");
+        };
+
         switch (error) {
             case GLFW_NOT_INITIALIZED:
-                std::printf("[GLFW] Not initialized: %s\n", description);                
+                __fmtErr("Not initialized", description);
                 break;
             case GLFW_NO_CURRENT_CONTEXT:
-                std::printf("[GLFW] No current context: %s\n", description);
+                __fmtErr("No current context", description);
                 break;
             case GLFW_INVALID_ENUM:
-                std::printf("[GLFW] Invalid enum: %s\n", description);
+                __fmtErr("Invalid enum", description);
                 break;
             case GLFW_INVALID_VALUE:
-                std::printf("[GLFW] Invalid value: %s\n", description);
+                __fmtErr("Invalid value", description);
                 break;
             case GLFW_OUT_OF_MEMORY:
-                std::printf("[GLFW] Out of memory: %s\n", description);
+                __fmtErr("Out of memory", description);
                 break;
             case GLFW_API_UNAVAILABLE:
-                std::printf("[GLFW] API unavailable: %s\n", description);
+                __fmtErr("API unavailable", description);
                 break;
             case GLFW_VERSION_UNAVAILABLE:
-                std::printf("[GLFW] Version unavailable: %s\n", description);
+                __fmtErr("Version unavailable", description);
                 break;
             case GLFW_PLATFORM_ERROR:
-                std::printf("[GLFW] Platform error: %s\n", description);
+                __fmtErr("Platform error", description);
                 break;
             case GLFW_FORMAT_UNAVAILABLE:
-                std::printf("[GLFW] Format unavailable: %s\n", description);
+                __fmtErr("Format unavailable", description);
                 break;
             case GLFW_NO_WINDOW_CONTEXT:
-                std::printf("[GLFW] No window context: %s\n", description);
+                __fmtErr("No window context", description);
                 break;
             default:
-                std::printf("[GLFW] Unknown error: %s\n", description);
+                __fmtErr("Unknown error", description);
                 break;
         }
     }
@@ -191,7 +201,7 @@ namespace {
 
             glfwGetVersion(&major, &minor, &revision);
 
-            std::printf("[GLFW] GLFW Version: %d.%d.%d\n", major, minor, revision);
+            std::cout << "[GLFW] GLFW Version: " << major << "." << minor << "." << revision << std::endl;
         }
 
         glfwDefaultWindowHints();
@@ -221,7 +231,7 @@ namespace {
 
 
         if ((pWindow = glfwCreateWindow(info.window.width, info.window.height, info.name.c_str(), nullptr, nullptr)) == nullptr) {
-            std::printf("[GLFW] Window creation failed!\n");
+            std::cerr << "[GLFW] Window creation failed!" << std::endl;
             __builtin_trap();
         }
 

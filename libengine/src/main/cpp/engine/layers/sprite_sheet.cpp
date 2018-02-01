@@ -1,8 +1,7 @@
 #include "engine/layers/sprite_sheet.hpp"
 
-#include <cstdio>
-
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <utility>
 
@@ -60,7 +59,7 @@ namespace engine {
 
         namespace {
             void _onError(const std::string& msg) noexcept {
-                std::printf("[render_engine] sprite_sheet error: %s\n", msg.c_str());
+                std::cerr << "[render_engine] sprite_sheet error: " << msg << std::endl;
                 __builtin_trap();
             }
 

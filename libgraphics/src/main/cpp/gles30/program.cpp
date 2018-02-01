@@ -2,10 +2,9 @@
 
 #include "graphics/hobject/program.hpp"
 
-#include <cstdio>
-
 #include <GLES3/gl3.h>
 
+#include <iostream>
 #include <string>
 
 #include "graphics/hobject/shader.hpp"
@@ -88,7 +87,7 @@ namespace graphics {
 
     namespace {
         void _onError(const std::string& msg) noexcept {
-            std::printf("[GLES] Program error: %s\n", msg.c_str());
+            std::cerr << "[GLES] program error: " << msg << std::endl;
             __builtin_trap();
         }
     }

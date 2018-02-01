@@ -3,8 +3,7 @@
 #include <AL/al.h>
 #include <AL/alc.h>
 
-#include <cstdio>
-
+#include <iostream>
 #include <memory>
 
 namespace audio {
@@ -24,25 +23,29 @@ namespace audio {
     void init() noexcept {
         _context = std::make_unique<context_t>();
 
-        std::printf("[AL] OpenAL Version: %s\n", alGetString(AL_VERSION));
-        std::printf("[AL] OpenAL Renderer: %s\n", alGetString(AL_RENDERER));
-        std::printf("[AL] OpenAL Vendor: %s\n", alGetString(AL_VENDOR));
+        auto strVersion = std::string(alGetString(AL_VERSION));
+        auto strRenderer = std::string(alGetString(AL_RENDERER));
+        auto strVendor = std::string(alGetString(AL_RENDERER));
+
+        std::cout << "[AL] OpenAL Version: " << strVersion << std::endl;
+        std::cout << "[AL] OpenAL Renderer: " << strRenderer << std::endl;
+        std::cout << "[AL] OpenAL Vendor: " << strVendor << std::endl;
     }
 
     namespace {
         context_t::context_t() {
             if ((pDevice = alcOpenDevice(nullptr)) == nullptr) {
-                std::printf("[AL] Unable to open device!\n");
+                std::cerr << "[AL] Unable to open device!" << std::endl;
                 __builtin_trap();
             }
 
             if ((pContext = alcCreateContext(pDevice, nullptr)) == nullptr) {
-                std::printf("[AL] Unable to create context!\n");
+                std::cerr << "[AL] Unable to create context!" << std::endl;
                 __builtin_trap();
             }
 
             if (!alcMakeContextCurrent(pContext)) {
-                std::printf("[AL] Unable to make context current!\n");
+                std::cerr << "[AL] Unable to make context current!" << std::endl;
                 __builtin_trap();
             }
         }

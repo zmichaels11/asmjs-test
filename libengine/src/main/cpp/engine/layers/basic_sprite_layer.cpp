@@ -2,6 +2,7 @@
 
 #include <cstring>
 
+#include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
@@ -158,8 +159,8 @@ namespace engine {
         }
 
         namespace {
-            void _onError(const std::string& msg) noexcept {
-                std::printf("[render_engine] basic_sprite_layer error: %s\n", msg.c_str());
+            void _onError(const std::string& msg) noexcept {                
+                std::cerr << "[render_engine] basic_sprite_layer error: " << msg << std::endl;
                 __builtin_trap();
             }
 

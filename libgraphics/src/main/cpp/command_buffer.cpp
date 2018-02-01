@@ -1,6 +1,5 @@
 #include "graphics/hobject/command_buffer.hpp"
 
-#include <cstdio>
 #include <cstring>
 
 #include <vector>

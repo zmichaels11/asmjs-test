@@ -2,16 +2,21 @@
 
 #include "graphics.hpp"
 
-#include <cstdio>
-
 #include <GLES3/gl3.h>
+
+#include <iostream>
 
 namespace graphics {
     void init() noexcept {
-        std::printf("[GLES] OpenGL Version: %s\n", glGetString(GL_VERSION));
-        std::printf("[GLES] OpenGL Renderer: %s\n", glGetString(GL_RENDERER));
-        std::printf("[GLES] OpenGL Vendor: %s\n", glGetString(GL_VENDOR));
-        std::printf("[GLES] OpenGL Shading Language Version: %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
+        auto strVersion = std::string(reinterpret_cast<const char * > (glGetString(GL_VERSION)));
+        auto strRenderer = std::string(reinterpret_cast<const char * > (glGetString(GL_RENDERER)));
+        auto strVendor = std::string(reinterpret_cast<const char * > (glGetString(GL_VENDOR)));
+        auto strGLSL = std::string(reinterpret_cast<const char * > (glGetString(GL_SHADING_LANGUAGE_VERSION)));
+
+        std::cout << "[GLES] OpenGLES Version: " << strVersion << std::endl;
+        std::cout << "[GLES] OpenGLES Renderer: " << strRenderer << std::endl;
+        std::cout << "[GLES] OpenGLES Vendor: " << strVendor << std::endl;
+        std::cout << "[GLES] OpenGLES Shading Language Version: " << strGLSL << std::endl;
     }
 }
 
