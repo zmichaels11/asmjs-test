@@ -1,7 +1,6 @@
 #pragma once
 
 #include "engine/layers/background_layer.hpp"
-#include "engine/layers/basic_image_layer.hpp"
 #include "engine/layers/basic_sprite_layer.hpp"
 #include "engine/layers/bounds.hpp"
 #include "engine/layers/clear_operation.hpp"
@@ -24,7 +23,6 @@ namespace engine {
             
             union {
                 background_layer_info backgroundLayer;
-                basic_image_layer_info basicImageLayer;
                 basic_sprite_layer_info basicSpriteLayer;                
                 text_layer_info textLayer;
                 tile_layer_info tileLayer;            
@@ -35,13 +33,6 @@ namespace engine {
                     layer_type::BASIC_SPRITE_LAYER, 
                     {static_cast<scene_layer_hint> (0)}, 
                     {.basicSpriteLayer = info}};
-            }
-
-            static constexpr scene_layer_info init(const basic_image_layer_info& info) noexcept {
-                return engine::layers::scene_layer_info{
-                    layer_type::BASIC_IMAGE_LAYER,
-                    {static_cast<scene_layer_hint> (0)},
-                    {.basicImageLayer = info}};
             }
 
             static scene_layer_info init(const background_layer_info& info) noexcept {

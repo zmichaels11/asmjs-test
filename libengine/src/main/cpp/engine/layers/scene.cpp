@@ -190,11 +190,6 @@ namespace engine {
                             _renderCommands.push_back(std::bind(&background_layer::render, ptr.get()));
                             _layers.push_back({*it, std::move(ptr)});              
                         } break;
-                        case layer_type::BASIC_IMAGE_LAYER: {                            
-                            _layers.push_back({
-                                *it, 
-                                std::make_unique<basic_image_layer> (_context, it->info.basicImageLayer)});
-                        } break;
                         case layer_type::BASIC_SPRITE_LAYER: {
                             auto ptr = std::make_unique<basic_sprite_layer> (_context, it->info.basicSpriteLayer);
 
