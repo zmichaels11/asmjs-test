@@ -1,0 +1,17 @@
+model {
+    repositories {
+        libs (PrebuiltLibraries) {
+            util {
+                headers.srcDir rootProject.file('share/src/generic/util/include')
+
+                binaries.withType(SharedLibraryBinary) { binary ->
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        sharedLibraryFile = rootProject.file('share/bin/dummy.dll')
+                    } else {
+                        sharedLibraryFile = rootProject.file('share/bin/dummy.so')
+                    }
+                } 
+            }
+        }
+    }
+}

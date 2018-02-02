@@ -1,0 +1,53 @@
+model {
+    repositories {
+        libs (PrebuiltLibraries) {           
+            jvm {
+                binaries.withType(SharedLibraryBinary) { binary ->
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        headers.srcDirs rootProject.file('share/src/generic/jvm/include'), rootProject.file('share/src/windows/jvm/include')
+
+                        switch (binary.targetPlatform.architecture.name) {
+                            case 'x86':
+                            case 'i386':
+                            case 'i686':
+                            case 'ia-32':
+                                sharedLibraryFile = rootProject.file('share/bin/windows32/jvm/libjvm.dll')
+                                break;
+                            case 'x86_64':
+                            case 'amd64':
+                            case 'x64':
+                            case 'x86-64':                                
+                                sharedLibraryFile = rootProject.file('share/bin/windows64/jvm/libjvm.dll')
+                                break;
+                            default:
+                                sharedLibraryFile = rootProject.file('share/bin/dummy.dll')
+                                break;
+                        }
+                    } else if (binary.targetPlatform.operatingSystem.linux) {
+                        headers.srcDirs rootProject.file('share/src/generic/jvm/include'), rootProject.file('share/src/linux/jvm/include')
+
+                        switch (binary.targetPlatform.architecture.name) {
+                            case 'x86':
+                            case 'i386':
+                            case 'i686':
+                            case 'ia-32':
+                                sharedLibraryFile = rootProject.file('share/bin/linux32/jvm/libjvm.so')
+                                break;
+                            case 'x86_64':
+                            case 'amd64':
+                            case 'x64':
+                            case 'x86-64':                                
+                                sharedLibraryFile = rootProject.file('share/bin/linux64/jvm/libjvm.so')
+                                break;
+                            default:
+                                sharedLibraryFile = rootProject.file('share/bin/dummy.so')
+                                break;
+                        }
+                    } else {
+                        sharedLibraryFile = rootProject.file('share/bin/dummy.so')
+                    }
+                }
+            }
+        }
+    }
+}

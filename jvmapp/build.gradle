@@ -1,0 +1,26 @@
+apply from: rootProject.file('share/jvm.gradle')
+
+model {    
+    components {
+        jvmapp(NativeExecutableSpec) {            
+            targetPlatform 'linux64'
+            //targetPlatform 'windows64'
+
+            sources {
+                cpp {
+                    source {
+                        lib library: 'jvm'
+
+                        srcDir 'src/main/cpp'
+                        include '**/*.cpp'
+                    }
+
+                    exportedHeaders {
+                        srcDirs 'src/main/include'
+                        include '**/*.hpp'
+                    }
+                }
+            }
+        }
+    }
+}
