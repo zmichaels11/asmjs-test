@@ -1,4 +1,5 @@
 apply from: rootProject.file('share/angle.gradle')
+apply from: rootProject.file('share/util.gradle')
 
 model {  
     flavors {
@@ -12,13 +13,14 @@ model {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
             targetPlatform 'linux32'
-            targetPlatform 'linux64'
+            targetPlatform 'linux64'            
             targetPlatform 'windows32'
             targetPlatform 'windows64'
             
             sources {
                 cpp {
-                    lib library: 'angle'  
+                    lib library: 'angle'
+                    lib library: 'util'
 
                     source {
                         srcDirs 'src/main/cpp', 'src/main/c'
@@ -26,7 +28,7 @@ model {
                     }
 
                     exportedHeaders {
-                        srcDirs '../share/src/main/include', 'src/main/include'
+                        srcDirs 'src/main/include'
                         include '**/*.hpp'
                     }
                 }

@@ -1,4 +1,5 @@
 apply from: rootProject.file('share/openal_soft.gradle')
+apply from: rootProject.file('share/util.gradle')
 
 model {
     flavors {
@@ -20,13 +21,14 @@ model {
                 cpp {
                     source {
                         lib library: 'openal_soft'
+                        lib library: 'util'
 
                         srcDir 'src/main/cpp'
                         include '**/*.cpp'
                     }
 
                     exportedHeaders {
-                        srcDirs '../share/src/main/include', 'src/main/include'
+                        srcDirs 'src/main/include'
                         include '**/*.hpp'
                     }
                 }
