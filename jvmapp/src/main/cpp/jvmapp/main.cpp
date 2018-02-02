@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+#include <dlfcn.h>
+
 #include <iostream>
 #include <string>
 #include <vector>
@@ -41,7 +43,21 @@ int main(int argc, char ** argv) {
     JavaVM * pJavaVM;
     JNIEnv * pJNIEnv;
 
-    auto flag = JNI_CreateJavaVM(&pJavaVM, reinterpret_cast<void **> (&pJNIEnv), &vmArgs);
+    auto pJVMLib = dlopen("../lib/server/libjvm.so", RTLD_LAZY);
+    
+    {
+        auto error = dlerror();
+
+        if (error) {
+            _onError(error);
+        }
+    }
+
+    typedef jint(*CreateJvmFuncPtr) (JavaVM**, void**, JavaVMInitArgs*);
+
+    auto pfnJNI_CreateJVM = reinterpret_cast<CreateJvmFuncPtr> (dlsym(pJVMLib, "JNI_CreateJavaVM"));
+
+    auto flag = pfnJNI_CreateJVM(&pJavaVM, reinterpret_cast<void **> (&pJNIEnv), &vmArgs);
 
     if (flag == JNI_ERR) {
         _onError("Error creating JavaVM!");
@@ -77,6 +93,8 @@ int main(int argc, char ** argv) {
     }
 
     pJavaVM->DestroyJavaVM();
+
+    dlclose(pJVMLib);
 
     return 0;
 }

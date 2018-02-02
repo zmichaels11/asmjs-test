@@ -21,6 +21,28 @@ model {
                     }
                 }
             }
+
+            binaries.all {  
+                if (targetPlatform.operatingSystem.linux) {
+                    linker.args '-ldl'
+                } else if (targetPlatform.operatingSystem.windows) {
+                    linker.args '-lopengl32'                    
+                }
+            }
         }
     }
+}
+
+task bundle(type: Copy) {
+    dependsOn 'jvmappExecutable'
+
+    from 'build/exe/jvmapp'
+    into 'dist/bin'
+}
+
+task test(type: Exec) {
+    dependsOn 'bundle'
+    executable './jvmapp'
+    workingDir 'dist/bin'
+    args 'Hello World!', 'This is Java9!'
 }

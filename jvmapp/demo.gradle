@@ -1,4 +1,12 @@
 apply plugin: "java"
 
-sourceCompatibility = '1.8'
+sourceCompatibility = '1.9'
 [compileJava, compileTestJava]*.options*.encoding = 'UTF-8'
+
+def JAVA_HOME = System.properties.'java.home'
+
+task bundle(type: Exec) {
+    dependsOn 'jar'
+    executable 'jlink'
+    args '--module-path', "$JAVA_HOME/jmods:build/libs", '--add-modules', 'jvmapp', '--output', 'dist', '--compress=2', '--strip-debug', '--no-header-files', '--no-man-pages'    
+}
