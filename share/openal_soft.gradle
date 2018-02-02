@@ -1,0 +1,32 @@
+model {
+    repositories {
+        libs (PrebuiltLibraries) {
+            openal_soft {
+                headers.srcDir rootProject.file('share/src/openal-soft/include')
+                binaries.withType(SharedLibraryBinary) { binary ->                    
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        switch (binary.targetPlatform.architecture.name) {
+                            case 'x86':
+                            case 'i386':
+                            case 'i686':
+                            case 'ia-32':
+                                sharedLibraryFile = rootProject.file('share/bin/windows32/openal-soft/OpenAL32.dll')
+                                break;
+                            case 'x86_64':
+                            case 'amd64':
+                            case 'x64':
+                            case 'x86-64':                                
+                                sharedLibraryFile = rootProject.file('share/bin/windows64/openal-soft/OpenAL32.dll')
+                                break;
+                            default:
+                                sharedLibraryFile = rootProject.file('share/bin/dummy.dll')
+                                break;
+			}
+                    } else {
+                        sharedLibraryFile = rootProject.file('share/bin/dummy.so')
+                    }
+                }
+            }
+        }
+    }
+}

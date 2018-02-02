@@ -1,0 +1,36 @@
+model {
+    repositories {
+        libs (PrebuiltLibraries) {
+            angle {                
+                headers.srcDir rootProject.file('share/src/angle/include')
+                binaries.withType(SharedLibraryBinary) { binary ->                    
+                    if (binary.targetPlatform.operatingSystem.windows) {
+                        if (binary.flavor == flavors.GLES20 || binary.flavor == flavors.GLES30) {
+                            switch (binary.targetPlatform.architecture.name) {
+                                case 'x86':
+                                case 'i386':
+                                case 'ia-32':
+                                case 'i686':
+                                    sharedLibraryFile = rootProject.file('share/bin/windows32/angle/libGLESv2.dll')
+                                    break;
+                                case 'x86_64':
+                                case 'amd64':
+                                case 'x64':
+                                case 'x86-64':
+                                    sharedLibraryFile = rootProject.file('share/bin/windows64/angle/libGLESv2.dll')
+                                    break;
+                                default:
+                                    sharedLibraryFile = rootProject.file('share/bin/dummy.dll')
+                                    break;
+                            }                            
+                        } else {
+                            sharedLibraryFile = rootProject.file('share/bin/dummy.dll')
+                        }
+                    } else {
+                        sharedLibraryFile = rootProject.file('share/bin/dummy.so')
+                    }
+                }
+            }
+        }
+    }
+}
