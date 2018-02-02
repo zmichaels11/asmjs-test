@@ -1,11 +1,12 @@
 model {
     repositories {
         libs (PrebuiltLibraries) {
-            angle {                
-                headers.srcDir rootProject.file('share/src/angle/include')
-                binaries.withType(SharedLibraryBinary) { binary ->                    
-                    if (binary.targetPlatform.operatingSystem.windows) {
-                        if (binary.flavor == flavors.GLES20 || binary.flavor == flavors.GLES30) {
+            angle {
+                binaries.withType(SharedLibraryBinary) { binary ->
+                    if (binary.flavor == flavors.GLES20 || binary.flavor == flavors.GLES30) {
+                        if (binary.targetPlatform.operatingSystem.windows) {
+                            headers.srcDir rootProject.file('share/src/windows/angle/include')
+
                             switch (binary.targetPlatform.architecture.name) {
                                 case 'x86':
                                 case 'i386':
@@ -24,11 +25,15 @@ model {
                                     break;
                             }                            
                         } else {
-                            sharedLibraryFile = rootProject.file('share/bin/dummy.dll')
+                            sharedLibraryFile = rootProject.file('share/bin/dummy.so')
                         }
                     } else {
-                        sharedLibraryFile = rootProject.file('share/bin/dummy.so')
-                    }
+                        if (binary.targetPlatform.operatingSystem.windows) {
+                            sharedLibraryFile = rootProject.file('share/bin/dummy.dll')
+                        } else {
+                            sharedLibraryFile = rootProject.file('share/bin/dummy.so')
+                        }
+                    }                 
                 }
             }
         }

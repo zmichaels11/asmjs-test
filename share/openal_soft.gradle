@@ -1,10 +1,11 @@
 model {
     repositories {
         libs (PrebuiltLibraries) {
-            openal_soft {
-                headers.srcDir rootProject.file('share/src/openal-soft/include')
+            openal_soft {                
                 binaries.withType(SharedLibraryBinary) { binary ->                    
                     if (binary.targetPlatform.operatingSystem.windows) {
+                        headers.srcDir rootProject.file('share/src/generic/openal-soft/include')
+
                         switch (binary.targetPlatform.architecture.name) {
                             case 'x86':
                             case 'i386':
