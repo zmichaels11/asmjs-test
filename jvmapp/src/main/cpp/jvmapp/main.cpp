@@ -8,7 +8,25 @@
 #include <string>
 #include <vector>
 
+#include "jni/jvmapp_Demo.h"
 #include "jvmapp/config.hpp"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+/*
+ * Class:     jvmapp_Demo
+ * Method:    testReentrant
+ * Signature: ()V
+ */
+JNIEXPORT void JNICALL Java_jvmapp_Demo_testReentrant
+  (JNIEnv *, jclass) {
+      std::cout << "Hello from C++!" << std::endl;
+  }
+
+#ifdef __cplusplus
+}
+#endif
 
 namespace {
     void _onError(const std::string& msg) noexcept {
@@ -68,10 +86,17 @@ int main(int argc, char ** argv) {
     if (jmain == nullptr) {
         pJNIEnv->ExceptionDescribe();
         pJavaVM->DestroyJavaVM();
-    } else {
+    } else {        
+        JNINativeMethod pfnTestReentrantInfo = {
+            .name = const_cast<char *> ("testReentrant"),
+            .signature = const_cast<char *> ("()V"),
+            .fnPtr = reinterpret_cast<void *> (&Java_jvmapp_Demo_testReentrant)};
+
+        pJNIEnv->RegisterNatives(jmain, &pfnTestReentrantInfo, 1);
+
         auto mainId = pJNIEnv->GetStaticMethodID(jmain, "main", "([Ljava/lang/String;)V");
 
-        if (mainId != nullptr) {
+        if (mainId != nullptr) {            
             auto jStringClass = pJNIEnv->FindClass("java/lang/String");
             auto argInitValue = pJNIEnv->NewStringUTF("");
             auto jargs = pJNIEnv->NewObjectArray(argc - 1, jStringClass, argInitValue);
