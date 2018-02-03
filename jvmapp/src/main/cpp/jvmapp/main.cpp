@@ -8,27 +8,18 @@
 #include <string>
 #include <vector>
 
-#include "jni/jvmapp_Demo.h"
 #include "jvmapp/config.hpp"
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-/*
- * Class:     jvmapp_Demo
- * Method:    testReentrant
- * Signature: ()V
- */
-JNIEXPORT void JNICALL Java_jvmapp_Demo_testReentrant
-  (JNIEnv *, jclass) {
-      std::cout << "Hello from C++!" << std::endl;
-  }
-
-#ifdef __cplusplus
-}
-#endif
-
 namespace {
+    /*
+    * Class:     jvmapp_Demo
+    * Method:    testReentrant
+    * Signature: ()V
+    */
+    JNIEXPORT void JNICALL _testReentrant(JNIEnv *, jclass) {
+        std::cout << "Hello from C++! This method isn't even exported." << std::endl;
+    }
+
     void _onError(const std::string& msg) noexcept {
         std::cerr << "[jni] error: " << msg << std::endl;
         __builtin_trap();
@@ -53,7 +44,7 @@ int main(int argc, char ** argv) {
     }
 
     auto vmArgs = JavaVMInitArgs{
-        .version = JNI_VERSION_1_8,
+        .version = JNI_VERSION_9,
         .nOptions = static_cast<jint> (jvmopts.size()),
         .options = jvmopts.data(),
         .ignoreUnrecognized = JNI_TRUE};
@@ -90,7 +81,7 @@ int main(int argc, char ** argv) {
         JNINativeMethod pfnTestReentrantInfo = {
             .name = const_cast<char *> ("testReentrant"),
             .signature = const_cast<char *> ("()V"),
-            .fnPtr = reinterpret_cast<void *> (&Java_jvmapp_Demo_testReentrant)};
+            .fnPtr = reinterpret_cast<void *> (&_testReentrant)};
 
         pJNIEnv->RegisterNatives(jmain, &pfnTestReentrantInfo, 1);
 
