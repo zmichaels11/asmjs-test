@@ -40,7 +40,7 @@ struct sprite_test_data {
 int main(int argc, char** argv) {
     engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, HINTS});
             
-    auto pSpriteImages = std::vector<std::unique_ptr<graphics::image>>();
+    auto spriteCache = std::vector<decltype(graphics::image::read(""))>();
     auto ppSpriteImages = std::vector<graphics::image*>();
 
     for (unsigned int i = 0; i < FRAME_COUNT; i++) {
@@ -51,7 +51,7 @@ int main(int argc, char** argv) {
         auto img = graphics::image::read(imgName.str());
 
         ppSpriteImages.push_back(img.get());
-        pSpriteImages.push_back(std::move(img));
+        spriteCache.push_back(std::move(img));
     }
 
     auto pSpritesheetInfos = std::vector<engine::layers::sprite_sheet_info>();
