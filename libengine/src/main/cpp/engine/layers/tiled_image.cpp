@@ -1,9 +1,12 @@
 #include "engine/layers/tiled_image.hpp"
 
+#include <cstddef>
+
 #include <iostream>
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "graphics/buffer.hpp"
 #include "graphics/framebuffer.hpp"
@@ -13,6 +16,8 @@
 #include "graphics/state.hpp"
 #include "graphics/texture.hpp"
 #include "graphics/vertex_array.hpp"
+
+#include "util.hpp"
 
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/context.hpp"
@@ -25,19 +30,28 @@ namespace engine {
         namespace {
             void _onError(const std::string& msg) noexcept;
 
+            struct vec2_t {
+                float x, y;
+            };
+
             struct tiled_image_resources : public base_resources {
                 const context * _pctx;
                 tiled_image_info _info;
                 bool _dirty;
                 bool _redraw;
+                float _scaleW;
+                float _scaleH;
 
                 tile_slot * _pTileSlots;
+                std::size_t _tileCount;
 
                 struct vbo_t {
+                    graphics::buffer select;
                     graphics::buffer position;
                     graphics::buffer imageView;
                 } _vbos;
 
+                graphics::clear_state_info _clear;
                 graphics::scissor_state_info _scissor;
                 graphics::viewport_state_info _viewport;
                 graphics::framebuffer _fb;
@@ -52,6 +66,7 @@ namespace engine {
             };
 
             graphics::program _program;
+            int _uTileSize;
             int _uImage;
 
             const std::string BASE_SHADER_PATH = "data/shaders/tiled_image_renderer/";
@@ -81,7 +96,7 @@ namespace engine {
         void tiled_image::beginWrite() noexcept {
             auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
 
-            // always clera the redraw flag. It gets set only in endWrite.
+            // always clear the redraw flag. It gets set only in endWrite.
             res->_redraw = false;
         }
 
@@ -93,6 +108,7 @@ namespace engine {
             }
 
             res->_dirty = false;
+            res->_redraw = true;
         }
 
         void tiled_image::invalidate() noexcept {
@@ -116,6 +132,7 @@ namespace engine {
             _program.use();
 
             graphics::uniform::setUniform1(_uImage, 0);
+            graphics::uniform::setUniform2(_uTileSize, res->_scaleW, res->_scaleH);
 
             res->_fb.bind();
             
@@ -123,12 +140,11 @@ namespace engine {
 
             graphics::framebuffer::drawBuffers(&color0);
 
-            auto drawCount = res->_info.dim.columns * res->_info.dim.rows;
-
+            graphics::apply(res->_clear);
             graphics::apply(res->_viewport);
             graphics::apply(res->_scissor);
 
-            graphics::draw::arraysInstanced(graphics::draw_mode::TRIANGLE_STRIP, 0, 4, drawCount);
+            graphics::draw::arraysInstanced(graphics::draw_mode::TRIANGLE_STRIP, 0, 4, res->_tileCount);
         }
 
         const void * tiled_image::getTexture() const noexcept {
@@ -181,58 +197,141 @@ namespace engine {
                 auto textureWidth = info.dim.columns * info.tileSize.width;
                 auto textureHeight = info.dim.rows * info.tileSize.width;
 
+                _tileCount = info.dim.columns * info.dim.rows;
+                // OpenGL screen space is [-1.0, -1.0] to [1.0, 1.0], so scale appropriately.
+                _scaleW = 2.0F / static_cast<float> (info.dim.columns);
+                _scaleH = 2.0F / static_cast<float> (info.dim.rows);
+
+                _clear = {graphics::clear_buffer::COLOR, {
+                    util::normalize(info.clearColor.r),
+                    util::normalize(info.clearColor.g),
+                    util::normalize(info.clearColor.b),
+                    util::normalize(info.clearColor.a)}};
+
                 _viewport = {0, 0, static_cast<int> (textureWidth), static_cast<int> (textureHeight)};
                 _scissor = {true, 0, 0, static_cast<int> (textureWidth), static_cast<int> (textureHeight)};
+                
+                {
+                    auto newTexture = graphics::texture({
+                        {textureWidth, textureHeight, 1}, // should this be power-of-2?
+                        1, 1,
+                        graphics::sampler_info::defaults(), // should be specified in info
+                        graphics::internal_format::RGBA8});
 
-                auto textureInfo = graphics::texture_info();
+                    std::swap(_texture, newTexture);
+                }                
 
-                textureInfo.extent = {textureWidth, textureHeight, 1};
-                textureInfo.layers = 1;
-                textureInfo.levels = 1;
-                textureInfo.samplerInfo = graphics::sampler_info::defaults();
-                textureInfo.format = graphics::internal_format::RGBA8;
+                {
+                    auto positionData = std::vector<vec2_t>();
 
-                auto newTexture = graphics::texture(textureInfo);
+                    positionData.reserve(_tileCount);                    
 
-                std::swap(_texture, newTexture);
+                    for (decltype(info.dim.rows) j = 0; j < info.dim.rows; j++) {
+                        auto y = static_cast<float> (j) * _scaleH - 1.0F;
 
-                auto newPosition = graphics::buffer({});
+                        for (decltype(info.dim.columns) i = 0; i < info.dim.columns; i++) {
+                            auto x = static_cast<float> (i) * _scaleW - 1.0F;
 
-                std::swap(_vbos.position, newPosition);                
+                            positionData.push_back({x, y});
+                        }
+                    }
 
-                auto newImageView = graphics::buffer({});
+                    auto newPosition = graphics::buffer({
+                        graphics::buffer_target::ARRAY,
+                        graphics::buffer_usage::STATIC_DRAW,
+                        {positionData.data(), positionData.size() * sizeof(vec2_t)}});
 
-                std::swap(_vbos.imageView, newImageView);
+                    std::swap(_vbos.position, newPosition);
+                }
 
-                graphics::vertex_attribute_description attributes[] = {
-                    {0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0},                    
-                    {1, graphics::vertex_format::X32_SFLOAT, 0, 1},
-                    {2, graphics::vertex_format::X16Y16_UNORM, 4, 1}};
+                {
+                    //TODO: this should be constant
+                    auto selectData = std::vector<vec2_t>();
 
-                graphics::vertex_binding_description bindings[] = {
-                    {0, 8, 1, &_vbos.position, 0},
-                    {1, 8, 1, &_vbos.imageView, 0}};                
+                    // 4 vertices per primitive
+                    selectData.reserve(4);
 
-                auto newVao = graphics::vertex_array({attributes, 3, bindings, 2, nullptr});
+                    selectData.push_back({0.0F, 0.0F});
+                    selectData.push_back({1.0F, 0.0F});
+                    selectData.push_back({0.0F, 1.0F});
+                    selectData.push_back({1.0F, 1.0F});                    
 
-                std::swap(_vao, newVao);
+                    auto newSelect = graphics::buffer({
+                        graphics::buffer_target::ARRAY,
+                        graphics::buffer_usage::STATIC_DRAW,
+                        {selectData.data(), sizeof(vec2_t) * selectData.size()}});
+
+                    std::swap(_vbos.select, newSelect);
+                }
+
+                {
+                    auto newImageView = graphics::buffer({
+                        graphics::buffer_target::ARRAY,
+                        graphics::buffer_usage::STREAM_DRAW,
+                        {nullptr, sizeof(image_view) * _tileCount}});
+
+                    std::swap(_vbos.imageView, newImageView);
+                }
+
+                constexpr int A_SELECT = 0;
+                constexpr int A_POSITION = 1;
+                constexpr int A_FRAME_INDEX = 2;
+                constexpr int A_FRAME_VIEW = 3;                
+
+                {
+                    constexpr int B_SELECT = 0;
+                    constexpr int B_POSITION = 1;
+                    constexpr int B_FRAME = 2;
+
+                    auto attributes = std::vector<graphics::vertex_attribute_description> ();                    
+
+                    attributes.push_back({A_SELECT, graphics::vertex_format::X32Y32_SFLOAT, 0, B_SELECT});
+                    attributes.push_back({A_POSITION, graphics::vertex_format::X32Y32_SFLOAT, 0, B_POSITION});
+                    attributes.push_back({A_FRAME_INDEX, graphics::vertex_format::X32_SFLOAT, 0, B_FRAME});
+                    attributes.push_back({A_FRAME_VIEW, graphics::vertex_format::X16Y16_UNORM, offsetof(image_view, u), B_FRAME});
+
+                    constexpr int TIGHTLY_PACKED = 0;
+                    constexpr int EACH_VERTEX = 0;
+                    constexpr int EACH_INSTANCE = 1;
+
+                    auto bindings = std::vector<graphics::vertex_binding_description> ();
+
+                    bindings.push_back({B_SELECT, TIGHTLY_PACKED, EACH_VERTEX, &_vbos.select, 0});
+                    bindings.push_back({B_POSITION, TIGHTLY_PACKED, EACH_INSTANCE, &_vbos.position, 0});
+                    bindings.push_back({B_FRAME, sizeof(image_view), EACH_INSTANCE, &_vbos.imageView, 0});
+
+                    auto newVao = graphics::vertex_array({
+                        attributes.data(), attributes.size(), 
+                        bindings.data(), bindings.size(), 
+                        nullptr});
+
+                    std::swap(_vao, newVao);
+                }
 
                 if (!_program) {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
                     auto fsh = graphics::shader::makeVertex(FRAGMENT_SHADER_PATH);
 
-                    decltype(&vsh) shaders[] = {&vsh, &fsh};
+                    auto shaders = std::vector<graphics::shader * > ();
 
-                    graphics::attribute_state_info attribs[] = {
-                        {"vPosition", 0},
-                        {"vFrame", 1},
-                        {"vImageView", 2}};
+                    shaders.push_back(&vsh);
+                    shaders.push_back(&fsh);
 
-                    auto newProgram = graphics::program({shaders, 2, attribs, 3});
+                    auto attributes = std::vector<graphics::attribute_state_info> ();
+
+                    attributes.push_back({"vSelect", A_SELECT});
+                    attributes.push_back({"vPosition", A_POSITION});
+                    attributes.push_back({"vFrameIndex", A_FRAME_INDEX});
+                    attributes.push_back({"vFrameView", A_FRAME_VIEW});                    
+
+                    auto newProgram = graphics::program({
+                        shaders.data(), shaders.size(), 
+                        attributes.data(), attributes.size()});
 
                     std::swap(_program, newProgram);
 
                     _uImage = _program.getUniformLocation("uImage");
+                    _uTileSize = _program.getUniformLocation("uTileSize");
                 }
             }
         }

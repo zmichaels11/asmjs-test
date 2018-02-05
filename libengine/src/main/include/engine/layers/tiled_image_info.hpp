@@ -1,5 +1,6 @@
 #pragma once
 
+#include "engine/layers/color.hpp"
 #include "engine/layers/image_filter_type.hpp"
 #include "engine/layers/image_scroll_type.hpp"
 #include "engine/layers/tile_offset_type.hpp"
@@ -22,6 +23,7 @@ namespace engine {
                 image_scroll_type vertical;
             } scroll;
 
+            color clearColor;
             image_filter_type filter;
             int tileSheetID;
 
