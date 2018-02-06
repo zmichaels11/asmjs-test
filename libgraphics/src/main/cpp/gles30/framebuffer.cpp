@@ -35,37 +35,43 @@ namespace graphics {
 
         auto colorAttachId = GL_COLOR_ATTACHMENT0;
 
-        for (auto it = info.pAttachments; it != (info.pAttachments + info.attachmentCount); it++) {
-            if (it->pRenderbuffer != nullptr) {
-                auto rbInfo = it->pRenderbuffer->getInfo();                
-                decltype(colorAttachId) attachId;                
+        for (auto it = info.pAttachments; it != (info.pAttachments + info.nAttachments); it++) {
+            switch (it->type) {
+                case attachment_type::RENDERBUFFER: {
+                    auto rbInfo = it->pRenderbuffer->getInfo();                
+                    decltype(colorAttachId) attachId;                
 
-                if (_isDepth(rbInfo.format)) {
-                    attachId = GL_DEPTH_ATTACHMENT;
-                } else if (_isDepthStencil(rbInfo.format)) {
-                    attachId = GL_DEPTH_STENCIL_ATTACHMENT;
-                } else if (_isStencil(rbInfo.format)) {
-                    attachId = GL_STENCIL;
-                } else {
-                    attachId = colorAttachId++;
-                }
+                    if (_isDepth(rbInfo.format)) {
+                        attachId = GL_DEPTH_ATTACHMENT;
+                    } else if (_isDepthStencil(rbInfo.format)) {
+                        attachId = GL_DEPTH_STENCIL_ATTACHMENT;
+                    } else if (_isStencil(rbInfo.format)) {
+                        attachId = GL_STENCIL;
+                    } else {
+                        attachId = colorAttachId++;
+                    }
 
-                glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachId, GL_RENDERBUFFER, it->pRenderbuffer->_handle);
-            } else if (it->pTexture != nullptr) {
-                auto txInfo = it->pTexture->getInfo();
-                decltype(colorAttachId) attachId;
+                    glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachId, GL_RENDERBUFFER, it->pRenderbuffer->_handle);
+                } break;
+                case attachment_type::TEXTURE: {
+                    auto txInfo = it->pTexture->getInfo();
+                    decltype(colorAttachId) attachId;
 
-                if (_isDepth(txInfo.format)) {
-                    attachId = GL_DEPTH_ATTACHMENT;
-                } else if (_isDepthStencil(txInfo.format)) {
-                    attachId = GL_DEPTH_STENCIL_ATTACHMENT;
-                } else if (_isStencil(txInfo.format)) {
-                    attachId = GL_STENCIL_ATTACHMENT;
-                } else {
-                    attachId = colorAttachId++;
-                }
+                    if (_isDepth(txInfo.format)) {
+                        attachId = GL_DEPTH_ATTACHMENT;
+                    } else if (_isDepthStencil(txInfo.format)) {
+                        attachId = GL_DEPTH_STENCIL_ATTACHMENT;
+                    } else if (_isStencil(txInfo.format)) {
+                        attachId = GL_STENCIL_ATTACHMENT;
+                    } else {
+                        attachId = colorAttachId++;
+                    }
 
-                glFramebufferTexture2D(GL_FRAMEBUFFER, attachId, GL_TEXTURE_2D, it->pTexture->_handle, it->level);
+                    glFramebufferTexture2D(GL_FRAMEBUFFER, attachId, GL_TEXTURE_2D, it->pTexture->_handle, it->level);
+                } break;
+                default:
+                    _onError("Unknown attachment type!");
+                    break;
             }
         }
 

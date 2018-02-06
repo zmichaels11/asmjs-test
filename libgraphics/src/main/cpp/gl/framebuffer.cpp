@@ -30,41 +30,60 @@ namespace graphics {
         _external = false;
         _handle = 0;
 
-        glCreateFramebuffers(1, &_handle);
+        if (GLEW_VERSION_4_5) {
+            glCreateFramebuffers(1, &_handle);
+        } else {
+            glGenFramebuffers(1, &_handle);
+            glBindFramebuffer(GL_FRAMEBUFFER, _handle);
+        }
 
         auto colorAttachId = GL_COLOR_ATTACHMENT0;
 
-        for (auto it = info.pAttachments; it != (info.pAttachments + info.attachmentCount); it++) {
-            if (it->pRenderbuffer != nullptr) {
-                auto rbInfo = it->pRenderbuffer->getInfo();                
-                decltype(colorAttachId) attachId;                
+        for (auto it = info.pAttachments; it != (info.pAttachments + info.nAttachments); it++) {
+            switch (it->type) {
+                case attachment_type::RENDERBUFFER: {
+                    auto rbInfo = it->pRenderbuffer->getInfo();                
+                    decltype(colorAttachId) attachId;                
 
-                if (_isDepth(rbInfo.format)) {
-                    attachId = GL_DEPTH_ATTACHMENT;
-                } else if (_isDepthStencil(rbInfo.format)) {
-                    attachId = GL_DEPTH_STENCIL_ATTACHMENT;
-                } else if (_isStencil(rbInfo.format)) {
-                    attachId = GL_STENCIL;
-                } else {
-                    attachId = colorAttachId++;
-                }
+                    if (_isDepth(rbInfo.format)) {
+                        attachId = GL_DEPTH_ATTACHMENT;
+                    } else if (_isDepthStencil(rbInfo.format)) {
+                        attachId = GL_DEPTH_STENCIL_ATTACHMENT;
+                    } else if (_isStencil(rbInfo.format)) {
+                        attachId = GL_STENCIL;
+                    } else {
+                        attachId = colorAttachId++;
+                    }
 
-                glNamedFramebufferRenderbuffer(_handle, attachId, GL_RENDERBUFFER, it->pRenderbuffer->_handle);
-            } else if (it->pTexture != nullptr) {
-                auto txInfo = it->pTexture->getInfo();
-                decltype(colorAttachId) attachId;
+                    if (GLEW_VERSION_4_5) {
+                        glNamedFramebufferRenderbuffer(_handle, attachId, GL_RENDERBUFFER, it->pRenderbuffer->_handle);
+                    } else {
+                        glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachId, GL_RENDERBUFFER, it->pRenderbuffer->_handle);
+                    }
+                } break;
+                case attachment_type::TEXTURE: {
+                    auto txInfo = it->pTexture->getInfo();
+                    decltype(colorAttachId) attachId;
 
-                if (_isDepth(txInfo.format)) {
-                    attachId = GL_DEPTH_ATTACHMENT;
-                } else if (_isDepthStencil(txInfo.format)) {
-                    attachId = GL_DEPTH_STENCIL_ATTACHMENT;
-                } else if (_isStencil(txInfo.format)) {
-                    attachId = GL_STENCIL_ATTACHMENT;
-                } else {
-                    attachId = colorAttachId++;
-                }
+                    if (_isDepth(txInfo.format)) {
+                        attachId = GL_DEPTH_ATTACHMENT;
+                    } else if (_isDepthStencil(txInfo.format)) {
+                        attachId = GL_DEPTH_STENCIL_ATTACHMENT;
+                    } else if (_isStencil(txInfo.format)) {
+                        attachId = GL_STENCIL_ATTACHMENT;
+                    } else {
+                        attachId = colorAttachId++;
+                    }
 
-                glNamedFramebufferTexture(_handle, attachId, it->pTexture->_handle, it->level);
+                    if (GLEW_VERSION_4_5) {
+                        glNamedFramebufferTexture(_handle, attachId, it->pTexture->_handle, it->level);
+                    } else {
+                        glFramebufferTexture2D(GL_FRAMEBUFFER, attachId, GL_TEXTURE_2D, it->pTexture->_handle, it->level);
+                    }
+                } break;
+                default:
+                    _onError("Unknown attachment type!");
+                    break;
             }
         }
 

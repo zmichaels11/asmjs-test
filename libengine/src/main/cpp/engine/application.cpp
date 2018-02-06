@@ -139,7 +139,6 @@ namespace engine {
 namespace {
     void _onError(const std::string& src, const std::string& err, const std::string& msg) noexcept {
         std::cerr << "[" << src << "] " << err << ": " << msg << std::endl;
-        __builtin_trap();
     }
 
     void _onGLFWError(int error, const char * description) noexcept { 

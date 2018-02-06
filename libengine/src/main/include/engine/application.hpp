@@ -40,5 +40,20 @@ namespace engine {
         static const void * getScissorRect() noexcept;
 
         static void * getContext() noexcept;
+
+        /*
+
+        void registerCharCallback(const std::function<bool(unsigned int)& callback) noexcept;
+
+        void clearCharCallbacks() noexcept;
+
+        void registerScrollCallback(const std::function<bool(double, double)& callback) noexcept;
+
+        void clearScrollCallbacks() noexcept;
+
+        void registerMouseButtonCallback(const std::function<bool(int, int, int)& callback) noexcept;
+
+        void clearMouseButtonCallbacks() noexcept;
+        */
     };
 }

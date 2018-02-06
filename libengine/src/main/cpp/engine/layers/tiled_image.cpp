@@ -28,6 +28,8 @@
 namespace engine {
     namespace layers {
         namespace {
+            void _onError(const std::string& msg) noexcept;
+
             graphics::address_mode _addressMode(image_scroll_type scroll) {
                 switch (scroll) {
                     case image_scroll_type::STATIC:
@@ -35,6 +37,7 @@ namespace engine {
                     case image_scroll_type::REPEAT:
                         return graphics::address_mode::REPEAT;
                     default:
+                        _onError("Unsupported scroll type!");
                         break;
                 }
             }
@@ -58,11 +61,10 @@ namespace engine {
                         //TODO: warn
                         return graphics::min_filter::LINEAR;
                     default:
+                        _onError("Unsupported filter type!");
                         break;
                 }
-            }
-
-            void _onError(const std::string& msg) noexcept;
+            }            
 
             struct vec2_t {
                 float x, y;
@@ -286,10 +288,13 @@ namespace engine {
                 }
 
                 {
-                    auto attachmentInfo = std::vector<graphics::attachment_info>();
+                    auto attachmentInfo = std::vector<graphics::attachment_info>();        
 
-                    attachmentInfo.push_back({0, nullptr, &_texture});
-                    auto newFB = graphics::framebuffer({attachmentInfo.data(), attachmentInfo.size()});
+                    attachmentInfo.push_back(graphics::attachment_info(&_texture));
+
+                    auto newFB = graphics::framebuffer({
+                        .pAttachments = attachmentInfo.data(), 
+                        .nAttachments = attachmentInfo.size()});
 
                     std::swap(_fb, newFB);
                 }       
