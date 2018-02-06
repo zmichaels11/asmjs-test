@@ -13,10 +13,11 @@ out vec2 fTexCoord;
 uniform vec2 uOrigin;
 uniform vec2 uScroll;
 uniform mat2 uTransform;
+uniform mat4 uProjection;
 
 void main() {
     vec2 xy = FRAGMENT_SELECT[gl_VertexID] + uScroll - uOrigin;
 
     fTexCoord = uTransform * xy + uOrigin;
-    gl_Position = VERTEX_SELECT[gl_VertexID];
+    gl_Position = uProjection * VERTEX_SELECT[gl_VertexID];
 }

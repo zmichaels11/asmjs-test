@@ -32,6 +32,7 @@ namespace engine {
                 float _transform[4];
                 float _origin[2];
                 float _scroll[2];
+				float _projection[16];
                 
                 graphics::vertex_array _vao;
 
@@ -47,6 +48,7 @@ namespace engine {
             int _uTransform;
             int _uOrigin;
             int _uScroll;
+			int _uProjection;
 
             const std::string BASE_SHADER_PATH = "data/shaders/background_renderer/";
 #if defined (GL)
@@ -87,7 +89,8 @@ namespace engine {
                 graphics::uniform::setUniform1(_uImage, 0);
                 graphics::uniform::setUniform2(_uOrigin, 1, res->_origin);
                 graphics::uniform::setUniform2(_uScroll, 1, res->_scroll);
-                graphics::uniform::setUniformMatrix2(_uTransform, 1, res->_transform);            
+                graphics::uniform::setUniformMatrix2(_uTransform, 1, res->_transform);
+				graphics::uniform::setUniformMatrix4(_uProjection, 1, res->_projection);
                 
                 pTexture->bind(0);
                 res->_vao.bind();
@@ -98,9 +101,17 @@ namespace engine {
 
         void background_layer::invalidate() noexcept {}
 
-        void background_layer::setProjection(const math::mat4&) noexcept {}
+        void background_layer::setProjection(const math::mat4& projection) noexcept {
+			auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
+			
+			projection.data(res->_projection);
+		}
 
-        void background_layer::setProjection(const float * projection) noexcept {}
+        void background_layer::setProjection(const float * projection) noexcept {
+			auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
+			
+			std::memcpy(res->_projection, projection, 16 * sizeof(float));
+		}
 
         void background_layer::scroll(float h, float v) noexcept {
             auto res = dynamic_cast<background_layer_resources * > (_pResources.get());
@@ -165,6 +176,23 @@ namespace engine {
                 const background_layer_info& info) noexcept {
 
                 _info = info;
+				
+				_projection[0] = 1.0F;
+				_projection[1] = 0.0F;
+				_projection[2] = 0.0F;
+				_projection[3] = 0.0F;
+				_projection[4] = 0.0F;
+				_projection[5] = 1.0F;
+				_projection[6] = 0.0F;
+				_projection[7] = 0.0F;
+				_projection[8] = 0.0F;
+				_projection[9] = 0.0F;
+				_projection[10] = 1.0F;
+				_projection[11] = 0.0F;
+				_projection[12] = 0.0F;
+				_projection[13] = 0.0F;
+				_projection[14] = 0.0F;
+				_projection[15] = 1.0F;				
 
                 _transform[0] = 1.0F;
                 _transform[1] = 0.0F;
@@ -197,6 +225,7 @@ namespace engine {
                     _uScroll = _program.getUniformLocation("uScroll");
                     _uOrigin = _program.getUniformLocation("uOrigin");
                     _uTransform = _program.getUniformLocation("uTransform");
+					_uProjection = _program.getUniformLocation("uProjection");
                 }
             }
         }
