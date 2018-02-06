@@ -28,6 +28,40 @@
 namespace engine {
     namespace layers {
         namespace {
+            graphics::address_mode _addressMode(image_scroll_type scroll) {
+                switch (scroll) {
+                    case image_scroll_type::STATIC:
+                        return graphics::address_mode::CLAMP_TO_EDGE;
+                    case image_scroll_type::REPEAT:
+                        return graphics::address_mode::REPEAT;
+                    default:
+                        break;
+                }
+            }
+
+            graphics::mag_filter _magFilter(image_filter_type filter) noexcept {
+                switch (filter) {
+                    case image_filter_type::NEAREST:
+                        return graphics::mag_filter::NEAREST;
+                    default:
+                        return graphics::mag_filter::LINEAR;
+                }
+            }
+
+            graphics::min_filter _minFilter(image_filter_type filter) noexcept {
+                switch (filter) {
+                    case image_filter_type::NEAREST:
+                        return graphics::min_filter::NEAREST;
+                    case image_filter_type::BILINEAR:
+                        return graphics::min_filter::LINEAR;
+                    case image_filter_type::TRILINEAR:
+                        //TODO: warn
+                        return graphics::min_filter::LINEAR;
+                    default:
+                        break;
+                }
+            }
+
             void _onError(const std::string& msg) noexcept;
 
             struct vec2_t {
@@ -242,8 +276,8 @@ namespace engine {
                         {textureWidth, textureHeight, 1}, // should this be power-of-2?
                         1, 1,
                         {
-                            {graphics::mag_filter::LINEAR, graphics::min_filter::LINEAR},
-                            {graphics::address_mode::REPEAT, graphics::address_mode::REPEAT, graphics::address_mode::REPEAT},
+                            {_magFilter(info.filter), _minFilter(info.filter)},
+                            {_addressMode(info.scroll.horizontal), _addressMode(info.scroll.vertical), graphics::address_mode::REPEAT},
                             {-1000.0, 1000.0}
                         },
                         graphics::internal_format::RGBA8});
