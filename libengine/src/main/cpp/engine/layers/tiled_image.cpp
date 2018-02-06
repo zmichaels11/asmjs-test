@@ -123,8 +123,6 @@ namespace engine {
                 return;
             }
 
-            std::cout << "Redraw!" << std::endl;
-
             auto pTileSheet = res->_pCtx->getSpriteSheet(res->_info.tileSheetID);
             auto pTexture = reinterpret_cast<const graphics::texture * > (pTileSheet->getTexture());            
 
@@ -140,10 +138,13 @@ namespace engine {
             auto color0 = graphics::draw_buffer::COLOR_ATTACHMENT0;
 
             graphics::framebuffer::drawBuffers(&color0);
-
-            graphics::apply(res->_clear);
+            
             graphics::apply(res->_viewport);
             graphics::apply(res->_scissor);
+            graphics::apply(res->_clear);
+            graphics::apply(graphics::blend_state_info::premultipliedAlpha());
+
+            res->_vao.bind();
 
             graphics::draw::arraysInstanced(graphics::draw_mode::TRIANGLE_STRIP, 0, 4, res->_tileCount);
         }
@@ -262,8 +263,8 @@ namespace engine {
                     selectData.reserve(4);
 
                     selectData.push_back({0.0F, 0.0F});
-                    selectData.push_back({1.0F, 0.0F});
                     selectData.push_back({0.0F, 1.0F});
+                    selectData.push_back({1.0F, 0.0F});
                     selectData.push_back({1.0F, 1.0F});                    
 
                     auto newSelect = graphics::buffer({
@@ -278,7 +279,7 @@ namespace engine {
                     auto newImageView = graphics::buffer({
                         graphics::buffer_target::ARRAY,
                         graphics::buffer_usage::STREAM_DRAW,
-                        {nullptr, sizeof(image_view) * _tileCount}});
+                        {nullptr, sizeof(tile_slot) * _tileCount}});
 
                     std::swap(_vbos.imageView, newImageView);
                 }
@@ -338,7 +339,7 @@ namespace engine {
                     std::swap(_program, newProgram);
 
                     _uImage = _program.getUniformLocation("uImage");
-                    _uTileSize = _program.getUniformLocation("uTileSize");
+                    _uTileSize = _program.getUniformLocation("uTileSize");                    
                 }
             }
         }

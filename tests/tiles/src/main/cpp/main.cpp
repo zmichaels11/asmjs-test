@@ -1,6 +1,9 @@
 #include "engine/application.hpp"
 
+#include <memory>
+#include <random>
 #include <string>
+#include <vector>
 
 #include "graphics/image.hpp"
 
@@ -52,8 +55,16 @@ int main(int argc, char** argv) {
 
     auto backgroundInfo = engine::layers::background_layer_info{0};    
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
+    auto backgroundLayerInfo = engine::layers::scene_layer_info::init(backgroundInfo);
 
-    pLayerInfos.push_back(engine::layers::scene_layer_info::init(backgroundInfo));
+    backgroundLayerInfo.ext = {
+        engine::layers::scene_layer_hint::CLEAR,
+        {
+            engine::layers::clear_type::COLOR,
+            engine::layers::color::rgb(120, 80, 20)
+        }};
+
+    pLayerInfos.push_back(backgroundLayerInfo);
 
     auto pRenderableInfos = std::vector<engine::layers::renderable_info>();
     auto tiledBackgroundInfo = engine::layers::renderable_info();
@@ -64,7 +75,7 @@ int main(int argc, char** argv) {
         .tileSize = {TILE_WIDTH, TILE_HEIGHT},
         .scroll = {engine::layers::image_scroll_type::REPEAT, engine::layers::image_scroll_type::REPEAT},
         .filter = engine::layers::image_filter_type::BILINEAR,
-        .clearColor = engine::layers::color::rgb(10, 20, 80),
+        .clearColor = engine::layers::color::rgb(20, 80, 120),
         .tileSheetID = 0
     };
 
@@ -79,9 +90,13 @@ int main(int argc, char** argv) {
             .pRenderableInfos = pRenderableInfos.data(), 
             .nRenderableInfos = pRenderableInfos.size()},            
         .pLayerInfos = pLayerInfos.data(), 
-        .nLayerInfos = pLayerInfos.size()};        
+        .nLayerInfos = pLayerInfos.size()};
 
-    engine::application::setOnUpdate([](auto pUserData) {
+    std::random_device rd;    
+    std::mt19937 mt(rd());
+    std::uniform_int_distribution<int> tileDist(0, 2);
+
+    engine::application::setOnUpdate([&](auto pUserData) {
         auto pTileTestData = reinterpret_cast<tile_test_data * > (pUserData);
                 
         if (!pTileTestData->built) {
@@ -97,10 +112,13 @@ int main(int argc, char** argv) {
             for (unsigned int j = 0; j < TILES_DOWN; j++) {
                 for (unsigned int i = 0; i < TILES_ACROSS; i++) {
                     auto idx = info.index(i, j);
+                    auto tile = tileDist(mt);
 
-                    pTileSlots[idx].view = pTileTestData->tiles[0];
+                    if (tile) {
+                        pTileSlots[idx].view = pTileTestData->tiles[tile - 1];
+                    }                    
                 }
-            }
+            }            
 
             pTileTestData->built = true;
         }

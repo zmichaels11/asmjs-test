@@ -121,7 +121,7 @@ namespace engine {
 
                     graphics::framebuffer::getDefault().bind();                    
                     graphics::apply(*pViewport);                    
-                    graphics::apply(*pViewport);
+                    graphics::apply(*pScissor);
                     graphics::apply(graphics::blend_state_info::premultipliedAlpha());
                 });
 
