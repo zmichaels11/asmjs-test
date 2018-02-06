@@ -357,31 +357,70 @@ namespace engine {
                 constexpr int A_FRAME_VIEW = 3;                
 
                 {
+                    constexpr auto vec2_32 = graphics::vertex_format::X32Y32_SFLOAT;
+                    constexpr auto vec2_16_unorm = graphics::vertex_format::X16Y16_UNORM;
+                    constexpr auto float_32 = graphics::vertex_format::X32_SFLOAT;
+
                     constexpr int B_SELECT = 0;
                     constexpr int B_POSITION = 1;
                     constexpr int B_FRAME = 2;
 
                     auto attributes = std::vector<graphics::vertex_attribute_description> ();                    
 
-                    attributes.push_back({A_SELECT, graphics::vertex_format::X32Y32_SFLOAT, 0, B_SELECT});
-                    attributes.push_back({A_POSITION, graphics::vertex_format::X32Y32_SFLOAT, 0, B_POSITION});
-                    attributes.push_back({A_FRAME_INDEX, graphics::vertex_format::X32_SFLOAT, 0, B_FRAME});
-                    attributes.push_back({A_FRAME_VIEW, graphics::vertex_format::X16Y16_UNORM, offsetof(image_view, u), B_FRAME});
+                    attributes.push_back({
+                        location: A_SELECT, 
+                        format: vec2_32, 
+                        offset: 0, 
+                        binding: B_SELECT});
+
+                    attributes.push_back({
+                        location: A_POSITION, 
+                        format: vec2_32, 
+                        offset: 0, 
+                        binding: B_POSITION});
+
+                    attributes.push_back({
+                        location: A_FRAME_INDEX, 
+                        format: float_32, 
+                        offset: 0, 
+                        binding: B_FRAME});
+
+                    attributes.push_back({
+                        location: A_FRAME_VIEW, 
+                        format: vec2_16_unorm, 
+                        offset: offsetof(image_view, u), 
+                        binding: B_FRAME});
 
                     constexpr int TIGHTLY_PACKED = 0;
-                    constexpr int EACH_VERTEX = 0;
-                    constexpr int EACH_INSTANCE = 1;
 
                     auto bindings = std::vector<graphics::vertex_binding_description> ();
 
-                    bindings.push_back({B_SELECT, TIGHTLY_PACKED, EACH_VERTEX, &_vbos.select, 0});
-                    bindings.push_back({B_POSITION, TIGHTLY_PACKED, EACH_INSTANCE, &_vbos.position, 0});
-                    bindings.push_back({B_FRAME, sizeof(image_view), EACH_INSTANCE, &_vbos.imageView, 0});
+                    bindings.push_back({
+                        binding: B_SELECT, 
+                        stride: TIGHTLY_PACKED, 
+                        inputRate: graphics::vertex_input_rate:: PER_VERTEX, 
+                        pBuffer: &_vbos.select, 
+                        offset: 0});
+
+                    bindings.push_back({
+                        binding: B_POSITION, 
+                        stride: TIGHTLY_PACKED, 
+                        inputRate: graphics::vertex_input_rate::PER_INSTANCE, 
+                        pBuffer: &_vbos.position, 
+                        offset: 0});
+                        
+                    bindings.push_back({
+                        binding: B_FRAME, 
+                        stride: sizeof(image_view), 
+                        inputRate: graphics::vertex_input_rate::PER_INSTANCE, 
+                        pBuffer: &_vbos.imageView, 
+                        offset: 0});
 
                     auto newVao = graphics::vertex_array({
-                        attributes.data(), attributes.size(), 
-                        bindings.data(), bindings.size(), 
-                        nullptr});
+                        pAttributes: attributes.data(), 
+                        nAttributes: attributes.size(), 
+                        pBindings: bindings.data(), 
+                        nBindings: bindings.size()});
 
                     std::swap(_vao, newVao);
                 }
@@ -390,23 +429,44 @@ namespace engine {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
                     auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_PATH);
 
-                    graphics::shader * shaders[] = {&vsh, &fsh};
+                    auto pShaders = std::vector<graphics::shader * >();
+
+                    pShaders.push_back(&vsh);
+                    pShaders.push_back(&fsh);
 
                     auto attributes = std::vector<graphics::attribute_state_info> ();
 
-                    attributes.push_back({"vSelect", A_SELECT});
-                    attributes.push_back({"vPosition", A_POSITION});
-                    attributes.push_back({"vFrameIndex", A_FRAME_INDEX});
-                    attributes.push_back({"vFrameView", A_FRAME_VIEW});                    
+                    attributes.push_back({
+                        name: "vSelect", 
+                        location: A_SELECT});
+
+                    attributes.push_back({
+                        name: "vPosition", 
+                        location: A_POSITION});
+
+                    attributes.push_back({
+                        name: "vFrameIndex", 
+                        location: A_FRAME_INDEX});
+
+                    attributes.push_back({
+                        name: "vFrameView", 
+                        location: A_FRAME_VIEW});                    
 
                     auto newProgram = graphics::program({
-                        shaders, 2, 
-                        attributes.data(), attributes.size()});
+                        ppShaders: pShaders.data(), 
+                        nShaders: pShaders.size(), 
+                        pAttributes: attributes.data(), 
+                        nAttributes: attributes.size()});
 
                     std::swap(_program, newProgram);
 
-                    _uImage = _program.getUniformLocation("uImage");
-                    _uTileSize = _program.getUniformLocation("uTileSize");                    
+                    if ((_uImage = _program.getUniformLocation("uImage")) < 0) {
+                        _onError("Could not find uniform: \"uImage\"!");
+                    }
+
+                    if ((_uTileSize = _program.getUniformLocation("uTileSize")) < 0) {
+                        _onError("Could not find uniform: \"uTileSize\"!");
+                    }
                 }
             }
         }

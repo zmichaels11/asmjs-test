@@ -45,18 +45,18 @@ namespace graphics {
 
             glBindBuffer(GL_ARRAY_BUFFER, pBinding->pBuffer->_handle);
             glEnableVertexAttribArray(pCurrent->location);
-
-            auto strideAdjust = pBinding->stride;
+            
             auto size = _size(pCurrent->format);
             auto type = _type(pCurrent->format);
             auto normalized = _normalized(pCurrent->format);
             auto offset = reinterpret_cast<const void *> (pBinding->offset + pCurrent->offset);
+            auto divisor = static_cast<unsigned int> (pBinding->inputRate);
 
-            if (pBinding->divisor) {
-                glVertexAttribDivisor(pCurrent->location, pBinding->divisor);
+            if (divisor) {
+                glVertexAttribDivisor(pCurrent->location, divisor);
             }
 
-            glVertexAttribPointer(pCurrent->location, size, type, normalized, strideAdjust, offset);
+            glVertexAttribPointer(pCurrent->location, size, type, normalized, pBinding->stride, offset);
         }
 
         _name = std::to_string(_handle);

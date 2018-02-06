@@ -209,33 +209,82 @@ namespace engine {
                             break;
                     }
 
-                    auto newVbo = graphics::buffer(graphics::buffer_info{
-                        graphics::buffer_target::ARRAY,
-                        usage,
-                        {nullptr, _vboSize}});
+                    auto newVbo = graphics::buffer({
+                        target: graphics::buffer_target::ARRAY,
+                        usage: usage,
+                        initialData: {
+                            pData: nullptr, 
+                            size: _vboSize
+                        }
+                    });
 
                     std::swap(_vbo, newVbo);
                 }                                
 
                 {
+                    constexpr auto vec2_32 = graphics::vertex_format::X32Y32_SFLOAT;
+                    constexpr auto vec2_16_unorm = graphics::vertex_format::X16Y16_UNORM;
+                    constexpr auto float_32 = graphics::vertex_format::X32_SFLOAT;
+
                     auto attributes = std::vector<graphics::vertex_attribute_description>();
 
-                    attributes.push_back({0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0});
-                    attributes.push_back({1, graphics::vertex_format::X32Y32_SFLOAT, 0, 1});
-                    attributes.push_back({2, graphics::vertex_format::X32Y32_SFLOAT, 8, 1});
-                    attributes.push_back({3, graphics::vertex_format::X32Y32_SFLOAT, 16, 1});
-                    attributes.push_back({4, graphics::vertex_format::X32_SFLOAT, 24, 1});
-                    attributes.push_back({5, graphics::vertex_format::X16Y16_UNORM, 28, 1});
+                    attributes.push_back({
+                        location: 0, 
+                        format: vec2_32, 
+                        offset: 0, 
+                        binding: 0});
+
+                    attributes.push_back({
+                        location: 1, 
+                        format: vec2_32, 
+                        offset: 0, 
+                        binding: 1});
+
+                    attributes.push_back({
+                        location: 2, 
+                        format: vec2_32, 
+                        offset: 8, 
+                        binding: 1});
+                        
+                    attributes.push_back({
+                        location: 3, 
+                        format: vec2_32, 
+                        offset: 16, 
+                        binding: 1});
+
+                    attributes.push_back({
+                        location: 4, 
+                        format: float_32, 
+                        offset: 24, 
+                        binding: 1});
+
+                    attributes.push_back({
+                        location: 5, 
+                        format: vec2_16_unorm, 
+                        offset: 28, 
+                        binding: 1});
 
                     auto bindings = std::vector<graphics::vertex_binding_description>();
 
-                    bindings.push_back({0, 0, 0, &_select, 0});
-                    bindings.push_back({1, sizeof(basic_sprite_slot), 1, &_vbo, 0});
+                    bindings.push_back({
+                        binding: 0, 
+                        stride: 0, 
+                        inputRate: graphics::vertex_input_rate::PER_VERTEX, 
+                        pBuffer: &_select, 
+                        offset: 0});
 
-                    auto newVao = graphics::vertex_array(graphics::vertex_array_info{
-                        attributes.data(), attributes.size(),
-                        bindings.data(), bindings.size(),
-                        nullptr});
+                    bindings.push_back({
+                        binding: 1, 
+                        stride: sizeof(basic_sprite_slot), 
+                        inputRate: graphics::vertex_input_rate::PER_INSTANCE, 
+                        pBuffer: &_vbo, 
+                        offset: 0});
+
+                    auto newVao = graphics::vertex_array({
+                        pAttributes: attributes.data(), 
+                        nAttributes: attributes.size(),
+                        pBindings: bindings.data(), 
+                        nBindings: bindings.size()});
 
                     std::swap(_vao, newVao);
                 }
@@ -244,25 +293,52 @@ namespace engine {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
                     auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_PATH);
 
-                    decltype(&vsh) shaders[] = {&vsh, &fsh};
+                    auto pShaders = std::vector<graphics::shader * > ();
+
+                    pShaders.push_back(&vsh);
+                    pShaders.push_back(&fsh);
 
                     auto attributes = std::vector<graphics::attribute_state_info>();
 
-                    attributes.push_back({"vSelect", 0});
-                    attributes.push_back({"vUpperLeft", 1});
-                    attributes.push_back({"vUpperRight", 2});
-                    attributes.push_back({"vLowerLeft", 3});
-                    attributes.push_back({"vFrameIndex", 4});
-                    attributes.push_back({"vFrameSize", 5});
+                    attributes.push_back({
+                        name: "vSelect", 
+                        location: 0});
 
-                    auto newProgram = graphics::program(graphics::program_info{
-                        shaders, 2,
-                        attributes.data(), attributes.size()});
+                    attributes.push_back({
+                        name: "vUpperLeft", 
+                        location: 1});
+
+                    attributes.push_back({
+                        name: "vUpperRight", 
+                        location: 2});
+
+                    attributes.push_back({
+                        name: "vLowerLeft", 
+                        location: 3});
+
+                    attributes.push_back({
+                        name: "vFrameIndex", 
+                        location: 4});
+
+                    attributes.push_back({
+                        name: "vFrameSize", 
+                        location: 5});
+
+                    auto newProgram = graphics::program({
+                        ppShaders: pShaders.data(), 
+                        nShaders: pShaders.size(),
+                        pAttributes: attributes.data(), 
+                        nAttributes: attributes.size()});
 
                     std::swap(_program, newProgram);
 
-                    _uProjection = _program.getUniformLocation("uProjection");
-                    _uImage = _program.getUniformLocation("uImage");
+                    if ((_uProjection = _program.getUniformLocation("uProjection")) < 0) {
+                        _onError("Could not find uniform \"uProjection\"!");
+                    }
+
+                    if ((_uImage = _program.getUniformLocation("uImage")) < 0) {
+                        _onError("Could not find uniform \"uImage\"!");
+                    }
                 }
             }
         }

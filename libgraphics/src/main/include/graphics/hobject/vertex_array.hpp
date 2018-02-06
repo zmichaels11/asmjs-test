@@ -53,6 +53,10 @@ namespace graphics {
         const std::string& getName() const noexcept;
 
         static const vertex_array& getDefault() noexcept;
+
+        inline static vertex_array empty() noexcept {
+            return vertex_array({nullptr});
+        }
     };
 
 }

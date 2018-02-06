@@ -6,6 +6,7 @@
 #include <memory>
 #include <string>
 #include <utility>
+#include <vector>
 
 #include "graphics/operation.hpp"
 #include "graphics/program.hpp"
@@ -207,7 +208,7 @@ namespace engine {
 
                 _pCtx = &ctx;
 
-                auto newVao = graphics::vertex_array({nullptr});
+                auto newVao = graphics::vertex_array::empty();
 
                 std::swap(_vao, newVao);
 
@@ -215,17 +216,37 @@ namespace engine {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
                     auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_PATH);
 
-                    decltype(&vsh) shaders[] = {&vsh, &fsh};
+                    auto pShaders = std::vector<graphics::shader * > ();
 
-                    auto newProgram = graphics::program({shaders, 2, nullptr, 0});
+                    pShaders.push_back(&vsh);
+                    pShaders.push_back(&fsh);                    
+
+                    auto newProgram = graphics::program({
+                        ppShaders: pShaders.data(), 
+                        nShaders: pShaders.size()
+                    });
 
                     std::swap(_program, newProgram);
 
-                    _uImage = _program.getUniformLocation("uImage");
-                    _uScroll = _program.getUniformLocation("uScroll");
-                    _uOrigin = _program.getUniformLocation("uOrigin");
-                    _uTransform = _program.getUniformLocation("uTransform");
-					_uProjection = _program.getUniformLocation("uProjection");
+                    if ((_uImage = _program.getUniformLocation("uImage")) < 0) {
+                        _onError("Could not find uniform \"uImage\"!");
+                    }
+
+                    if ((_uScroll = _program.getUniformLocation("uScroll")) < 0) {
+                        _onError("Could not find uniform \"uScroll\"!");
+                    }
+
+                    if ((_uOrigin = _program.getUniformLocation("uOrigin")) < 0) {
+                        _onError("Could not find uniform \"uOrigin\"!");
+                    }
+                    
+                    if ((_uTransform = _program.getUniformLocation("uTransform")) < 0) {
+                        _onError("Could not find uniform \"uTransform\"!");
+                    }
+
+					if ((_uProjection = _program.getUniformLocation("uProjection")) < 0) {
+                        _onError("Could not find uniform \"uProjection\"!");
+                    }
                 }
             }
         }

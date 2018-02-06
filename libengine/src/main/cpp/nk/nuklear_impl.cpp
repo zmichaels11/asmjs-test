@@ -341,7 +341,7 @@ namespace nk {
                     {2, graphics::vertex_format::X8Y8Z8W8_UNORM, 16, 0}};
 
                 graphics::vertex_binding_description bindings[] = {
-                    {0, 20, 0, &vbo, 0}};
+                    {0, 20, graphics::vertex_input_rate::PER_VERTEX, &vbo, 0}};
 
                 auto err = glGetError();
 
