@@ -4,6 +4,7 @@
 
 #include <GL/glew.h>
 
+#include <algorithm>
 #include <iostream>
 #include <string>
 
@@ -12,12 +13,20 @@
 
 namespace graphics {
     namespace {
+        struct texture_limits_t {
+            float maxAnisotropy;
+        } _limits;        
+
         void _onError(const std::string& msg) noexcept;
 
         GLenum _getTarget(const texture_info& info) noexcept;
+
+        void _initLimits() noexcept;
     }
 
     texture::texture(const texture_info& info) noexcept {
+        _initLimits();
+
         _info = info;
         
         auto internalFormat = static_cast<GLenum> (info.format);
@@ -35,6 +44,12 @@ namespace graphics {
             glTextureParameteri(_handle, GL_TEXTURE_WRAP_R, static_cast<GLenum> (info.samplerInfo.addressing.wrapR));
             glTextureParameterf(_handle, GL_TEXTURE_MAX_LOD, info.samplerInfo.lod.max);
             glTextureParameterf(_handle, GL_TEXTURE_MIN_LOD, info.samplerInfo.lod.min);
+
+            if (info.samplerInfo.anisotropy > 1.0F && GLEW_EXT_texture_filter_anisotropic) {
+                auto adjust = std::min(info.samplerInfo.anisotropy, _limits.maxAnisotropy);
+
+                glTextureParameterf(_handle, GL_TEXTURE_MAX_ANISOTROPY_EXT, adjust);
+            }
 
             switch (_target) {
                 case GL_TEXTURE_3D:
@@ -61,6 +76,12 @@ namespace graphics {
             glTexParameteri(_target, GL_TEXTURE_WRAP_R, static_cast<GLenum> (info.samplerInfo.addressing.wrapR));
             glTexParameterf(_target, GL_TEXTURE_MAX_LOD, info.samplerInfo.lod.max);
             glTexParameterf(_target, GL_TEXTURE_MIN_LOD, info.samplerInfo.lod.min);
+
+            if (info.samplerInfo.anisotropy > 1.0F && GLEW_EXT_texture_filter_anisotropic) {
+                auto adjust = std::min(info.samplerInfo.anisotropy, _limits.maxAnisotropy);
+
+                glTexParameterf(_target, GL_TEXTURE_MAX_ANISOTROPY_EXT, adjust);
+            }
 
             switch (_target) {
                 case GL_TEXTURE_3D:                
@@ -149,6 +170,20 @@ namespace graphics {
     }
 
     namespace {
+        void _initLimits() noexcept {
+            static bool init = false;
+
+            if (init) {
+                return;
+            }
+            
+            if (GLEW_EXT_texture_filter_anisotropic) {
+                glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &_limits.maxAnisotropy);
+            }
+
+            init = true;
+        }
+        
         void _onError(const std::string& msg) noexcept {
             std::cerr << "[GL] texture error: " << msg << std::endl;
             __builtin_trap();
