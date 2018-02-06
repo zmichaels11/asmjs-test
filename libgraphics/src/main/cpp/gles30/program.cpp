@@ -21,17 +21,19 @@ namespace graphics {
         _handle = glCreateProgram();
         _external = false;
 
-        for (int i = 0; i < info.shaderCount; i++) {
+        for (int i = 0; i < info.nShaders; i++) {
             glAttachShader(_handle, info.ppShaders[i]->_handle);
         }
 
-        for (auto it = info.pAttributeStates; it != (info.pAttributeStates + info.attributeCount); it++) {
-            glBindAttribLocation(_handle, it->location, it->name.c_str());
+        for (decltype(info.nAttributes) i = 0; i < info.nAttributes; i++) {
+            auto& attrib = info.pAttributes[i];
+
+            glBindAttribLocation(_handle, attrib.location, attrib.name.c_str());
         }
 
         glLinkProgram(_handle);
 
-        for (int i = 0; i < info.shaderCount; i++) {
+        for (decltype(info.nShaders) i = 0; i < info.nShaders; i++) {
             glDetachShader(_handle, info.ppShaders[i]->_handle);
         }
 

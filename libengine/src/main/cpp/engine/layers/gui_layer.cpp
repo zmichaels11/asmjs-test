@@ -208,10 +208,10 @@ namespace engine {
                         .location = 2});
 
                     auto newProgram = graphics::program({
-                        .ppShaders = pShaders.data(), 
-                        .shaderCount = pShaders.size(),
-                        .pAttributeStates = attributes.data(), 
-                        .attributeCount = attributes.size()});
+                        ppShaders: pShaders.data(), 
+                        nShaders: pShaders.size(),
+                        pAttributes: attributes.data(), 
+                        nAttributes: attributes.size()});
 
                     if ((_uTexture = newProgram.getUniformLocation("uTexture")) < 0) {
                         _onError("Unable to find uniform \"uTexture\"!");

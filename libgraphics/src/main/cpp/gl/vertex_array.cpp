@@ -39,11 +39,11 @@ namespace graphics {
             glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, info.pIndexBuffer->_handle);
         }
 
-        for (decltype(info.attributeCount) i = 0; i < info.attributeCount; i++) {
+        for (decltype(info.nAttributes) i = 0; i < info.nAttributes; i++) {
             auto pCurrent = info.pAttributes + i;
             auto pBinding = _findBinding(info, pCurrent->binding);
 
-            glBindBuffer(GL_ARRAY_BUFFER, pBinding->buffer->_handle);
+            glBindBuffer(GL_ARRAY_BUFFER, pBinding->pBuffer->_handle);
             glEnableVertexAttribArray(pCurrent->location);
 
             auto strideAdjust = pBinding->stride;
@@ -325,7 +325,7 @@ namespace graphics {
         }
 
         vertex_binding_description * _findBinding(const vertex_array_info& info, unsigned int binding) noexcept {
-            for (int i = 0; i < info.bindingCount; i++) {
+            for (int i = 0; i < info.nBindings; i++) {
                 auto pCurrent = info.pBindings + i;
 
                 if (pCurrent && pCurrent->binding == binding) {

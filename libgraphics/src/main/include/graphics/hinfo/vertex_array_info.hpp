@@ -10,9 +10,9 @@ namespace graphics {
     
     struct vertex_array_info {
         graphics::vertex_attribute_description * pAttributes;
-        std::size_t attributeCount;
+        std::size_t nAttributes;
         graphics::vertex_binding_description * pBindings;
-        std::size_t bindingCount;
+        std::size_t nBindings;
         graphics::buffer * pIndexBuffer;
     };
 }

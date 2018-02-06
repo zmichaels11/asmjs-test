@@ -7,7 +7,7 @@ namespace graphics {
         unsigned int binding;
         unsigned int stride;
         unsigned int divisor;
-        graphics::buffer * buffer;
+        graphics::buffer * pBuffer;
         long offset;
     };
 }
