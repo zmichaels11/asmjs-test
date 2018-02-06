@@ -29,9 +29,7 @@ namespace engine {
 
                 sprite_sheet_resources(const sprite_sheet_info& info) noexcept;
 
-                virtual ~sprite_sheet_resources() {
-                    std::cout << "Freed spritesheet!" << std::endl;
-                }
+                virtual ~sprite_sheet_resources() {}
 
                 void buildLayeredSpritesheet() noexcept;
 
@@ -41,14 +39,10 @@ namespace engine {
 
         sprite_sheet::sprite_sheet(const engine::layers::sprite_sheet_info& info) noexcept {
             _pResources = std::make_unique<sprite_sheet_resources> (info);
-
-            std::cout << "ptr(_pResources) = " << _pResources.get() << std::endl;
         }
 
         const engine::layers::image_view& sprite_sheet::getSprite(int spriteID) const noexcept {
-            auto res = dynamic_cast<sprite_sheet_resources * > (_pResources.get());
-             
-            std::cout << "Fetching sprite: " << spriteID << std::endl;
+            auto res = dynamic_cast<sprite_sheet_resources * > (_pResources.get());             
 
             return res->_sprites[spriteID];
         }
@@ -115,9 +109,6 @@ namespace engine {
                 }
                 
                 _sprites = std::make_unique<image_view[]> (_info.imageCount);
-
-                std::cout << "Allocating sprite sheet with " << _info.imageCount << " sprites!" << std::endl;
-                std::cout << "ptr(_sprites) = " << _sprites.get() << std::endl;
                 
                 auto newTexture = graphics::texture(graphics::texture_info{
                     {width, height, 1},
@@ -155,8 +146,6 @@ namespace engine {
                 } else {
                     buildSpritesheet();
                 }
-
-                std::cout << "Created spritesheet!" << std::endl;
             }
         }
     }

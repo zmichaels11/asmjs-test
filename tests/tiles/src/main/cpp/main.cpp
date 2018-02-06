@@ -15,7 +15,7 @@ constexpr unsigned int TILE_WIDTH = 32;
 constexpr unsigned int TILE_HEIGHT = 32;
 constexpr unsigned int SCREEN_WIDTH = 640;
 constexpr unsigned int SCREEN_HEIGHT = 480;
-constexpr auto HINTS = engine::application_hint::VSYNC | engine::application_hint::DEBUG;
+constexpr auto HINTS = engine::application_hint::VSYNC;
 
 auto _loadTile(
     std::vector<graphics::image * >& imgRefs,
@@ -111,8 +111,6 @@ int main(int argc, char** argv) {
         auto pCtx = pScene->getContext();
         auto pTileTestData = reinterpret_cast<tile_test_data * > (pUserData);
         auto pTiledImage = reinterpret_cast<engine::layers::tiled_image * > (pCtx->getRenderableImage(0));
-
-        std::cout << "pScene = " << pScene << std::endl;
 
         pTileTestData->ppTileSlots = pTiledImage->fetchTileSlots();
         pTileTestData->tiles[0] = pTiledImage->getImageView(0);

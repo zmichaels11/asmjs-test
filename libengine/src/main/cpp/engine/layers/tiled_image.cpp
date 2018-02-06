@@ -95,24 +95,19 @@ namespace engine {
             auto mappedSize = res->_tileCount * sizeof(tile_slot);
             auto mappedData = res->_vbos.imageView.map(0, mappedSize, MAP_ACCESS);
 
-            res->_pTileSlotAccessor = reinterpret_cast<tile_slot * > (mappedData);
-            
-
-            // always clear the redraw flag. It gets set only in endWrite.
+            res->_pTileSlotAccessor = reinterpret_cast<tile_slot * > (mappedData);                        
             res->_redraw = false;
         }
 
         void tiled_image::endWrite() noexcept {
             auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
 
-            if (!res->_dirty) {
-                return;
-            }
-
             res->_vbos.imageView.unmap();
 
-            res->_dirty = false;
-            res->_redraw = true;
+            if (res->_dirty) {
+                res->_dirty = false;
+                res->_redraw = true;
+            }            
         }
 
         void tiled_image::invalidate() noexcept {
@@ -127,6 +122,8 @@ namespace engine {
             if (!res->_redraw) {
                 return;
             }
+
+            std::cout << "Redraw!" << std::endl;
 
             auto pTileSheet = res->_pCtx->getSpriteSheet(res->_info.tileSheetID);
             auto pTexture = reinterpret_cast<const graphics::texture * > (pTileSheet->getTexture());            
@@ -175,9 +172,6 @@ namespace engine {
 
         const image_view& tiled_image::getImageView(int id) const noexcept {
             auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
-
-            std::cout << "Fetching spritesheet: " << res->_info.tileSheetID << std::endl;
-
             auto pTileSheet = res->_pCtx->getSpriteSheet(res->_info.tileSheetID);
 
             return pTileSheet->getSprite(id);
@@ -232,7 +226,7 @@ namespace engine {
                     auto attachmentInfo = std::vector<graphics::attachment_info>();
 
                     attachmentInfo.push_back({0, nullptr, &_texture});
-                    auto newFB = graphics::framebuffer({});
+                    auto newFB = graphics::framebuffer({attachmentInfo.data(), attachmentInfo.size()});
 
                     std::swap(_fb, newFB);
                 }       

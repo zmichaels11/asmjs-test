@@ -67,14 +67,10 @@ namespace engine {
 
         context::context(const context_info& info) noexcept {
             _pResources = std::make_unique<context_resources> (info);
-
-            std::cout << "context resources: " << _pResources.get() << std::endl;
         }
 
         const sprite_sheet * context::getSpriteSheet(int id) const noexcept {
             auto res = dynamic_cast<const context_resources * > (_pResources.get());            
-
-            std::cout << "ptr(res) = " << res << std::endl;            
 
             return res->_spriteSheets.data() + id;
         }
@@ -145,8 +141,6 @@ namespace engine {
                             _beginWriteCommands.push_back(std::bind(&tiled_image::beginWrite, ptr.get()));
                             _endWriteCommands.push_back(std::bind(&tiled_image::endWrite, ptr.get()));
                             _renderCommands.push_back(std::bind(&tiled_image::render, ptr.get()));
-
-                            std::cout << "Allocating tiled_image: " << ptr.get() << std::endl;
 
                             _renderables.push_back(std::move(ptr));
                         } break;
