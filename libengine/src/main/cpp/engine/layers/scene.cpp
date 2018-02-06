@@ -39,17 +39,11 @@ namespace engine {
             };
         }
 
-        context& scene::getContext() noexcept {
+        context * scene::getContext() noexcept {
             auto res = dynamic_cast<scene_resources * > (_pResources.get());
 
-            return res->_context;
-        }
-
-        const context& scene::getContext() const noexcept {
-            auto res = dynamic_cast<scene_resources * > (_pResources.get());
-
-            return res->_context;
-        }
+            return &res->_context;
+        }        
 
         scene::scene(const scene_info& info) noexcept {
             _pResources = std::make_unique<scene_resources> (info);

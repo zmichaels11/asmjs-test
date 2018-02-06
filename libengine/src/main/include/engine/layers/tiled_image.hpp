@@ -38,6 +38,8 @@ namespace engine {
 
             void setTile(int col, int row, const image_view& view) noexcept;
 
+            const image_view& getImageView(int id) const noexcept;
+
             tile_slot ** fetchTileSlots() noexcept;
 
             const tiled_image_info& getInfo() const noexcept;            

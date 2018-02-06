@@ -22,9 +22,9 @@ namespace engine {
                 image_scroll_type horizontal;
                 image_scroll_type vertical;
             } scroll;
-
-            color clearColor;
+            
             image_filter_type filter;
+            color clearColor;
             int tileSheetID;
 
             inline int index(int col, int row) const noexcept;

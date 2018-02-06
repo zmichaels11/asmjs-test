@@ -163,6 +163,13 @@ namespace engine {
             return &res->_pTileSlots;
         }
 
+        const image_view& tiled_image::getImageView(int id) const noexcept {
+            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
+            auto pTileSheet = res->_pctx->getSpriteSheet(res->_info.tileSheetID);
+
+            return pTileSheet->getSprite(id);
+        }
+
         void tiled_image::setTile(int col, int row, const image_view& view) noexcept {
             auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
 

@@ -36,9 +36,7 @@ namespace engine {
 
             const scene_info& getInfo() const noexcept;
 
-            context& getContext() noexcept;
-
-            const context& getContext() const noexcept;
+            context * getContext() noexcept;
         };
     }
 }

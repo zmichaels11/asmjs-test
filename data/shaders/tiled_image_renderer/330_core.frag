@@ -4,7 +4,7 @@ in vec3 fTexCoord;
 
 out vec4 result;
 
-uniform sampler2DArry uImage;
+uniform sampler2DArray uImage;
 
 void main() {
     vec4 color = texture(uImage, fTexCoord);

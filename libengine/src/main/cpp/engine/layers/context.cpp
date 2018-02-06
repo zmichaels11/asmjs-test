@@ -127,9 +127,15 @@ namespace engine {
 
                             _renderables.push_back(std::move(ptr));
                         } break;
-                        case renderable_type::TILED_IMAGE:
-                            _renderables.push_back(std::make_unique<tiled_image>(pctx, pInfo->info.tiledImageInfo));
-                            break;
+                        case renderable_type::TILED_IMAGE: {
+                            auto ptr = std::make_unique<tiled_image> (pctx, pInfo->info.tiledImageInfo);
+
+                            _beginWriteCommands.push_back(std::bind(&tiled_image::beginWrite, ptr.get()));
+                            _endWriteCommands.push_back(std::bind(&tiled_image::endWrite, ptr.get()));
+                            _renderCommands.push_back(std::bind(&tiled_image::render, ptr.get()));
+
+                            _renderables.push_back(std::move(ptr));
+                        } break;
                         default:
                             _onError("Unsupported renderable_type!");                            
                     }
