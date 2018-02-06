@@ -42,6 +42,10 @@ namespace engine {
                 float _scaleW;
                 float _scaleH;
 
+#if defined(__EMSCRIPTEN__)
+                std::unique_ptr<tile_slot[]> _tileSlots;
+#endif
+
                 tile_slot * _pTileSlotAccessor;
                 std::size_t _tileCount;                
 
@@ -91,18 +95,33 @@ namespace engine {
 
         void tiled_image::beginWrite() noexcept {
             constexpr static auto MAP_ACCESS = graphics::buffer_access::WRITE | graphics::buffer_access::INVALIDATE_BUFFER;
-            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());            
-            auto mappedSize = res->_tileCount * sizeof(tile_slot);
-            auto mappedData = res->_vbos.imageView.map(0, mappedSize, MAP_ACCESS);
+            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get()); 
 
-            res->_pTileSlotAccessor = reinterpret_cast<tile_slot * > (mappedData);                        
+#if defined(__EMSCRIPTEN__)
+            res->_pTileSlotAccessor = res->_tileSlots.get();
+#else
+            auto mappedSize = res->_tileCount * sizeof(tile_slot);
+            auto mappedData = res->_vbos.imageView.map(0, mappedSize, MAP_ACCESS);            
+
+            res->_pTileSlotAccessor = reinterpret_cast<tile_slot * > (mappedData);
+#endif
+
             res->_redraw = false;
         }
 
         void tiled_image::endWrite() noexcept {
             auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
 
+#if defined(__EMSCRIPTEN__)
+            auto tileDataSize = res->_tileCount * sizeof(tile_slot);
+
+            res->_vbos.imageView.invalidate();
+            res->_vbos.imageView.subData(0, res->_tileSlots.get(), tileDataSize);
+#else
             res->_vbos.imageView.unmap();
+#endif
+
+            res->_pTileSlotAccessor = nullptr;
 
             if (res->_dirty) {
                 res->_dirty = false;
@@ -200,6 +219,11 @@ namespace engine {
                 auto textureHeight = info.dim.rows * info.tileSize.width;
 
                 _tileCount = info.dim.columns * info.dim.rows;
+
+#if defined(__EMSCRIPTEN__)
+                _tileSlots = std::make_unique<tile_slot[]> (_tileCount);
+#endif
+
                 // OpenGL screen space is [-1.0, -1.0] to [1.0, 1.0], so scale appropriately.
                 _scaleW = 2.0F / static_cast<float> (info.dim.columns);
                 _scaleH = 2.0F / static_cast<float> (info.dim.rows);
@@ -217,7 +241,11 @@ namespace engine {
                     auto newTexture = graphics::texture({
                         {textureWidth, textureHeight, 1}, // should this be power-of-2?
                         1, 1,
-                        graphics::sampler_info::defaults(), // should be specified in info
+                        {
+                            {graphics::mag_filter::LINEAR, graphics::min_filter::LINEAR},
+                            {graphics::address_mode::REPEAT, graphics::address_mode::REPEAT, graphics::address_mode::REPEAT},
+                            {-1000.0, 1000.0}
+                        },
                         graphics::internal_format::RGBA8});
 
                     std::swap(_texture, newTexture);

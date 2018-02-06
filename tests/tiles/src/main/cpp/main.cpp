@@ -18,6 +18,7 @@ constexpr unsigned int TILE_WIDTH = 32;
 constexpr unsigned int TILE_HEIGHT = 32;
 constexpr unsigned int SCREEN_WIDTH = 640;
 constexpr unsigned int SCREEN_HEIGHT = 480;
+constexpr float SCROLL_SPEED = 0.001F;
 constexpr auto HINTS = engine::application_hint::VSYNC;
 
 auto _loadTile(
@@ -31,10 +32,23 @@ auto _loadTile(
     return ptr;    
 }
 
+enum class direction {
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN
+};
+
 struct tile_test_data {
     engine::layers::tile_slot ** ppTileSlots;
     engine::layers::image_view tiles[2];
     bool built;
+
+    struct scroll_t {
+        direction dir ;
+        float x;
+        float y;
+    } scroll;
 };
 
 int main(int argc, char** argv) {
@@ -95,12 +109,45 @@ int main(int argc, char** argv) {
     std::random_device rd;    
     std::mt19937 mt(rd());
     std::uniform_int_distribution<int> tileDist(0, 2);
+    std::uniform_real_distribution<double> scrollDist(0.0, 1.0);
 
-    engine::application::setOnUpdate([&](auto pUserData) {
+    engine::application::setOnUpdate([&](auto pUserData) {        
+        auto pScene = engine::application::getScene();
+        auto pLayer = dynamic_cast<engine::layers::background_layer * > (pScene->getLayer(0));
         auto pTileTestData = reinterpret_cast<tile_test_data * > (pUserData);
-                
-        if (!pTileTestData->built) {
-            auto pScene = engine::application::getScene();
+            
+        if (scrollDist(mt) > 0.995) {
+            auto dirSelect = scrollDist(mt);
+
+            if (dirSelect > 0.75) {
+                pTileTestData->scroll.dir = direction::UP;
+            } else if (dirSelect > 0.5) {
+                pTileTestData->scroll.dir = direction::DOWN;
+            } else if (dirSelect > 0.25) {
+                pTileTestData->scroll.dir = direction::LEFT;
+            } else {
+                pTileTestData->scroll.dir = direction::RIGHT;
+            }
+        }
+
+        switch (pTileTestData->scroll.dir) {
+            case direction::UP:
+                pTileTestData->scroll.y -= SCROLL_SPEED;
+                break;
+            case direction::DOWN:
+                pTileTestData->scroll.y += SCROLL_SPEED;
+                break;
+            case direction::LEFT:
+                pTileTestData->scroll.x += SCROLL_SPEED;
+                break;
+            case direction::RIGHT:
+                pTileTestData->scroll.x -= SCROLL_SPEED;
+                break;
+        }
+
+        pLayer->scroll(pTileTestData->scroll.x, pTileTestData->scroll.y);
+
+        if (!pTileTestData->built) {            
             auto pCtx = pScene->getContext();
             auto pTiledImage = reinterpret_cast<engine::layers::tiled_image * > (pCtx->getRenderableImage(0));
 
@@ -120,8 +167,8 @@ int main(int argc, char** argv) {
                 }
             }            
 
-            pTileTestData->built = true;
-        }
+            pTileTestData->built = true;            
+        }        
     });
 
     engine::application::setOnInit([](auto pUserData) {
@@ -134,6 +181,9 @@ int main(int argc, char** argv) {
         pTileTestData->tiles[0] = pTiledImage->getImageView(0);
         pTileTestData->tiles[1] = pTiledImage->getImageView(1);
         pTileTestData->built = false;
+        pTileTestData->scroll.dir = direction::RIGHT;
+        pTileTestData->scroll.x = 0.0F;
+        pTileTestData->scroll.y = 0.0F;
     });
 
     engine::application::setUserData(std::make_shared<tile_test_data>());
