@@ -35,15 +35,15 @@ namespace engine {
             };
 
             struct tiled_image_resources : public base_resources {
-                const context * _pctx;
+                const context * _pCtx;
                 tiled_image_info _info;
                 bool _dirty;
                 bool _redraw;
                 float _scaleW;
                 float _scaleH;
 
-                tile_slot * _pTileSlots;
-                std::size_t _tileCount;
+                tile_slot * _pTileSlotAccessor;
+                std::size_t _tileCount;                
 
                 struct vbo_t {
                     graphics::buffer select;
@@ -58,9 +58,7 @@ namespace engine {
                 graphics::texture _texture;                
                 graphics::vertex_array _vao;                
 
-                tiled_image_resources(
-                    const context * pctx,
-                    const tiled_image_info& info) noexcept;
+                tiled_image_resources(const tiled_image_info& info) noexcept;
 
                 virtual ~tiled_image_resources() {}
             };
@@ -86,15 +84,19 @@ namespace engine {
 #endif
         }
 
-        tiled_image::tiled_image(
-            const context * pctx,
-            const tiled_image_info& info) noexcept {
+        tiled_image::tiled_image(const tiled_image_info& info) noexcept {
 
-            _pResources = std::make_unique<tiled_image_resources> (pctx, info);
+            _pResources = std::make_unique<tiled_image_resources> (info);
         }
 
         void tiled_image::beginWrite() noexcept {
-            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
+            constexpr static auto MAP_ACCESS = graphics::buffer_access::WRITE | graphics::buffer_access::INVALIDATE_BUFFER;
+            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());            
+            auto mappedSize = res->_tileCount * sizeof(tile_slot);
+            auto mappedData = res->_vbos.imageView.map(0, mappedSize, MAP_ACCESS);
+
+            res->_pTileSlotAccessor = reinterpret_cast<tile_slot * > (mappedData);
+            
 
             // always clear the redraw flag. It gets set only in endWrite.
             res->_redraw = false;
@@ -106,6 +108,8 @@ namespace engine {
             if (!res->_dirty) {
                 return;
             }
+
+            res->_vbos.imageView.unmap();
 
             res->_dirty = false;
             res->_redraw = true;
@@ -124,7 +128,7 @@ namespace engine {
                 return;
             }
 
-            auto pTileSheet = res->_pctx->getSpriteSheet(res->_info.tileSheetID);
+            auto pTileSheet = res->_pCtx->getSpriteSheet(res->_info.tileSheetID);
             auto pTexture = reinterpret_cast<const graphics::texture * > (pTileSheet->getTexture());            
 
             pTexture->bind(0);
@@ -160,26 +164,23 @@ namespace engine {
         tile_slot ** tiled_image::fetchTileSlots() noexcept {
             auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());            
 
-            return &res->_pTileSlots;
+            return &res->_pTileSlotAccessor;
+        }
+
+        void tiled_image::bind(const context * pCtx) noexcept {
+            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
+
+            res->_pCtx = pCtx;
         }
 
         const image_view& tiled_image::getImageView(int id) const noexcept {
             auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
-            auto pTileSheet = res->_pctx->getSpriteSheet(res->_info.tileSheetID);
+
+            std::cout << "Fetching spritesheet: " << res->_info.tileSheetID << std::endl;
+
+            auto pTileSheet = res->_pCtx->getSpriteSheet(res->_info.tileSheetID);
 
             return pTileSheet->getSprite(id);
-        }
-
-        void tiled_image::setTile(int col, int row, const image_view& view) noexcept {
-            auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
-
-            if (res->_pTileSlots == nullptr) {
-                _onError("Unable to write to tile_slot!");
-            }
-
-            auto idx = res->_info.index(col, row);
-
-            res->_pTileSlots[idx].view = view;
         }
 
         const tiled_image_info& tiled_image::getInfo() const noexcept {
@@ -194,13 +195,10 @@ namespace engine {
                 __builtin_trap();
             }
 
-            tiled_image_resources::tiled_image_resources(
-                    const context * pctx,
-                    const tiled_image_info& info) noexcept {
-
+            tiled_image_resources::tiled_image_resources(const tiled_image_info& info) noexcept {
+                _pCtx = nullptr;
                 _dirty = false;
                 _redraw = false;
-                _pctx = pctx;
                 _info = info;
 
                 auto textureWidth = info.dim.columns * info.tileSize.width;
@@ -228,7 +226,16 @@ namespace engine {
                         graphics::internal_format::RGBA8});
 
                     std::swap(_texture, newTexture);
-                }                
+                }
+
+                {
+                    auto attachmentInfo = std::vector<graphics::attachment_info>();
+
+                    attachmentInfo.push_back({0, nullptr, &_texture});
+                    auto newFB = graphics::framebuffer({});
+
+                    std::swap(_fb, newFB);
+                }       
 
                 {
                     auto positionData = std::vector<vec2_t>();

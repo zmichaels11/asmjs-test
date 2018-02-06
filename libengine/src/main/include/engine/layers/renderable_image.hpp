@@ -23,9 +23,9 @@ namespace engine {
 
             renderable_image() : _pResources(nullptr) {}
 
-            renderable_image(
-                const context * pctx,
-                const renderable_image_info& info) noexcept;
+            renderable_image(const renderable_image_info& info) noexcept;
+
+            virtual void bind(const context * pCtx) noexcept;
 
             virtual void beginWrite() noexcept;
 

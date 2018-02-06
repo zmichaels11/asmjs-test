@@ -22,9 +22,9 @@ namespace engine {
 
             tiled_image& operator=(tiled_image&&) = default;
 
-            tiled_image(
-                const context * pctx,
-                const tiled_image_info& info) noexcept;
+            tiled_image(const tiled_image_info& info) noexcept;
+
+            virtual void bind(const context * pCtx) noexcept;
 
             virtual void beginWrite() noexcept;
 
@@ -35,8 +35,6 @@ namespace engine {
             virtual void invalidate() noexcept;
 
             virtual const void * getTexture() const noexcept;
-
-            void setTile(int col, int row, const image_view& view) noexcept;
 
             const image_view& getImageView(int id) const noexcept;
 

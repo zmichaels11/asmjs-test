@@ -34,19 +34,19 @@ namespace engine {
 
                 graphics::texture _texture;
 
-                renderable_image_resources(
-                    const context * pctx,
-                    const renderable_image_info& info) noexcept;
+                renderable_image_resources(const renderable_image_info& info) noexcept;
 
                 virtual ~renderable_image_resources() {}
             };
         }
 
-        renderable_image::renderable_image(
-            const context * pctx,
-            const renderable_image_info& info) noexcept {
+        void renderable_image::bind(const context * pCtx) noexcept {
 
-            _pResources = std::make_unique<renderable_image_resources> (pctx, info);
+        }
+
+        renderable_image::renderable_image(const renderable_image_info& info) noexcept {
+
+            _pResources = std::make_unique<renderable_image_resources> (info);
         }
 
         void renderable_image::invalidate() noexcept {
@@ -150,9 +150,7 @@ namespace engine {
                 }
             }
 
-            renderable_image_resources::renderable_image_resources(
-                const context * pctx,
-                const renderable_image_info& info) noexcept {
+            renderable_image_resources::renderable_image_resources(const renderable_image_info& info) noexcept {
 
                 _info = info;
                 _dirty = true;

@@ -102,7 +102,10 @@ namespace graphics {
         return _info;
     }
 
-    void framebuffer::drawBuffers(const draw_buffer * pBuffers, std::size_t count) noexcept {        
+    void framebuffer::drawBuffers(const draw_buffer * pBuffers, std::size_t count) noexcept {
+        for (int i = 0; i < count; i++) {
+            std::cout << "drawBuffer: " << static_cast<unsigned int> (pBuffers[i]) << std::endl;
+        }
         glDrawBuffers(static_cast<GLsizei> (count), reinterpret_cast<const GLenum * > (pBuffers));        
     }
 

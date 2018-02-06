@@ -125,6 +125,8 @@ namespace engine {
                     graphics::apply(graphics::blend_state_info::premultipliedAlpha());
                 });
 
+                _context.bind();
+
                 for (auto it = info.pLayerInfos; it != (info.pLayerInfos + info.nLayerInfos); it++) {
                     if (static_cast<unsigned int> (it->ext.hints & scene_layer_hint::CLEAR)) {                        
                         auto buffers = static_cast<graphics::clear_buffer> (0);

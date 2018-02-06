@@ -27,12 +27,18 @@ namespace engine {
                 std::vector<std::function<void()>> _endWriteCommands;
                 std::vector<std::function<void()>> _renderCommands;
 
-                context_resources(
-                    const context * pctx,
-                    const context_info& info);
+                context_resources(const context_info& info);
 
                 virtual ~context_resources() {}
             };
+        }
+
+        void context::bind() noexcept {
+            auto res = dynamic_cast<context_resources * > (_pResources.get());
+
+            for (auto&& renderable : res->_renderables) {
+                renderable->bind(this);
+            }
         }
 
         void context::beginWrite() noexcept {
@@ -60,11 +66,15 @@ namespace engine {
         }
 
         context::context(const context_info& info) noexcept {
-            _pResources = std::make_unique<context_resources> (this, info);
+            _pResources = std::make_unique<context_resources> (info);
+
+            std::cout << "context resources: " << _pResources.get() << std::endl;
         }
 
         const sprite_sheet * context::getSpriteSheet(int id) const noexcept {
-            auto res = dynamic_cast<const context_resources * > (_pResources.get());
+            auto res = dynamic_cast<const context_resources * > (_pResources.get());            
+
+            std::cout << "ptr(res) = " << res << std::endl;            
 
             return res->_spriteSheets.data() + id;
         }
@@ -99,21 +109,23 @@ namespace engine {
                 __builtin_trap();
             }
 
-            context_resources::context_resources(
-                const context * pctx,
-                const context_info& info) {
+            context_resources::context_resources(const context_info& info) {
 
                 _info = info;
                 _spriteSheets.reserve(info.nSpriteInfos);
                 _fonts.reserve(info.nFontInfos);
                 _renderables.reserve(info.nRenderableInfos);
 
-                for (decltype(info.nSpriteInfos) i = 0; i < info.nSpriteInfos; i++) {                    
-                    _spriteSheets.push_back(sprite_sheet(info.pSpriteInfos[i]));
-                }
+                for (decltype(info.nSpriteInfos) i = 0; i < info.nSpriteInfos; i++) {
+                    auto spriteSheet = sprite_sheet(info.pSpriteInfos[i]);    
+
+                    _spriteSheets.push_back(std::move(spriteSheet));   
+                }                
 
                 for (decltype(info.nFontInfos) i = 0; i < info.nFontInfos; i++) {
-                    _fonts.push_back(bitmap_font(info.pFontInfos[i]));
+                    auto bmpFont = bitmap_font(info.pFontInfos[i]);
+
+                    _fonts.push_back(std::move(bmpFont));
                 }
 
                 for (decltype(info.nRenderableInfos) i = 0; i < info.nRenderableInfos; i++) {
@@ -121,18 +133,20 @@ namespace engine {
 
                     switch (pInfo->type) {
                         case renderable_type::IMAGE:{
-                            auto ptr = std::make_unique<renderable_image>(pctx, pInfo->info.imageInfo);
+                            auto ptr = std::make_unique<renderable_image>(pInfo->info.imageInfo);
 
                             _endWriteCommands.push_back(std::bind(&renderable_image::endWrite, ptr.get()));
 
                             _renderables.push_back(std::move(ptr));
                         } break;
                         case renderable_type::TILED_IMAGE: {
-                            auto ptr = std::make_unique<tiled_image> (pctx, pInfo->info.tiledImageInfo);
+                            auto ptr = std::make_unique<tiled_image> (pInfo->info.tiledImageInfo);
 
                             _beginWriteCommands.push_back(std::bind(&tiled_image::beginWrite, ptr.get()));
                             _endWriteCommands.push_back(std::bind(&tiled_image::endWrite, ptr.get()));
                             _renderCommands.push_back(std::bind(&tiled_image::render, ptr.get()));
+
+                            std::cout << "Allocating tiled_image: " << ptr.get() << std::endl;
 
                             _renderables.push_back(std::move(ptr));
                         } break;

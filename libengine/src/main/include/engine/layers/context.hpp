@@ -41,6 +41,8 @@ namespace engine {
             void endWrite() noexcept;
 
             void render() const noexcept;
+
+            void bind() noexcept;
         };
     }
 }
