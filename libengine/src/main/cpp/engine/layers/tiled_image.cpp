@@ -198,6 +198,8 @@ namespace engine {
                     const context * pctx,
                     const tiled_image_info& info) noexcept {
 
+                _dirty = false;
+                _redraw = false;
                 _pctx = pctx;
                 _info = info;
 
@@ -317,12 +319,9 @@ namespace engine {
 
                 if (!_program) {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
-                    auto fsh = graphics::shader::makeVertex(FRAGMENT_SHADER_PATH);
+                    auto fsh = graphics::shader::makeFragment(FRAGMENT_SHADER_PATH);
 
-                    auto shaders = std::vector<graphics::shader * > ();
-
-                    shaders.push_back(&vsh);
-                    shaders.push_back(&fsh);
+                    graphics::shader * shaders[] = {&vsh, &fsh};
 
                     auto attributes = std::vector<graphics::attribute_state_info> ();
 
@@ -332,7 +331,7 @@ namespace engine {
                     attributes.push_back({"vFrameView", A_FRAME_VIEW});                    
 
                     auto newProgram = graphics::program({
-                        shaders.data(), shaders.size(), 
+                        shaders, 2, 
                         attributes.data(), attributes.size()});
 
                     std::swap(_program, newProgram);
