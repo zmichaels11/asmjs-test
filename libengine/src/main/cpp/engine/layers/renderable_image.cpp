@@ -1,14 +1,5 @@
+#include "pch.h"
 #include "engine/layers/renderable_image.hpp"
-
-#include <iostream>
-#include <memory>
-#include <string>
-#include <utility>
-
-#include "graphics/image.hpp"
-#include "graphics/texture.hpp"
-
-#include "util.hpp"
 
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/context.hpp"

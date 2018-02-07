@@ -1,5 +1,3 @@
-#include <cstdio>
-
 #include <memory>
 #include <random>
 #include <sstream>
@@ -9,15 +7,8 @@
 #include "math/vec2.hpp"
 #include "math/mat4.hpp"
 
-#include "engine/application.hpp"
-
-#include "graphics/image.hpp"
-
-#include "engine/layers/basic_sprite_layer.hpp"
-#include "engine/layers/basic_sprite_layer_info.hpp"
-#include "engine/layers/scene_info.hpp"
-#include "engine/layers/scene_layer_info.hpp"
-#include "engine/layers/sprite_sheet_info.hpp"
+#include "engine.hpp"
+#include "graphics.hpp"
 
 constexpr unsigned int MAX_SPRITES = 256;
 constexpr unsigned int FRAME_COUNT = 10;

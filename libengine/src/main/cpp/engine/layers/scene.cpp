@@ -1,16 +1,5 @@
+#include "pch.h"
 #include "engine/layers/scene.hpp"
-
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "graphics/framebuffer.hpp"
-#include "graphics/state.hpp"
-
-#include "util.hpp"
 
 #include "engine/application.hpp"
 

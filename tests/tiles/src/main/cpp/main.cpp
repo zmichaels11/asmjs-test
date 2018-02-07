@@ -1,16 +1,10 @@
-#include "engine/application.hpp"
-
 #include <memory>
 #include <random>
 #include <string>
 #include <vector>
 
-#include "graphics/image.hpp"
-
-#include "engine/layers/scene_info.hpp"
-#include "engine/layers/scene_layer_info.hpp"
-#include "engine/layers/sprite_sheet_info.hpp"
-#include "engine/layers/tiled_image.hpp"
+#include "engine.hpp"
+#include "graphics.hpp"
 
 constexpr unsigned int TILES_ACROSS = 32;
 constexpr unsigned int TILES_DOWN = 32;

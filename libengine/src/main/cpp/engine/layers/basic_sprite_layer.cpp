@@ -1,19 +1,5 @@
+#include "pch.h"
 #include "engine/layers/basic_sprite_layer.hpp"
-
-#include <cstring>
-
-#include <iostream>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "graphics/buffer.hpp"
-#include "graphics/operation.hpp"
-#include "graphics/program.hpp"
-#include "graphics/shader.hpp"
-#include "graphics/texture.hpp"
-#include "graphics/vertex_array.hpp"
 
 #include "math/mat4.hpp"
 

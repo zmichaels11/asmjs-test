@@ -1,4 +1,4 @@
-#pragma once
+#if 0
 
 #include <cstddef>
 
@@ -90,3 +90,4 @@ namespace nk {
         void newFrame();
     };
 }
+#endif

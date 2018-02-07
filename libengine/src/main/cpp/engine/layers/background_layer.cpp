@@ -1,18 +1,5 @@
+#include "pch.h"
 #include "engine/layers/background_layer.hpp"
-
-#include <cstring>
-
-#include <iostream>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "graphics/operation.hpp"
-#include "graphics/program.hpp"
-#include "graphics/shader.hpp"
-#include "graphics/texture.hpp"
-#include "graphics/vertex_array.hpp"
 
 #include "engine/layers/background_layer_info.hpp"
 #include "engine/layers/base_resources.hpp"

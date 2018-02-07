@@ -1,19 +1,5 @@
+#include "pch.h"
 #include "engine/layers/gui_layer.hpp"
-
-#include <cstddef>
-
-#if defined(GLES20)
-#define GLFW_INCLUDE_ES2
-#include <GLFW/glfw3.h>
-#elif defined(GLES30)
-#define GLFW_INCLUDE_ES3
-#include <GLFW/glfw3.h>
-#elif defined(GL)
-#include <GLFW/glfw3.h>
-#else
-#include <GLFW/glfw3.h>
-#error "No GL specified!"
-#endif
 
 #define NK_INCLUDE_FIXED_TYPES
 #define NK_INCLUDE_STANDARD_IO
@@ -24,16 +10,6 @@
 #define NK_INCLUDE_DEFAULT_FONT
 #define NK_IMPLEMENTATION
 #include "nuklear.h"
-
-#include <string>
-#include <vector>
-
-#include "graphics/buffer.hpp"
-#include "graphics/operation.hpp"
-#include "graphics/program.hpp"
-#include "graphics/shader.hpp"
-#include "graphics/texture.hpp"
-#include "graphics/vertex_array.hpp"
 
 #include "engine/application.hpp"
 

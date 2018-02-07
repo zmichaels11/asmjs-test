@@ -1,9 +1,5 @@
+#include "pch.h"
 #include "engine/layers/bitmap_font.hpp"
-
-#include <memory>
-
-#include "graphics/image.hpp"
-#include "graphics/texture.hpp"
 
 #include "engine/layers/base_resources.hpp"
 

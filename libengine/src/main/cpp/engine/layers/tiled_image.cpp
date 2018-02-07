@@ -1,23 +1,5 @@
+#include "pch.h"
 #include "engine/layers/tiled_image.hpp"
-
-#include <cstddef>
-
-#include <iostream>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
-
-#include "graphics/buffer.hpp"
-#include "graphics/framebuffer.hpp"
-#include "graphics/operation.hpp"
-#include "graphics/program.hpp"
-#include "graphics/shader.hpp"
-#include "graphics/state.hpp"
-#include "graphics/texture.hpp"
-#include "graphics/vertex_array.hpp"
-
-#include "util.hpp"
 
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/context.hpp"

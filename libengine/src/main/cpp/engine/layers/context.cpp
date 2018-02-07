@@ -1,10 +1,5 @@
+#include "pch.h"
 #include "engine/layers/context.hpp"
-
-#include <functional>
-#include <iostream>
-#include <memory>
-#include <string>
-#include <vector>
 
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/bitmap_font.hpp"

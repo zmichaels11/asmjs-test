@@ -1,20 +1,8 @@
+#include "pch.h"
 #include "engine/layers/sprite_sheet.hpp"
 
-#include <cstdio>
-
-#include <algorithm>
-#include <iostream>
-#include <memory>
-#include <utility>
-
-#include "engine/image_cache.hpp"
 #include "engine/layers/image_view.hpp"
 #include "engine/layers/sprite_sheet_info.hpp"
-
-#include "graphics/image.hpp"
-#include "graphics/texture.hpp"
-
-#include "util.hpp"
 
 namespace engine {
     namespace layers {
