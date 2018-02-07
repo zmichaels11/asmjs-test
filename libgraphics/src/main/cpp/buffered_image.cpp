@@ -1,11 +1,5 @@
+#include "pch.h"
 #include "graphics/hobject/buffered_image.hpp"
-
-#include <cstddef>
-#include <cstring>
-
-#include <iostream>
-#include <memory>
-#include <string>
 
 #include "graphics/henum/pixel_format.hpp"
 #include "graphics/hobject/image.hpp"

@@ -1,10 +1,6 @@
 #if defined(GLES30)
-
+#include "pch.h"
 #include "graphics.hpp"
-
-#include <GLES3/gl3.h>
-
-#include <iostream>
 
 namespace graphics {
     void init() noexcept {
@@ -19,5 +15,4 @@ namespace graphics {
         std::cout << "[GLES] OpenGLES Shading Language Version: " << strGLSL << std::endl;
     }
 }
-
 #endif

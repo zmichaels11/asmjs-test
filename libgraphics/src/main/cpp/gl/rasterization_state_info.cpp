@@ -1,8 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hstate/rasterization_state_info.hpp"
-
-#include <GL/glew.h>
 
 #include "graphics/henum/cull_mode.hpp"
 
@@ -26,5 +24,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

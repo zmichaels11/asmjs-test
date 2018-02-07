@@ -1,10 +1,6 @@
 #if defined(GLES30)
-
+#include "pch.h"
 #include "graphics/hobject/buffer.hpp"
-
-#include <GLES3/gl3.h>
-
-#include <string>
 
 #include "graphics/henum/buffer_target.hpp"
 #include "graphics/hinfo/buffer_info.hpp"
@@ -86,5 +82,4 @@ namespace graphics {
         glBindBufferRange(static_cast<GLenum> (_info.target), index, _handle, offset, size);
     }
 }
-
 #endif

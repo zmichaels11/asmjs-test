@@ -1,8 +1,7 @@
+#include "pch.h"
 #include "graphics/hobject/shader.hpp"
 
 #include "graphics/hinfo/shader_info.hpp"
-
-#include "util.hpp"
 
 namespace graphics {
     namespace {

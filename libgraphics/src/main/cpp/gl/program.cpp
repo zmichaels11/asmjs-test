@@ -1,11 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hobject/program.hpp"
-
-#include <GL/glew.h>
-
-#include <iostream>
-#include <string>
 
 #include "graphics/hinfo/attribute_state_info.hpp"
 #include "graphics/hinfo/program_info.hpp"
@@ -98,5 +93,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

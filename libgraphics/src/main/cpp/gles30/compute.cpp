@@ -1,8 +1,6 @@
 #if defined(GLES30)
-
+#include "pch.h"
 #include "graphics/hutil/compute.hpp"
-
-#include <GLES3/gl31.h>
 
 namespace graphics {
     
@@ -13,5 +11,4 @@ namespace graphics {
             static_cast<GLuint> (numGroupsZ));
     }    
 }
-
 #endif

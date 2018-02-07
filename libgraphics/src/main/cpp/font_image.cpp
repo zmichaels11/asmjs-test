@@ -1,11 +1,6 @@
+#include "pch.h"
 #include "graphics/hobject/font_image.hpp"
 
-#include <cstddef>
-
-#include <iostream>
-#include <memory>
-#include <string>
-#include <utility>
 #include <vector>
 
 #include "graphics/hinfo/font_info.hpp"
@@ -15,8 +10,6 @@
 #define STB_TRUETYPE_IMPLEMENTATION
 #define STBTT_STATIC
 #include "stb_truetype.h"
-
-#include "util.hpp"
 
 namespace graphics {
     namespace {

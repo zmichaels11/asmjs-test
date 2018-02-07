@@ -1,10 +1,6 @@
 #if defined(GLES30)
-
+#include "pch.h"
 #include "graphics/hobject/renderbuffer.hpp"
-
-#include <GLES3/gl3.h>
-
-#include <string>
 
 #include "graphics/hinfo/renderbuffer_info.hpp"
 
@@ -38,5 +34,4 @@ namespace graphics {
         return _name;
     }
 }
-
 #endif

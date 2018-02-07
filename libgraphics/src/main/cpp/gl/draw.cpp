@@ -1,8 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hutil/draw.hpp"
-
-#include <GL/glew.h>
 
 namespace graphics {    
     void draw::arrays(draw_mode mode, int first, std::size_t count) noexcept {
@@ -25,5 +23,4 @@ namespace graphics {
         glDrawRangeElements(static_cast<GLenum> (mode), start, end, count, static_cast<GLenum> (type), offset);
     }
 }
-
 #endif

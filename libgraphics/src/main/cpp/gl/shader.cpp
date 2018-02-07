@@ -1,12 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hobject/shader.hpp"
-
-#include <GL/glew.h>
-
-#include <iostream>
-#include <memory>
-#include <string>
 
 #include "graphics/hinfo/shader_info.hpp"
 
@@ -74,5 +68,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

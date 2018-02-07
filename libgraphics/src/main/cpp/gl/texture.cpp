@@ -1,12 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hobject/texture.hpp"
-
-#include <GL/glew.h>
-
-#include <algorithm>
-#include <iostream>
-#include <string>
 
 #include "graphics/hinfo/pixel_info.hpp"
 #include "graphics/hinfo/texture_info.hpp"
@@ -204,5 +198,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

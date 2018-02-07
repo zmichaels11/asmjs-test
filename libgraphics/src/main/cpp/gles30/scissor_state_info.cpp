@@ -1,8 +1,6 @@
 #if defined(GLES30)
-
+#include "pch.h"
 #include "graphics/hstate/scissor_state_info.hpp"
-
-#include <GLES3/gl3.h>
 
 namespace graphics {
     template<>
@@ -15,5 +13,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

@@ -1,8 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hstate/depth_stencil_state_info.hpp"
-
-#include <GL/glew.h>
 
 namespace graphics {
     template<>
@@ -32,5 +30,4 @@ namespace graphics {
         }
     } 
 }
-
 #endif

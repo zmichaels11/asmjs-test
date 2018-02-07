@@ -1,11 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hobject/buffer.hpp"
-
-#include <GL/glew.h>
-
-#include <iostream>
-#include <string>
 
 #include "graphics/henum/buffer_target.hpp"
 #include "graphics/hinfo/buffer_info.hpp"
@@ -126,5 +121,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

@@ -1,13 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hobject/framebuffer.hpp"
-
-#include <cstddef>
-
-#include <GL/glew.h>
-
-#include <iostream>
-#include <string>
 
 #include "graphics/henum/draw_buffer.hpp"
 #include "graphics/henum/internal_format.hpp"

@@ -1,10 +1,6 @@
 #if defined(GLES30)
-
+#include "pch.h"
 #include "graphics/hutil/uniform.hpp"
-
-#include <cstddef>
-
-#include <GLES3/gl3.h>
 
 namespace graphics {
     void uniform::setUniform1(int location, std::size_t count, const unsigned int * value) noexcept {
@@ -115,5 +111,4 @@ namespace graphics {
         glUniformMatrix4fv(location, count, false, value);
     }
 }
-
 #endif

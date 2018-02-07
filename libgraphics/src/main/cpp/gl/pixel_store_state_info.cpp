@@ -1,8 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hstate/pixel_store_state_info.hpp"
-
-#include <GL/glew.h>
 
 namespace graphics {
     template<>
@@ -26,5 +24,4 @@ namespace graphics {
         //glPixelStorei(GL_UNPACK_SKIP_ALIGNMENT, info.unpack.alignment);
     }
 }
-
 #endif

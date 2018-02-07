@@ -1,10 +1,6 @@
 #if defined(GL)
+#include "pch.h"
 #include "graphics.hpp"
-
-#include <GL/glew.h>
-
-#include <iostream>
-#include <string>
 
 namespace {
     void _onError(const std::string& reason, const std::string& msg) noexcept;

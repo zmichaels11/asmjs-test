@@ -1,6 +1,6 @@
+#include "pch.h"
 #include "graphics/hobject/pipeline_cache.hpp"
 
-#include <memory>
 #include <utility>
 
 #include "graphics/hobject/program.hpp"

@@ -1,8 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hutil/compute.hpp"
-
-#include <GL/glew.h>
 
 namespace graphics {
     void compute::dispatch(unsigned int numGroupsX, unsigned int numGroupsY, unsigned int numGroupsZ) noexcept {
@@ -12,5 +10,4 @@ namespace graphics {
             static_cast<GLuint> (numGroupsZ));        
     }
 }
-
 #endif

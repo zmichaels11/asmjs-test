@@ -1,8 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hstate/scissor_state_info.hpp"
-
-#include <GL/glew.h>
 
 namespace graphics {
     template<>
@@ -15,5 +13,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

@@ -1,11 +1,6 @@
 #if defined(GLES30)
-
+#include "pch.h"
 #include "graphics/hobject/vertex_array.hpp"
-
-#include <GLES3/gl3.h>
-
-#include <iostream>
-#include <string>
 
 #include "graphics/hinfo/vertex_attribute_description.hpp"
 #include "graphics/hinfo/vertex_array_info.hpp"
@@ -331,5 +326,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

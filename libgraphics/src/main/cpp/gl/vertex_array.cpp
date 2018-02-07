@@ -1,11 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hobject/vertex_array.hpp"
-
-#include <GL/glew.h>
-
-#include <iostream>
-#include <string>
 
 #include "graphics/hinfo/vertex_array_info.hpp"
 #include "graphics/hinfo/vertex_attribute_description.hpp"
@@ -337,5 +332,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

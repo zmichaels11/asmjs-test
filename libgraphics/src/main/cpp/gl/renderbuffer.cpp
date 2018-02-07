@@ -1,10 +1,6 @@
 #if defined(GL)
-
+#include "pch.h"
 #include "graphics/hobject/renderbuffer.hpp"
-
-#include <GL/glew.h>
-
-#include <string>
 
 #include "graphics/hinfo/renderbuffer_info.hpp"
 
@@ -46,5 +42,4 @@ namespace graphics {
         }
     }
 }
-
 #endif

@@ -1,9 +1,4 @@
-#include <cstddef>
-#include <cstring>
-
-#include <iostream>
-#include <memory>
-#include <string>
+#include "pch.h"
 
 #include "graphics/henum/pixel_format.hpp"
 #include "graphics/henum/pixel_type.hpp"

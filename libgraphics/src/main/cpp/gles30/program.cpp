@@ -1,11 +1,6 @@
 #if defined(GLES30)
-
+#include "pch.h"
 #include "graphics/hobject/program.hpp"
-
-#include <GLES3/gl3.h>
-
-#include <iostream>
-#include <string>
 
 #include "graphics/hobject/shader.hpp"
 #include "graphics/hinfo/attribute_state_info.hpp"
@@ -94,5 +89,4 @@ namespace graphics {
         }
     }
 }
-
 #endif
