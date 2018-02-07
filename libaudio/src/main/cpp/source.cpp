@@ -1,11 +1,5 @@
+#include "pch.h"
 #include "audio/source.hpp"
-
-#include <AL/al.h>
-
-#include <cstddef>
-
-#include <memory>
-#include <utility>
 
 #include "audio/buffer.hpp"
 

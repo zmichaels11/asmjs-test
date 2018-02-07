@@ -31,6 +31,8 @@ model {
                         srcDirs 'src/main/include'
                         include '**/*.hpp'
                     }
+
+                    preCompiledHeader 'pch.h'
                 }
             }
         }

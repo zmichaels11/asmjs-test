@@ -1,6 +1,5 @@
+#include "pch.h"
 #include "audio/buffer.hpp"
-
-#include <AL/al.h>
 
 #include "audio/format.hpp"
 

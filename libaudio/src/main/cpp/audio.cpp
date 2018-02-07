@@ -1,10 +1,5 @@
+#include "pch.h"
 #include "audio.hpp"
-
-#include <AL/al.h>
-#include <AL/alc.h>
-
-#include <iostream>
-#include <memory>
 
 namespace audio {
     namespace {
