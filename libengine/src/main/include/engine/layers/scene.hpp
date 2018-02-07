@@ -22,8 +22,6 @@ namespace engine {
 
             scene(const scene_info& info) noexcept;
 
-            void invalidate() noexcept;
-
             void beginWrite() noexcept;
 
             void endWrite() noexcept;

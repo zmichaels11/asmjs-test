@@ -8,6 +8,7 @@
 #include "engine/layers/base_layer.hpp"
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/bounds.hpp"
+#include "engine/layers/context.hpp"
 #include "engine/layers/gui_layer_info.hpp"
 
 #include "engine/layers/nuklear/edit_flags.hpp"
@@ -25,9 +26,7 @@ namespace engine {
             gui_layer& operator=(const gui_layer&) = delete;
 
         public:
-            gui_layer() {}
-
-            gui_layer(const gui_layer_info& info) noexcept;
+            gui_layer(const context& ctx, const gui_layer_info& info) noexcept;
 
             gui_layer(gui_layer&&) = default;
             
@@ -45,7 +44,7 @@ namespace engine {
 
             virtual void setProjection(const float * projection) noexcept;
 
-            void begin(
+            bool begin(
                 const std::string& title, 
                 const bounds<float, float>& bounds, 
                 nuklear::panel_flags flags) noexcept;
@@ -61,13 +60,13 @@ namespace engine {
                 int itemWidth, 
                 int cols) noexcept;
             
-            void buttonLabel(const std::string& title) noexcept;
+            bool buttonLabel(const std::string& title) noexcept;
 
-            void buttonText(
+            bool buttonText(
                 const char * title, 
                 int len) noexcept;
 
-            void edit_string(
+            void editString(
                 nuklear::edit_flags flags,
                 char * buffer,
                 int * len,

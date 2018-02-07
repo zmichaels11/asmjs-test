@@ -3,8 +3,11 @@
 
 #include "engine/application.hpp"
 
+#include "engine/layers/background_layer.hpp"
+#include "engine/layers/basic_sprite_layer.hpp"
 #include "engine/layers/base_resources.hpp"
 #include "engine/layers/context.hpp"
+#include "engine/layers/gui_layer.hpp"
 #include "engine/layers/scene_info.hpp"
 #include "engine/layers/scene_layer.hpp"
 
@@ -19,8 +22,7 @@ namespace engine {
                 std::vector<scene_layer> _layers;
                 std::vector<std::function<void()>> _beginWriteCommands;
                 std::vector<std::function<void()>> _endWriteCommands;
-                std::vector<std::function<void()>> _renderCommands;
-                std::vector<std::function<void()>> _invalidateCommands;          
+                std::vector<std::function<void()>> _renderCommands;      
 
                 scene_resources(const scene_info& info) noexcept;
 
@@ -50,14 +52,6 @@ namespace engine {
             auto res = dynamic_cast<scene_resources * > (_pResources.get());
             
             for (auto&& cmd : res->_endWriteCommands) {
-                cmd();
-            }
-        }
-
-        void scene::invalidate() noexcept {
-            auto res = dynamic_cast<scene_resources * > (_pResources.get());
-            
-            for (auto&& cmd : res->_invalidateCommands) {
                 cmd();
             }
         }
@@ -183,6 +177,14 @@ namespace engine {
                             _endWriteCommands.push_back(std::bind(&basic_sprite_layer::endWrite, ptr.get()));
 
                             _layers.push_back({*it, std::move(ptr)});
+                        } break;
+                        case layer_type::GUI_LAYER: {
+                            auto ptr = std::make_unique<gui_layer> (_context, it->info.guiLayer);
+
+                            _renderCommands.push_back(std::bind(&gui_layer::render, ptr.get()));
+                            _beginWriteCommands.push_back(std::bind(&gui_layer::beginWrite, ptr.get()));
+
+                            _layers.push_back({*it, std::move(ptr)});                            
                         } break;
                         default: 
                             _onError("Invalid layer_type!");                        
