@@ -13,64 +13,75 @@ class util {
     util() = delete;
 
 public:
-    inline static bool hasSuffix(const std::string& str, const std::string& suffix);
+    inline static bool hasSuffix(const std::string& str, const std::string& suffix) noexcept;
 
     template<class T>
-    static T alignUp(T a, T b);
+    static T alignUp(T a, T b) noexcept;
 
-    inline static std::string stringReadAll(const std::string& file);
+    inline static std::string stringReadAll(const std::string& file) noexcept;
 
-    inline static std::unique_ptr<char[]> readAll(const std::string& file);
-
-    template<class T>
-    inline static T bestFitPowerOf2(T value);
+    inline static std::unique_ptr<char[]> readAll(const std::string& file) noexcept;
 
     template<class T>
-    inline static T optimalMipmapCount(T width, T height, T depth);
+    inline static T bestFitPowerOf2(T value) noexcept;
 
     template<class T>
-    inline static T unorm(float value);
+    inline static T optimalMipmapCount(T width, T height, T depth) noexcept;
 
     template<class T>
-    inline static float normalize(T value);
+    inline static T unorm(float value) noexcept;
+
+    template<class T>
+    inline static float normalize(T value) noexcept;
 };
 
-bool util::hasSuffix(const std::string& str, const std::string& suffix) {
+bool util::hasSuffix(const std::string& str, const std::string& suffix) noexcept {
     return str.size() >= suffix.size() &&
             str.compare(str.size() - suffix.size(), suffix.size(), suffix) == 0;
 } 
 
 template<class T>
-T util::alignUp(T a, T b) {
+T util::alignUp(T a, T b) noexcept {
     return (a + b - 1) / b * b;
 }
 
-std::string util::stringReadAll(const std::string& file) {
-    auto in = std::ifstream(file);
-    auto out = std::string();
+std::string util::stringReadAll(const std::string& file) noexcept {
+    auto in = std::ifstream(file, std::ios::in | std::ios::ate);
 
-    in.seekg(0, std::ios::end);
-    out.reserve(in.tellg());
-    in.seekg(0, std::ios::beg);
+    if (in.good()) {
+      auto len = in.tellg();
+      auto out = std::string();
 
-    out.assign(std::istreambuf_iterator<char> (in), std::istreambuf_iterator<char> ());
-
-    return out;
+      out.reserve(in.tellg());
+      in.seekg(0, std::ios::beg);
+      out.assign(std::istreambuf_iterator<char> (in), std::istreambuf_iterator<char> ());
+      
+      return out;
+    } else {
+      std::cerr << "[util] io_error: Could not read from file: \"" << file << "\"!" << std::endl;
+      __builtin_trap();
+    }
 }
 
-std::unique_ptr<char[]> util::readAll(const std::string& file) {
-    auto in = std::ifstream(file, std::ios::binary | std::ios::ate);
-    auto len = in.tellg();
-    auto out = std::make_unique<char[]> (std::size_t(len));
+std::unique_ptr<char[]> util::readAll(const std::string& file) noexcept {
+    auto in = std::ifstream(file, std::ios::in | std::ios::binary | std::ios::ate);
 
-    in.seekg(0, std::ios::beg);
-    in.read(out.get(), len);
+    if (in.good()) {
+      auto len = in.tellg();
+      auto out = std::make_unique<char[]> (std::size_t(len));
 
-    return out;
+      in.seekg(0, std::ios::beg);
+      in.read(out.get(), len);
+
+      return out;
+    } else {
+      std::cerr << "[util] io_error: Could not read from file: \"" << file << "\"!" << std::endl;
+      __builtin_trap();
+    }
 }
 
 template<class T>
-T util::optimalMipmapCount(T width, T height, T depth) {
+T util::optimalMipmapCount(T width, T height, T depth) noexcept {
     auto value = std::max(std::max(width, height), depth);
     auto result = static_cast<T> (0);  
     auto testValue = static_cast<T> (1);
@@ -84,7 +95,7 @@ T util::optimalMipmapCount(T width, T height, T depth) {
 }
 
 template<class T>
-T util::bestFitPowerOf2(T value) {        
+T util::bestFitPowerOf2(T value) noexcept {
     auto result = static_cast<T> (1);
 
     while (result < value) {
@@ -95,11 +106,11 @@ T util::bestFitPowerOf2(T value) {
 }
 
 template<class T>
-T util::unorm(float value) {
+T util::unorm(float value) noexcept {
     return static_cast<T> (value * std::numeric_limits<T>::max());
 }
 
 template<class T>
-float util::normalize(T value) {
+float util::normalize(T value) noexcept {
     return static_cast<float> (value) / static_cast<float> (std::numeric_limits<T>::max());
 }
