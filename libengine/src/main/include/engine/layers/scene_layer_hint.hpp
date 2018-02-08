@@ -3,6 +3,7 @@
 namespace engine {
     namespace layers {
         enum class scene_layer_hint : unsigned int {
+            NONE = 0,
             CLEAR = 0x1,
             SCISSOR = 0x2,
             VIEWPORT = 0x4

@@ -17,7 +17,7 @@ namespace engine {
                 scene_layer_hint hints;
                 clear_operation clear;
                 engine::layers::bounds<int, int> scissor;
-                engine::layers::bounds<int, int> viewport;                
+                engine::layers::bounds<int, int> viewport;
             } ext;
             
             union info_u {
@@ -34,21 +34,21 @@ namespace engine {
                 constexpr info_u(const gui_layer_info& info) noexcept:
                     guiLayer(info) {}
 
-            } info;            
+            } info;
 
             constexpr scene_layer_info(const basic_sprite_layer_info& inf) noexcept :
                 type(layer_type::BASIC_SPRITE_LAYER),
-                ext({static_cast<scene_layer_hint> (0)}),
+                ext({scene_layer_hint::NONE}),
                 info(inf) {}
 
             constexpr scene_layer_info(const background_layer_info& inf) noexcept :
                 type(layer_type::BACKGROUND_LAYER),
-                ext({static_cast<scene_layer_hint> (0)}),
+                ext({scene_layer_hint::NONE}),
                 info(inf) {}
 
             constexpr scene_layer_info(const gui_layer_info& inf) noexcept :
                 type(layer_type::GUI_LAYER),
-                ext({static_cast<scene_layer_hint> (0)}),
+                ext({scene_layer_hint::NONE}),
                 info(inf) {}
         };
     }

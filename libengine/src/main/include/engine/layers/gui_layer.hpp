@@ -12,6 +12,7 @@
 #include "engine/layers/gui_layer_info.hpp"
 
 #include "engine/layers/nuklear/edit_flags.hpp"
+#include "engine/layers/nuklear/edit_types.hpp"
 #include "engine/layers/nuklear/layout_format.hpp"
 #include "engine/layers/nuklear/panel_flags.hpp"
 #include "engine/layers/nuklear/plugin_filter.hpp"
@@ -66,12 +67,61 @@ namespace engine {
                 const char * title, 
                 int len) noexcept;
 
+            template<nuklear::plugin_filter filter = nuklear::plugin_filter::DEFAULT>
             void editString(
                 nuklear::edit_flags flags,
                 char * buffer,
                 int * len,
-                int max,
-                nuklear::plugin_filter filter) noexcept;
+                int max) noexcept;
         };
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::ASCII>(
+            nuklear::edit_flags flags,
+            char * buffer,
+            int * len,
+            int max) noexcept;
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::BINARY>(
+            nuklear::edit_flags flags,
+            char * buffer,
+            int * len,
+            int max) noexcept;
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::DECIMAL>(
+            nuklear::edit_flags flags,
+            char * buffer,
+            int * len,
+            int max) noexcept;
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::DEFAULT>(
+            nuklear::edit_flags flags,
+            char * buffer,
+            int * len,
+            int max) noexcept;
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::FLOAT>(
+            nuklear::edit_flags flags,
+            char * buffer,
+            int * len,
+            int max) noexcept;
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::HEX>(
+            nuklear::edit_flags flags,
+            char * buffer,
+            int * len,
+            int max) noexcept;
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::OCT>(
+            nuklear::edit_flags flags,
+            char * buffer,
+            int * len,
+            int max) noexcept;
     }
 }

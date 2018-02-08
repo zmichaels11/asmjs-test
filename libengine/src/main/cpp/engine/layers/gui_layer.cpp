@@ -348,14 +348,95 @@ namespace engine {
             return nk_button_text(&pRes->_context, title, len);
         }
 
-        void gui_layer::editString(
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::ASCII>(
             nuklear::edit_flags flags,
-            char * buffer, int * len, int max,
-            nuklear::plugin_filter filter) noexcept {
+            char * buffer, int * len, int max) noexcept {
 
             auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto pCtx = &pRes->_context;
+            auto type = static_cast<unsigned int> (flags);
 
             
+            nk_edit_string(pCtx, type, buffer, len, max, nk_filter_ascii);            
+        }
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::BINARY>(
+            nuklear::edit_flags flags,
+            char * buffer, int * len, int max) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto pCtx = &pRes->_context;
+            auto type = static_cast<unsigned int> (flags);
+
+            
+            nk_edit_string(pCtx, type, buffer, len, max, nk_filter_binary);            
+        }
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::DECIMAL>(
+            nuklear::edit_flags flags,
+            char * buffer, int * len, int max) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto pCtx = &pRes->_context;
+            auto type = static_cast<unsigned int> (flags);
+
+            
+            nk_edit_string(pCtx, type, buffer, len, max, nk_filter_decimal);            
+        }
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::DEFAULT>(
+            nuklear::edit_flags flags,
+            char * buffer, int * len, int max) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto pCtx = &pRes->_context;
+            auto type = static_cast<unsigned int> (flags);
+
+            
+            nk_edit_string(pCtx, type, buffer, len, max, nk_filter_default);            
+        }
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::FLOAT>(
+            nuklear::edit_flags flags,
+            char * buffer, int * len, int max) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto pCtx = &pRes->_context;
+            auto type = static_cast<unsigned int> (flags);
+
+            
+            nk_edit_string(pCtx, type, buffer, len, max, nk_filter_float);            
+        }
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::HEX>(
+            nuklear::edit_flags flags,
+            char * buffer, int * len, int max) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto pCtx = &pRes->_context;
+            auto type = static_cast<unsigned int> (flags);
+
+            
+            nk_edit_string(pCtx, type, buffer, len, max, nk_filter_hex); 
+        }
+
+        template<>
+        void gui_layer::editString<nuklear::plugin_filter::OCT>(
+            nuklear::edit_flags flags,
+            char * buffer, int * len, int max) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto pCtx = &pRes->_context;
+            auto type = static_cast<unsigned int> (flags);
+
+            
+            nk_edit_string(pCtx, type, buffer, len, max, nk_filter_oct);
         }
 
         namespace {

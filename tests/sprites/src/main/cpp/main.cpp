@@ -56,12 +56,9 @@ int main(int argc, char** argv) {
     auto spriteInfo = engine::layers::basic_sprite_layer_info{MAX_SPRITES, engine::layers::write_hint::OFTEN, 0};    
     auto spriteLayerInfo = engine::layers::scene_layer_info(spriteInfo);
 
-    spriteLayerInfo.ext = {
-        engine::layers::scene_layer_hint::CLEAR,
-        {
-            engine::layers::clear_type::COLOR,
-            engine::layers::color::rgb(20, 80, 120)
-        }};
+    spriteLayerInfo.ext.hints = engine::layers::scene_layer_hint::CLEAR;
+    spriteLayerInfo.ext.clear.type = engine::layers::clear_type::COLOR;
+    spriteLayerInfo.ext.clear.clearColor = engine::layers:color::rgb(20, 80, 120);
 
     pLayerInfos.push_back(spriteLayerInfo);
     
