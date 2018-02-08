@@ -26,7 +26,18 @@ int main(int argc, char** argv) {
     engine::application::setScene(sceneInfo);
 
     engine::application::setOnUpdate([](auto pUserData) {
+        constexpr auto WINDOW_FLAGS = engine::layers::nuklear::panel_flags::BORDER
+            | engine::layers::nuklear::panel_flags::NO_SCROLLBAR
+            | engine::layers::nuklear::panel_flags::MOVABLE;
 
+        auto pScene = engine::application::getScene();
+        auto pLayer = dynamic_cast<engine::layers::gui_layer *> (pScene->getLayer(0));
+
+        if (pLayer->begin("GUI Test", {10.0F, 10.0F, 180.0F, 250.0F}, WINDOW_FLAGS)) {
+
+        }
+
+        pLayer->end();
     });
 
     engine::application::start();
