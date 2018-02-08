@@ -21,9 +21,9 @@ namespace engine {
 
         static void setOnUpdate(const std::function<void(void*)>& callback) noexcept;
 
-        static void setScene(const engine::layers::scene_info& info) noexcept;
+        static void setScene(const engine::layers::scene_info& info) noexcept;        
 
-        static std::unique_ptr<engine::layers::scene> releaseScene() noexcept;
+        static void releaseScene() noexcept;
 
         static engine::layers::scene * getScene() noexcept;
 
@@ -39,21 +39,16 @@ namespace engine {
 
         static const void * getScissorRect() noexcept;
 
-        static void * getContext() noexcept;
+        static void * getContext() noexcept;        
 
-        /*
+        static void registerCharCallback(const std::function<bool(unsigned int)>& callback) noexcept;        
 
-        void registerCharCallback(const std::function<bool(unsigned int)& callback) noexcept;
+        static void registerScrollCallback(const std::function<bool(double, double)>& callback) noexcept;        
 
-        void clearCharCallbacks() noexcept;
+        static void registerMouseButtonCallback(const std::function<bool(int, int, int)>& callback) noexcept;
 
-        void registerScrollCallback(const std::function<bool(double, double)& callback) noexcept;
+        static void setClipboardString(const std::string& content) noexcept;
 
-        void clearScrollCallbacks() noexcept;
-
-        void registerMouseButtonCallback(const std::function<bool(int, int, int)& callback) noexcept;
-
-        void clearMouseButtonCallbacks() noexcept;
-        */
+        static std::string getClipboardString() noexcept;
     };
 }

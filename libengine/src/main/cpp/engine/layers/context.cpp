@@ -52,7 +52,7 @@ namespace engine {
             }
         }
 
-        void context::render() const noexcept {
+        void context::render() noexcept {
             auto res = dynamic_cast<const context_resources * > (_pResources.get());
 
             for (auto&& cmd : res->_renderCommands) {

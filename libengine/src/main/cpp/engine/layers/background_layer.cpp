@@ -66,7 +66,7 @@ namespace engine {
 
         void background_layer::endWrite() noexcept {}
 
-        void background_layer::render() const noexcept {
+        void background_layer::render() noexcept {
             auto res = dynamic_cast<const background_layer_resources * > (_pResources.get());
             auto * renderable = res->_pCtx->getRenderableImage(res->_info.renderableID);
             auto * pTexture = reinterpret_cast<const graphics::texture * > (renderable->getTexture());                    

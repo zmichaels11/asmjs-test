@@ -26,7 +26,7 @@ namespace engine {
 
             void endWrite() noexcept;
 
-            void render() const noexcept;
+            void render() noexcept;
 
             base_layer * getLayer(int layerId) noexcept;
 

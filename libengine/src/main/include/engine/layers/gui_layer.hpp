@@ -24,7 +24,7 @@ namespace engine {
 
             gui_layer(const gui_layer&) = delete;
 
-            gui_layer& operator=(const gui_layer&) = delete;
+            gui_layer& operator=(const gui_layer&) = delete;                        
 
         public:
             gui_layer(const context& ctx, const gui_layer_info& info) noexcept;
@@ -37,7 +37,7 @@ namespace engine {
 
             virtual void endWrite() noexcept;
 
-            virtual void render() const noexcept;
+            virtual void render() noexcept;
 
             virtual void invalidate() noexcept;
 
@@ -50,7 +50,15 @@ namespace engine {
                 const bounds<float, float>& bounds, 
                 nuklear::panel_flags flags) noexcept;
 
-            void end() noexcept;            
+            void end() noexcept;  
+
+            bool optionLabel(const std::string& label, bool enabled) noexcept;
+
+            template<class prop_T>
+            void property(
+                const std::string& label, 
+                prop_T min, prop_T * pValue, prop_T max, prop_T step, 
+                float incPerPixel = 1.0F) noexcept; 
 
             void layoutRowDynamic(
                 float height, 
@@ -61,10 +69,10 @@ namespace engine {
                 int itemWidth, 
                 int cols) noexcept;
             
-            bool buttonLabel(const std::string& title) noexcept;
+            bool buttonLabel(const std::string& label) noexcept;
 
             bool buttonText(
-                const char * title, 
+                const char * label, 
                 int len) noexcept;
 
             template<nuklear::plugin_filter filter = nuklear::plugin_filter::DEFAULT>
@@ -74,6 +82,12 @@ namespace engine {
                 int * len,
                 int max) noexcept;
         };
+
+        template<>
+        void gui_layer::property<int>(
+            const std::string& label, 
+            int min, int * pValue, int max, int step, 
+            float incPerPixel) noexcept;
 
         template<>
         void gui_layer::editString<nuklear::plugin_filter::ASCII>(

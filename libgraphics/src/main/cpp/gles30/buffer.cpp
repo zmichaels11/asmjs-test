@@ -17,6 +17,7 @@ namespace graphics {
         glGenBuffers(1, &_handle);
         glBindBuffer(tgt, _handle);
         glBufferData(tgt, info.initialData.size, info.initialData.pData, usage);
+        glBindBuffer(tgt, 0);
 
         _name = std::to_string(_handle);
     }

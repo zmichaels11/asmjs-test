@@ -52,7 +52,10 @@ namespace graphics {
             }
 
             glVertexAttribPointer(pCurrent->location, size, type, normalized, pBinding->stride, offset);
+            glBindBuffer(GL_ARRAY_BUFFER, 0);
         }
+
+        glBindVertexArray(0);
 
         _name = std::to_string(_handle);
     }

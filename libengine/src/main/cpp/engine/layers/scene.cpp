@@ -56,7 +56,7 @@ namespace engine {
             }
         }
 
-        void scene::render() const noexcept {
+        void scene::render() noexcept {
             auto res = dynamic_cast<const scene_resources * > (_pResources.get());                                                  
             
             for (auto&& cmd : res->_renderCommands) {
@@ -183,6 +183,7 @@ namespace engine {
 
                             _renderCommands.push_back(std::bind(&gui_layer::render, ptr.get()));
                             _beginWriteCommands.push_back(std::bind(&gui_layer::beginWrite, ptr.get()));
+                            _endWriteCommands.push_back(std::bind(&gui_layer::endWrite, ptr.get()));
 
                             _layers.push_back({*it, std::move(ptr)});                            
                         } break;

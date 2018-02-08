@@ -104,7 +104,7 @@ namespace engine {
 #endif
         }
 
-        void basic_sprite_layer::render() const noexcept {
+        void basic_sprite_layer::render() noexcept {
             auto res = dynamic_cast<basic_sprite_layer_resources * > (_pResources.get());            
 
             _program.use();

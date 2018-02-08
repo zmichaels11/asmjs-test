@@ -17,8 +17,18 @@ namespace gui_test {
                 std::cout << "button pressed!" << std::endl;
             }
 
-            //pLayer->layoutRowDynamic(30, 2);
-            // options            
+            pLayer->layoutRowDynamic(30, 2);
+            
+            if (pLayer->optionLabel("easy", _op == op_type::EASY)) {
+                _op = op_type::EASY;
+            }
+
+            if (pLayer->optionLabel("hard", _op == op_type::HARD)) {
+                _op = op_type::HARD;
+            }
+
+            pLayer->layoutRowDynamic(22, 1);
+            pLayer->property<int>("Compression:", 0, &_property, 100, 10, 1.0F);
         }        
 
         pLayer->end();

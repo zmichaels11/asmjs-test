@@ -153,7 +153,7 @@ namespace engine {
             res->_dirty = true;
         }
 
-        void tiled_image::render() const noexcept {
+        void tiled_image::render() noexcept {
             auto res = dynamic_cast<tiled_image_resources * > (_pResources.get());
 
             if (!res->_redraw) {

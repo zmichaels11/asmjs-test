@@ -12,7 +12,7 @@ namespace engine {
 
             virtual void endWrite() noexcept = 0;
 
-            virtual void render() const noexcept = 0;
+            virtual void render() noexcept = 0;
 
             virtual void invalidate() noexcept = 0;
 

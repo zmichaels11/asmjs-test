@@ -40,7 +40,7 @@ namespace engine {
 
             void endWrite() noexcept;
 
-            void render() const noexcept;
+            void render() noexcept;
 
             void bind() noexcept;
         };

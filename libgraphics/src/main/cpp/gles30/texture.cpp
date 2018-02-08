@@ -46,6 +46,8 @@ namespace graphics {
                 _onError("Unsupported texture target!");
         }
 
+        glBindTexture(_target, 0);
+
         std::to_string(_handle);
     }
 

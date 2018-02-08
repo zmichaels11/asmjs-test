@@ -32,7 +32,7 @@ namespace engine {
 
             virtual void invalidate() noexcept;
 
-            virtual void render() const noexcept;
+            virtual void render() noexcept;
 
             virtual void setProjection(const math::mat4& projection) noexcept;
 

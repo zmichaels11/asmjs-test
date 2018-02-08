@@ -33,7 +33,7 @@ namespace engine {
 
             virtual void invalidate() noexcept;
 
-            virtual void render() const noexcept;            
+            virtual void render() noexcept;            
 
             virtual const void * getTexture() const noexcept;
 

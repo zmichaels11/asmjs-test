@@ -84,7 +84,7 @@ namespace engine {
             res->_pImage = pImage;
         }
 
-        void renderable_image::render() const noexcept {}
+        void renderable_image::render() noexcept {}
 
         const void * renderable_image::getTexture() const noexcept {
             auto res = dynamic_cast<const renderable_image_resources * > (_pResources.get());

@@ -21,7 +21,7 @@
 namespace engine {
     namespace layers {
         namespace {
-            constexpr std::size_t MAX_TEXT = 1024;
+            constexpr std::size_t MAX_TEXT_SIZE = 1024;
             constexpr double DOUBLE_CLICK_LO = 0.02;
             constexpr double DOUBLE_CLICK_HI = 0.2;
             constexpr nk_anti_aliasing AA = NK_ANTI_ALIASING_OFF;
@@ -71,7 +71,7 @@ namespace engine {
                         graphics::texture fontTexture;
                     } gl;
                     
-                    unsigned int text[MAX_TEXT];
+                    unsigned int text[MAX_TEXT_SIZE];
                     std::size_t textLen;
                 } _device;                
 
@@ -80,6 +80,18 @@ namespace engine {
                     const gui_layer_info& info) noexcept;
 
                 virtual ~gui_layer_resources();
+
+                bool handleScrollEvent(double sx, double sy) noexcept;
+
+                bool handleCharEvent(unsigned int codepoint) noexcept;
+
+                bool handleMouseButtonEvent(int button, int action, int mods) noexcept;
+
+                void handleClipboardCopy(nk_handle usr, const char * text, int len) noexcept;
+
+                void handleClipboardPaste(nk_handle usr, nk_text_edit * edit) noexcept;
+
+                void bind() noexcept;
             };
 
             const std::string BASE_SHADER_PATH = "data/shaders/nuklear/";
@@ -108,13 +120,16 @@ namespace engine {
             const context& ctx,
             const gui_layer_info& info) noexcept {
 
-            _pResources = std::make_unique<gui_layer_resources> (ctx, info);
+            auto ptr = std::make_unique<gui_layer_resources> (ctx, info);
+            
+            ptr->bind();
+            _pResources = std::move(ptr);
         }
 
         void gui_layer::beginWrite() noexcept {
             auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
-            auto pWin = reinterpret_cast<GLFWwindow * > (application::getContext());
-
+            auto pWin = reinterpret_cast<GLFWwindow * > (application::getContext());            
+            
             glfwGetWindowSize(pWin, &pRes->_size.width, &pRes->_size.height);
             glfwGetFramebufferSize(pWin, &pRes->_size.displayWidth, &pRes->_size.displayHeight);
 
@@ -195,10 +210,6 @@ namespace engine {
         }
 
         void gui_layer::endWrite() noexcept {
-
-        }
-
-        void gui_layer::render() const noexcept {
             auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
             
             float ortho[] = {
@@ -222,18 +233,9 @@ namespace engine {
 
             graphics::apply(graphics::viewport_state_info{0, 0, pRes->_size.displayWidth, pRes->_size.displayHeight});
 
-            {
-                constexpr auto MAP_ACCESS = graphics::buffer_access::WRITE | graphics::buffer_access::INVALIDATE_BUFFER;
-
-#if defined(__EMSCRIPTEN__)
+            {                
                 auto pVertices = std::make_unique<char[]> (MAX_VERTEX_BUFFER_SIZE);
-                auto pElements = std::make_unique<char[]> (MAX_ELEMENT_BUFFER_SIZE);
-                auto vertices = pVertices.get();
-                auto elements = pElements.get();
-#else
-                auto vertices = reinterpret_cast<char * > (pRes->_device.gl.vbo.map(0, MAX_VERTEX_BUFFER_SIZE, MAP_ACCESS));
-                auto elements = reinterpret_cast<char * > (pRes->_device.gl.ebo.map(0, MAX_ELEMENT_BUFFER_SIZE, MAP_ACCESS));
-#endif
+                auto pElements = std::make_unique<char[]> (MAX_ELEMENT_BUFFER_SIZE);                
 
                 {
                     nk_convert_config config;
@@ -252,22 +254,21 @@ namespace engine {
 
                     nk_buffer vbuf, ebuf;
 
-                    nk_buffer_init_fixed(&vbuf, vertices, MAX_VERTEX_BUFFER_SIZE);
-                    nk_buffer_init_fixed(&ebuf, elements, MAX_ELEMENT_BUFFER_SIZE);
+                    nk_buffer_init_fixed(&vbuf, pVertices.get(), MAX_VERTEX_BUFFER_SIZE);
+                    nk_buffer_init_fixed(&ebuf, pElements.get(), MAX_ELEMENT_BUFFER_SIZE);
 
                     nk_convert(&pRes->_context, &pRes->_device.cmds, &vbuf, &ebuf, &config);
                 }
 
-#if defined (__EMSCRIPTEN__)
                 pRes->_device.gl.vbo.invalidate();
-                pRes->_device.gl.vbo.subData(0, vertices, MAX_VERTEX_BUFFER_SIZE);
+                pRes->_device.gl.vbo.subData(0, pVertices.get(), MAX_VERTEX_BUFFER_SIZE);                
                 pRes->_device.gl.ebo.invalidate();
-                pRes->_device.gl.ebo.subData(0, elements, MAX_ELEMENT_BUFFER_SIZE);
-#else
-                pRes->_device.gl.vbo.unmap();
-                pRes->_device.gl.ebo.unmap();            
-#endif
-            }
+                pRes->_device.gl.ebo.subData(0, pElements.get(), MAX_ELEMENT_BUFFER_SIZE);                
+            }            
+        }
+
+        void gui_layer::render() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
 
             pRes->_device.gl.vao.bind();
 
@@ -275,30 +276,28 @@ namespace engine {
             nk_draw_index * offset = nullptr;
 
             nk_draw_foreach(cmd, &pRes->_context, &pRes->_device.cmds) {
-                if (!cmd->elem_count) {
-                    continue;
+                if (cmd->elem_count > 0) {                                        
+                    auto texture = graphics::texture(cmd->texture.id, graphics::texture_target::TEXTURE_2D);
+
+                    texture.bind(0);
+
+                    auto sx = static_cast<int>(cmd->clip_rect.x * pRes->_size.scaleW);
+                    auto sy = static_cast<int>((pRes->_size.height - static_cast<int>(cmd->clip_rect.y + cmd->clip_rect.h)) * pRes->_size.scaleH);
+                    auto sw = static_cast<int>(cmd->clip_rect.w * pRes->_size.scaleW);
+                    auto sh = static_cast<int>(cmd->clip_rect.h * pRes->_size.scaleH);
+
+                    auto scissorState = graphics::scissor_state_info{true, sx, sy, sw, sh};
+                                    
+                    graphics::apply(scissorState);
+                    graphics::draw::elements(graphics::draw_mode::TRIANGLES, static_cast<GLsizei> (cmd->elem_count), graphics::index_type::UNSIGNED_SHORT, offset);
+
+                    offset += cmd->elem_count;
                 }
-
-                auto texture = graphics::texture(cmd->texture.id, graphics::texture_target::TEXTURE_2D);
-
-                texture.bind(0);
-
-                auto sx = static_cast<int>(cmd->clip_rect.x * pRes->_size.scaleW);
-                auto sy = static_cast<int>((pRes->_size.height - static_cast<int>(cmd->clip_rect.y + cmd->clip_rect.h)) * pRes->_size.scaleH);
-                auto sw = static_cast<int>(cmd->clip_rect.w * pRes->_size.scaleW);
-                auto sh = static_cast<int>(cmd->clip_rect.h * pRes->_size.scaleH);
-
-                auto scissorState = graphics::scissor_state_info{true, sx, sy, sw, sh};
-                
-                graphics::apply(scissorState);
-                graphics::draw::elements(graphics::draw_mode::TRIANGLES, cmd->elem_count, graphics::index_type::UNSIGNED_SHORT, offset);
-
-                offset += cmd->elem_count;
-            }
-
-            nk_clear(&pRes->_context);
+            }            
 
             graphics::apply(graphics::scissor_state_info::defaults());
+            nk_clear(&pRes->_context);
+            
         }
 
         void gui_layer::invalidate() noexcept {
@@ -348,6 +347,23 @@ namespace engine {
             auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
 
             nk_layout_row_static(&pRes->_context, height, itemWidth, cols);
+        }
+
+        bool gui_layer::optionLabel(const std::string& label, bool enabled) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_option_label(&pRes->_context, label.c_str(), enabled);
+        }
+
+        template<>
+        void gui_layer::property<int>(
+            const std::string& label, 
+            int min, int * pValue, int max, int step, 
+            float incPerPixel) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * >(_pResources.get());
+
+            nk_property_int(&pRes->_context, label.c_str(), min, pValue, max, step, incPerPixel);
         }
 
         bool gui_layer::buttonLabel(const std::string& title) noexcept {
@@ -459,6 +475,100 @@ namespace engine {
                 __builtin_trap();
             }
 
+            bool gui_layer_resources::handleScrollEvent(double sx, double sy) noexcept {
+                _input.scroll.x = sx;
+                _input.scroll.y = sy;
+
+                return true;
+            }
+
+            bool gui_layer_resources::handleCharEvent(unsigned int codepoint) noexcept {
+                if (_device.textLen < MAX_TEXT_SIZE) {
+                    _device.text[_device.textLen++] = codepoint;
+                }
+
+                return true;
+            }
+
+            bool gui_layer_resources::handleMouseButtonEvent(int button, int action, int mods) noexcept {
+                if (button != GLFW_MOUSE_BUTTON_LEFT) {
+                    return false;
+                }
+
+                double x, y;
+
+                auto pWin = reinterpret_cast<GLFWwindow * > (engine::application::getContext());
+
+                glfwGetCursorPos(pWin, &x, &y);
+
+                if (action == GLFW_PRESS) {
+                    auto now = glfwGetTime();
+                    auto dt = now - _input.lastButtonClick;
+
+                    if (dt > DOUBLE_CLICK_LO && dt < DOUBLE_CLICK_HI) {
+                        _input.doubleClick.x = static_cast<float> (x);
+                        _input.doubleClick.y = static_cast<float> (y);
+                        _input.doubleClick.isDown = true;
+                    }
+
+                    _input.lastButtonClick = true;
+                } else {
+                    _input.doubleClick.isDown = false;
+                }
+
+                return true;
+            }
+
+            void gui_layer_resources::handleClipboardCopy(nk_handle usr, const char * text, int len) noexcept {
+                if (len > 0) {
+                    engine::application::setClipboardString(std::string(text, len));
+                }
+            }
+
+            void gui_layer_resources::handleClipboardPaste(nk_handle usr, nk_text_edit * edit) noexcept {
+                auto text = engine::application::getClipboardString();
+
+                if (!text.empty()) {
+                    nk_textedit_paste(edit, text.c_str(), text.length());
+                }
+            }
+
+            void gui_layer_resources::bind() noexcept {
+                engine::application::registerCharCallback(
+                    std::bind(&gui_layer_resources::handleCharEvent, this,
+                        std::placeholders::_1));
+
+                engine::application::registerMouseButtonCallback(
+                    std::bind(&gui_layer_resources::handleMouseButtonEvent, this,
+                        std::placeholders::_1,
+                        std::placeholders::_2,
+                        std::placeholders::_3));
+
+                engine::application::registerScrollCallback(
+                    std::bind(&gui_layer_resources::handleScrollEvent, this, 
+                        std::placeholders::_1, 
+                        std::placeholders::_2));
+
+                {
+                    std::function<void(nk_handle, const char *, int)> fnClipboardCopy = std::bind(
+                        &gui_layer_resources::handleClipboardCopy, this,
+                        std::placeholders::_1,
+                        std::placeholders::_2,
+                        std::placeholders::_3);
+
+                    _context.clip.copy = fnClipboardCopy.target<void(nk_handle, const char *, int)>();
+                }
+
+                {
+                    std::function<void(nk_handle, nk_text_edit *)> fnClipboardPaste = std::bind(
+                        &gui_layer_resources::handleClipboardPaste, this,
+                        std::placeholders::_1,
+                        std::placeholders::_2);
+
+                    _context.clip.paste = fnClipboardPaste.target<void(nk_handle, nk_text_edit *)>();
+                }
+            }
+
             gui_layer_resources::~gui_layer_resources() {
                 nk_font_atlas_clear(&_device.atlas);
                 nk_free(&_context);
@@ -469,10 +579,7 @@ namespace engine {
                 const context& ctx,
                 const gui_layer_info& info) noexcept {
                     
-                _info = info;                
-
-                //TODO: register inputs
-                //TODO: register clipboard
+                _info = info;
 
                 _context.clip.userdata = nk_handle_ptr(nullptr);
                 _input.lastButtonClick = 0.0;
@@ -538,7 +645,7 @@ namespace engine {
                         graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW,
                         {nullptr, MAX_VERTEX_BUFFER_SIZE}});
 
-                    std::swap(_device.gl.vbo, newVbo);
+                    std::swap(_device.gl.vbo, newVbo);                    
                 }
 
                 {

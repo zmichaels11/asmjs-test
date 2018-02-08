@@ -14,7 +14,7 @@
 
 constexpr unsigned int SCREEN_WIDTH = 640;
 constexpr unsigned int SCREEN_HEIGHT = 480;
-constexpr auto HINTS = engine::application_hint::VSYNC | engine::application_hint::DEBUG;
+constexpr auto HINTS = engine::application_hint::VSYNC;// | engine::application_hint::DEBUG;
 
 struct gui_test_data {
     std::vector<std::unique_ptr<gui_test::gui_component>> components;

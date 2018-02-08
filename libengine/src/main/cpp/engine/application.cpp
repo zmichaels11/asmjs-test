@@ -10,9 +10,15 @@ namespace {
 
     void _onGLFWError(int error, const char * desc) noexcept;
 
-    void doFrame() noexcept;
+    void _doFrame() noexcept;
 
-    void updateFramebufferSize(GLFWwindow * pWindow, int width, int height) noexcept;
+    void _updateFramebufferSize(GLFWwindow * pWindow, int width, int height) noexcept;
+
+    void _handleKeyEvent(GLFWwindow * pWindow, unsigned int codepoint) noexcept;
+
+    void _handleScrollEvent(GLFWwindow * pWindow, double sx, double sy) noexcept;
+
+    void _handleMouseButtonEvent(GLFWwindow * pWindow, int button, int action, int mods) noexcept;
 
     struct native_resources {        
         GLFWwindow * pWindow;        
@@ -34,11 +40,14 @@ namespace {
     std::function<void(void*)> _onUpdate(nullptr);
     std::function<void(void*)> _onInit(nullptr);
     std::shared_ptr<void> _pUserData;
+    std::vector<std::function<bool(unsigned int)>> _charCallbacks;
+    std::vector<std::function<bool(double, double)>> _scrollCallbacks;
+    std::vector<std::function<bool(int, int, int)>> _mouseButtonCallbacks;
 
     graphics::scissor_state_info _scissorRect;
     graphics::viewport_state_info _viewport;
 
-    double _time(0.0);            
+    double _time(0.0);  
 }
 
 namespace engine {
@@ -47,10 +56,10 @@ namespace engine {
     }
 
     void application::step() noexcept {
-        doFrame();
+        _doFrame();
     }
 
-    void application::setScene(const engine::layers::scene_info& info) noexcept {
+    void application::setScene(const engine::layers::scene_info& info) noexcept {        
         _scene = std::make_unique<engine::layers::scene> (info);
 
         if (_onInit) {
@@ -58,8 +67,12 @@ namespace engine {
         }
     }
 
-    std::unique_ptr<engine::layers::scene> application::releaseScene() noexcept {
-        return std::move(_scene);
+    void application::releaseScene() noexcept {
+        _charCallbacks.clear();
+        _scrollCallbacks.clear();
+        _mouseButtonCallbacks.clear();
+        
+        _scene.reset();
     }
 
     void application::setOnInit(const std::function<void(void*)>& callback) noexcept {
@@ -100,16 +113,60 @@ namespace engine {
 
     void application::start() noexcept {
 #if defined(__EMSCRIPTEN__)
-        emscripten_set_main_loop(doFrame, 0, 1);
+        emscripten_set_main_loop(_doFrame, 0, 1);
 #else
         while (_pNativeResources->isValid()) {
-            doFrame();
+            _doFrame();
         }
 #endif
-    }            
+    }
+
+    void application::registerCharCallback(const std::function<bool(unsigned int)>& callback) noexcept {
+        _charCallbacks.push_back(callback);
+    }
+
+    void application::registerMouseButtonCallback(const std::function<bool(int, int, int)>& callback) noexcept {
+        _mouseButtonCallbacks.push_back(callback);
+    }
+
+    void application::registerScrollCallback(const std::function<bool(double, double)>& callback) noexcept {
+        _scrollCallbacks.push_back(callback);
+    }
+
+    void application::setClipboardString(const std::string& content) noexcept {
+        glfwSetClipboardString(_pNativeResources->pWindow, content.c_str());
+    }
+
+    std::string application::getClipboardString() noexcept {
+        return glfwGetClipboardString(_pNativeResources->pWindow);
+    }
 }
 
 namespace {
+    void _handleKeyEvent(GLFWwindow * pWindow, unsigned int codepoint) noexcept {
+        for (auto&& callback : _charCallbacks) {
+            if (callback(codepoint)) {
+                return;
+            }
+        }
+    }
+
+    void _handleScrollEvent(GLFWwindow * pWindow, double sx, double sy) noexcept {
+        for (auto&& callback : _scrollCallbacks) {
+            if (callback(sx, sy)) {
+                return;
+            }
+        }
+    }
+
+    void _handleMouseButtonEvent(GLFWwindow * pWindow, int button, int action, int mods) noexcept {
+        for (auto&& callback : _mouseButtonCallbacks) {
+            if (callback(button, action, mods)) {
+                return;
+            }
+        }
+    }    
+
     void _onError(const std::string& src, const std::string& err, const std::string& msg) noexcept {
         std::cerr << "[" << src << "] " << err << ": " << msg << std::endl;
     }
@@ -219,7 +276,7 @@ namespace {
             glfwSwapInterval(0);
         }
 
-        glfwSetFramebufferSizeCallback(pWindow, updateFramebufferSize);
+        glfwSetFramebufferSizeCallback(pWindow, _updateFramebufferSize);
 
         audio::init(); 
     }
@@ -237,13 +294,13 @@ namespace {
         return pWindow && !glfwWindowShouldClose(pWindow);
     }
 
-    void updateFramebufferSize(GLFWwindow *, int width, int height) noexcept {
+    void _updateFramebufferSize(GLFWwindow *, int width, int height) noexcept {
         _viewport.width = width;
         _viewport.height = height;
         _scissorRect = {true, 0, 0, width, height};
     }
 
-    void doFrame() noexcept {        
+    void _doFrame() noexcept {        
         glfwPollEvents();     
 
         if (_onUpdate && _scene) {
