@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
     auto backgroundInfo = engine::layers::background_layer_info{0};
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
 
-    pLayerInfos.push_back(engine::layers::scene_layer_info::init(backgroundInfo));
+    pLayerInfos.push_back(engine::layers::scene_layer_info(backgroundInfo));
 
     auto pRenderableInfos = std::vector<engine::layers::renderable_info>();
     auto backgroundImgInfo = engine::layers::renderable_info();

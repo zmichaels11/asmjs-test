@@ -54,7 +54,7 @@ int main(int argc, char** argv) {
 
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
     auto spriteInfo = engine::layers::basic_sprite_layer_info{MAX_SPRITES, engine::layers::write_hint::OFTEN, 0};    
-    auto spriteLayerInfo = engine::layers::scene_layer_info::init(spriteInfo);
+    auto spriteLayerInfo = engine::layers::scene_layer_info(spriteInfo);
 
     spriteLayerInfo.ext = {
         engine::layers::scene_layer_hint::CLEAR,

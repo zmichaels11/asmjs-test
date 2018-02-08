@@ -63,7 +63,7 @@ int main(int argc, char** argv) {
 
     auto backgroundInfo = engine::layers::background_layer_info{0};    
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
-    auto backgroundLayerInfo = engine::layers::scene_layer_info::init(backgroundInfo);
+    auto backgroundLayerInfo = engine::layers::scene_layer_info(backgroundInfo);
 
     backgroundLayerInfo.ext = {
         engine::layers::scene_layer_hint::CLEAR,
@@ -79,26 +79,22 @@ int main(int argc, char** argv) {
 
     tiledBackgroundInfo.type = engine::layers::renderable_type::TILED_IMAGE;
     tiledBackgroundInfo.info.tiledImageInfo = {
-        .dim = {TILES_ACROSS, TILES_DOWN},
-        .tileSize = {TILE_WIDTH, TILE_HEIGHT},
-        .scroll = {engine::layers::image_scroll_type::REPEAT, engine::layers::image_scroll_type::REPEAT},
-        .filter = engine::layers::image_filter_type::BILINEAR,
-        .clearColor = engine::layers::color::rgb(20, 80, 120),
-        .tileSheetID = 0
-    };
+        {TILES_ACROSS, TILES_DOWN},
+        {TILE_WIDTH, TILE_HEIGHT},
+        {engine::layers::image_scroll_type::REPEAT, engine::layers::image_scroll_type::REPEAT},
+        engine::layers::image_filter_type::BILINEAR,
+        engine::layers::color::rgb(20, 80, 120),
+        0};
 
     pRenderableInfos.push_back(tiledBackgroundInfo);
 
     auto sceneInfo = engine::layers::scene_info{
-        .contextInfo = {
-            .pSpriteInfos = pSpriteSheetInfos.data(), 
-            .nSpriteInfos = pSpriteSheetInfos.size(),
-            .pFontInfos = nullptr, 
-            .nFontInfos = 0,
-            .pRenderableInfos = pRenderableInfos.data(), 
-            .nRenderableInfos = pRenderableInfos.size()},            
-        .pLayerInfos = pLayerInfos.data(), 
-        .nLayerInfos = pLayerInfos.size()};
+        {
+            pSpriteSheetInfos.data(), pSpriteSheetInfos.size(),
+            nullptr, 0,
+            pRenderableInfos.data(), pRenderableInfos.size()
+        },
+        pLayerInfos.data(), pLayerInfos.size()};
 
     std::random_device rd;    
     std::mt19937 mt(rd());

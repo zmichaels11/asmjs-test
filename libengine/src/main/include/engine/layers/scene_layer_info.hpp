@@ -17,28 +17,39 @@ namespace engine {
                 scene_layer_hint hints;
                 clear_operation clear;
                 engine::layers::bounds<int, int> scissor;
-                engine::layers::bounds<int, int> viewport;
+                engine::layers::bounds<int, int> viewport;                
             } ext;
             
-            union {
+            union info_u {
                 background_layer_info backgroundLayer;
                 basic_sprite_layer_info basicSpriteLayer;                
-                gui_layer_info guiLayer;         
-            } info;
+                gui_layer_info guiLayer;
 
-            static constexpr scene_layer_info init(const basic_sprite_layer_info& info) noexcept {
-                return engine::layers::scene_layer_info{
-                    layer_type::BASIC_SPRITE_LAYER, 
-                    {static_cast<scene_layer_hint> (0)}, 
-                    {.basicSpriteLayer = info}};
-            }
+                constexpr info_u(const background_layer_info& info) noexcept:
+                    backgroundLayer(info) {}
 
-            static scene_layer_info init(const background_layer_info& info) noexcept {
-                return engine::layers::scene_layer_info{
-                    layer_type::BACKGROUND_LAYER,
-                    {static_cast<scene_layer_hint> (0)},
-                    {.backgroundLayer = info}};
-            }
+                constexpr info_u(const basic_sprite_layer_info& info) noexcept:
+                    basicSpriteLayer(info) {}
+
+                constexpr info_u(const gui_layer_info& info) noexcept:
+                    guiLayer(info) {}
+
+            } info;            
+
+            constexpr scene_layer_info(const basic_sprite_layer_info& inf) noexcept :
+                type(layer_type::BASIC_SPRITE_LAYER),
+                ext({static_cast<scene_layer_hint> (0)}),
+                info(inf) {}
+
+            constexpr scene_layer_info(const background_layer_info& inf) noexcept :
+                type(layer_type::BACKGROUND_LAYER),
+                ext({static_cast<scene_layer_hint> (0)}),
+                info(inf) {}
+
+            constexpr scene_layer_info(const gui_layer_info& inf) noexcept :
+                type(layer_type::GUI_LAYER),
+                ext({static_cast<scene_layer_hint> (0)}),
+                info(inf) {}
         };
     }
 }
