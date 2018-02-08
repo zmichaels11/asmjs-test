@@ -223,10 +223,17 @@ namespace engine {
             graphics::apply(graphics::viewport_state_info{0, 0, pRes->_size.displayWidth, pRes->_size.displayHeight});
 
             {
-                static auto MAP_ACCESS = graphics::buffer_access::WRITE | graphics::buffer_access::INVALIDATE_BUFFER;
+                constexpr auto MAP_ACCESS = graphics::buffer_access::WRITE | graphics::buffer_access::INVALIDATE_BUFFER;
 
+#if defined(__EMSCRIPTEN__)
+                auto pVertices = std::make_unique<char[]> (MAX_VERTEX_BUFFER_SIZE);
+                auto pElements = std::make_unique<char[]> (MAX_ELEMENT_BUFFER_SIZE);
+                auto vertices = pVertices.get();
+                auto elements = pElements.get();
+#else
                 auto vertices = reinterpret_cast<char * > (pRes->_device.gl.vbo.map(0, MAX_VERTEX_BUFFER_SIZE, MAP_ACCESS));
                 auto elements = reinterpret_cast<char * > (pRes->_device.gl.ebo.map(0, MAX_ELEMENT_BUFFER_SIZE, MAP_ACCESS));
+#endif
 
                 {
                     nk_convert_config config;
@@ -251,8 +258,15 @@ namespace engine {
                     nk_convert(&pRes->_context, &pRes->_device.cmds, &vbuf, &ebuf, &config);
                 }
 
+#if defined (__EMSCRIPTEN__)
+                pRes->_device.gl.vbo.invalidate();
+                pRes->_device.gl.vbo.subData(0, vertices, MAX_VERTEX_BUFFER_SIZE);
+                pRes->_device.gl.ebo.invalidate();
+                pRes->_device.gl.ebo.subData(0, elements, MAX_ELEMENT_BUFFER_SIZE);
+#else
                 pRes->_device.gl.vbo.unmap();
                 pRes->_device.gl.ebo.unmap();            
+#endif
             }
 
             pRes->_device.gl.vao.bind();
@@ -529,7 +543,7 @@ namespace engine {
 
                 {
                     auto newEbo = graphics::buffer({
-                        graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW,
+                        graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW,
                         {nullptr, MAX_ELEMENT_BUFFER_SIZE}});
 
                     std::swap(_device.gl.ebo, newEbo);

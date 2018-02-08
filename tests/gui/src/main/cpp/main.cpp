@@ -10,6 +10,7 @@
 #include "engine.hpp"
 
 #include "calculator.hpp"
+#include "demo.hpp"
 
 constexpr unsigned int SCREEN_WIDTH = 640;
 constexpr unsigned int SCREEN_HEIGHT = 480;
@@ -48,7 +49,8 @@ int main(int argc, char** argv) {
 
     auto userData = std::make_shared<gui_test_data> ();
 
-    userData->components.push_back(std::make_unique<gui_test::calculator>());    
+    userData->components.push_back(std::make_unique<gui_test::calculator>());
+    userData->components.push_back(std::make_unique<gui_test::demo>());
 
     engine::application::setUserData(userData);
 
