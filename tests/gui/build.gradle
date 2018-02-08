@@ -1,14 +1,32 @@
+apply from: rootProject.file('share/angle.gradle')
+apply from: rootProject.file('share/glfw3.gradle')
+apply from: rootProject.file('share/openal_soft.gradle')
+apply from: rootProject.file('share/util.gradle')
+
 model {
+    flavors {
+        GLES20
+        GLES30
+        GL
+    }
+
     components {
-        guiTest(NativeExecutableSpec) {
+        gui(NativeExecutableSpec) {
             targetPlatform 'asmjs'
             targetPlatform 'binaryen'
+            targetPlatform 'linux32'
             targetPlatform 'linux64'
+            targetPlatform 'windows32'
+            targetPlatform 'windows64'
 
             sources {
                 cpp {
-                    lib project: ':libaudio', library: 'audio', linkage: 'static'                    
+                    lib library: 'glfw3'
+                    lib library: 'openal_soft'
+                    lib library: 'angle'
+                    lib library: 'util'
                     lib project: ':libengine', library: 'engine', linkage: 'static'
+                    lib project: ':libaudio', library: 'audio', linkage: 'static'
                     lib project: ':libgraphics', library: 'graphics', linkage: 'static'
 
                     source {
@@ -23,12 +41,24 @@ model {
                 }
             }
 
-            binaries.all {                
-                if (toolChain.name == 'emscripten') {
-                    cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
-                    linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
-                } else if (targetPlatform.operatingSystem.linux) {
-                    linker.args '-lopenal', '-lGL', '-lglfw'                    
+            binaries.all {  
+                if (flavor == flavors.GLES20) {
+                    cppCompiler.define 'GLES20'
+                } else if (flavor == flavors.GLES30) {
+                    if (toolChain.name == 'emscripten') {
+                        cppCompiler.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3'
+                        linker.args '-s', 'USE_WEBGL2=1', '-s', 'USE_GLFW=3', '--preload-file', '../../data'
+                    } else if (targetPlatform.operatingSystem.linux) {
+                        linker.args '-lopenal', '-lGLESv2', '-lglfw', '-lGLEW'
+                    } else if (targetPlatform.operatingSystem.windows) {
+                        // already included
+                    }
+                } else if (flavor == flavors.GL) {
+                    if (targetPlatform.operatingSystem.linux) {
+                        linker.args '-lopenal', '-lGL', '-lglfw', '-lGLEW'
+                    } else if (targetPlatform.operatingSystem.windows) {
+                        linker.args '-lopengl32'
+                    }
                 }
             }
         }

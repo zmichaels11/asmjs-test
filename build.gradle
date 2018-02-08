@@ -23,6 +23,10 @@ task buildBackgroundTestAsmjsWebGL2 {
 	dependsOn ':tests:background:backgroundAsmjsGLES30Executable'	
 }
 
+task buildGuiTestAsmjsWebGL2 {
+	dependsOn ':tests:gui:guiAsmjsGLES30Executable'
+}
+
 task buildSpriteTestAsmjsWebGL2 {
 	dependsOn ':tests:sprites:spritesAsmjsGLES30Executable'
 }
@@ -32,31 +36,42 @@ task buildTileTestAsmjsWebGL2 {
 }
 
 task buildTestsAsmjsWebGL2 {
-	dependsOn 'buildBackgroundTestAsmjsWebGL2'
-	dependsOn 'buildSpriteTestAsmjsWebGL2'
-	dependsOn 'buildTileTestAsmjsWebGL2'
+	dependsOn ':buildBackgroundTestAsmjsWebGL2'
+	dependsOn ':buildGuiTestAsmjsWebGL2'
+	dependsOn ':buildSpriteTestAsmjsWebGL2'
+	dependsOn ':buildTileTestAsmjsWebGL2'
 }
 
 task runBackgroundTestAsmjsWebGL2(type: Exec) {
-	dependsOn 'buildBackgroundTestAsmjsWebGL2'
+	dependsOn ':buildBackgroundTestAsmjsWebGL2'
 	executable 'firefox'
 	args 'tests/background/build/exe/background/asmjs/gLES30/background.html'
 }
 
+task runGuiTestAsmjsWebGL2(type: Exec) {
+	dependsOn ':buildGuiTestAsmjsWebGL2'
+	executable 'firefox'
+	args 'tests/gui/build/exe/gui/asmjs/gLES30/gui.html'
+}
+
 task runSpriteTestAsmjsWebGL2(type: Exec) {
-	dependsOn 'buildSpriteTestAsmjsWebGL2'
+	dependsOn ':buildSpriteTestAsmjsWebGL2'
 	executable 'firefox'
 	args 'tests/sprites/build/exe/sprites/asmjs/gLES30/sprites.html'
 }
 
 task runTileTestAsmjsWebGL2(type: Exec) {
-	dependsOn 'buildTileTestAsmjsWebGL2'
+	dependsOn ':buildTileTestAsmjsWebGL2'
 	executable 'firefox'
 	args 'tests/tiles/build/exe/tiles/asmjs/gLES30/tiles.html'
 }
 
 task buildBackgroundTestBinaryenWebGL2 {
 	dependsOn ':tests:background:backgroundBinaryenGLES30Executable'
+}
+
+task buildGuiTestBinaryenWebGL2 {
+	dependsOn ':tests:gui:guiBinaryenGLES30Executable'
 }
 
 task buildSpriteTestBinaryenWebGL2 {
@@ -68,31 +83,42 @@ task buildTileTestBinaryenWebGL2 {
 }
 
 task buildTestsBinaryenWebGL2 {
-	dependsOn 'buildBackgroundTestBinaryenWebGL2'
-	dependsOn 'buildSpriteTestWebGL2'
-	dependsOn 'buildTileTestWebGL2'
+	dependsOn ':buildBackgroundTestBinaryenWebGL2'
+	dependsOn ':buildGuiTestBinaryenWebGL2'
+	dependsOn ':buildSpriteTestBinaryenWebGL2'
+	dependsOn ':buildTileTestBinaryenWebGL2'
 }
 
 task runBackgroundTestBinaryenWebGL2(type: Exec) {
-	dependsOn 'buildBackgroundTestBinaryenWebGL2'
+	dependsOn ':buildBackgroundTestBinaryenWebGL2'
 	executable 'firefox'
 	args 'tests/background/build/exe/background/binaryen/gLES30/background.html'
 }
 
+task runGuiTestBinaryenWebGL2(type: Exec) {
+	dependsOn ':buildGuiTestBinaryenWebGL2'
+	executable 'firefox'
+	args 'tests/gui/build/exe/gui/binaryen/gLES30/gui.html'
+}
+
 task runSpriteTestBinaryenWebGL2(type: Exec) {
-	dependsOn 'buildSpriteTestBinaryenWebGL2'
+	dependsOn ':buildSpriteTestBinaryenWebGL2'
 	executable 'firefox'
 	args 'tests/sprites/build/exe/sprites/binaryen/gLES30/sprites.html'
 }
 
 task runTileTestBinaryenWebGL2(type: Exec) {
-	dependsOn 'buildTileTestBinaryenWebGL2'
+	dependsOn ':buildTileTestBinaryenWebGL2'
 	executable 'firefox'
 	args 'tests/tiles/build/exe/tiles/binaryen/gLES30/tiles.html'
 }
 
 task buildBackgroundTestWindows64GL {
 	dependsOn ':tests:background:backgroundWindows64GLExecutable'
+}
+
+task buildGuiTestWindows64GL {
+	dependsOn ':tests:gui:guiWindows64GLExecutable'
 }
 
 task buildSpriteTestWindows64GL {
@@ -104,22 +130,31 @@ task buildTileTestWindows64GL {
 }
 
 task buildTestsWindows64GL {
-	dependsOn 'buildBackgroundTestWindows64GL'
-	dependsOn 'buildSpriteTestWindows64GL'
-	dependsOn 'buildTileTestWindows64GL'
+	dependsOn ':buildBackgroundTestWindows64GL'
+	dependsOn ':buildGuiTestWindows64GL'
+	dependsOn ':buildSpriteTestWindows64GL'
+	dependsOn ':buildTileTestWindows64GL'
 }
 
 task runBackgroundTestWindows64GL(type: Exec) {	
 	dependsOn ':installWindows64Data'
-	dependsOn 'buildBackgroundTestWindows64GL'
+	dependsOn ':buildBackgroundTestWindows64GL'
 	workingDir 'bin'
 	executable '../tests/background/build/exe/background/windows64/gL/background.exe'
 	args ''
 }
 
+task runGuiTestWindows64GL(type: Exec) {
+	dependsOn ':installWindows64Data'
+	dependsOn ':buildGuiTestWindows64GL'
+	workingDir 'bin'
+	executable '../tests/gui/build/exe/gui/windows64/gL/gui.exe'
+	args ''
+}
+
 task runSpriteTestWindows64GL(type: Exec) {
 	dependsOn ':installWindows64Data'
-	dependsOn 'buildSpriteTestWindows64GL'
+	dependsOn ':buildSpriteTestWindows64GL'
 	workingDir 'bin'
 	executable '../tests/sprites/build/exe/sprites/windows64/gL/sprites.exe'
 	args ''
@@ -127,7 +162,7 @@ task runSpriteTestWindows64GL(type: Exec) {
 
 task runTileTestWindows64GL(type: Exec) {
 	dependsOn ':installWindows64Data'
-	dependsOn 'buildTileTestWindows64GL'
+	dependsOn ':buildTileTestWindows64GL'
 	workingDir 'bin'
 	executable '../tests/tiles/build/exe/tiles/windows64/gL/tiles.exe'
 	args ''
@@ -135,6 +170,10 @@ task runTileTestWindows64GL(type: Exec) {
 
 task buildBackgroundTestWindows64GLES30 {
 	dependsOn ':tests:background:backgroundWindows64GLES30Executable'
+}
+
+task buildGuiTestWindows64GLES30 {
+	dependsOn ':tests:gui:guiWindows64GLES30Executable'
 }
 
 task buildSpriteTestWindows64GLES30 {
@@ -146,27 +185,36 @@ task buildTileTestWindows64GLES30 {
 }
 
 task buildTestsWindows64GLES30 {
-	dependsOn ':tests:background:backgroundWindows64GLES30Executable'
-	dependsOn ':tests:sprites:spritesWindows64GLES30Executable'
-	dependsOn ':tests:tiles:tilesWindows64GLES30Executable'
+	dependsOn ':buildBackgroundTestWindows64GLES30'
+	dependsOn ':buildGuiTestWindows64GLES30'
+	dependsOn ':buildSpriteTestWindows64GLES30'
+	dependsOn ':buildTileTestWindows64GLES30'
 }
 
 task buildTestsWindows64 {
-	dependsOn 'buildTestsWindows64GL'
-	dependsOn 'buildTestsWindows64GLES'
+	dependsOn ':buildTestsWindows64GL'
+	dependsOn ':buildTestsWindows64GLES'
 }
 
 task runBackgroundTestWindows64GLES30(type: Exec) {
 	dependsOn ':installWindows64Data'
-	dependsOn 'buildBackgroundTestWindows64GLES30'
+	dependsOn ':buildBackgroundTestWindows64GLES30'
 	workingDir 'bin'
 	executable '../tests/background/build/exe/background/windows64/gLES30/background.exe'
 	args ''
 }
 
+task runGuiTestWindows64GLES30(type: Exec) {
+	dependsOn ':installWindows64Data'
+	dependsOn ':buildGuiTestWindows64GLES30'
+	workingDir 'bin'
+	executable '../tests/gui/build/exe/bui/windows64/gLES30/gui.exe'
+	args ''
+}
+
 task runSpriteTestWindows64GLES30(type: Exec) {
 	dependsOn ':installWindows64Data'
-	dependsOn 'buildSpriteTestWindows64GLES30'
+	dependsOn ':buildSpriteTestWindows64GLES30'
 	workingDir 'bin'
 	executable '../tests/sprites/build/exe/sprites/windows64/gLES30/sprites.exe'
 	args ''
@@ -174,13 +222,17 @@ task runSpriteTestWindows64GLES30(type: Exec) {
 
 task runTileTestWindows64GLES30(type: Exec) {
 	dependsOn ':installWindows64Data'
-	dependsOn 'buildTileTestWindows64GLES30'
+	dependsOn ':buildTileTestWindows64GLES30'
 	workingDir 'bin'
 	executable '../tests/tiles/build/exe/tiles/windows64/gLES30/tiles.exe'
 }
 
 task buildBackgroundTestLinux64GL {
 	dependsOn ':tests:background:backgroundLinux64GLExecutable'
+}
+
+task buildGuiTestLinux64GL {
+	dependsOn ':tests:gui:guiLinux64GLExecutable'
 }
 
 task buildSpriteTestLinux64GL {
@@ -192,14 +244,20 @@ task buildTileTestLinux64GL {
 }
 
 task buildTestsLinux64GL {
-	dependsOn 'buildBackgroundTestLinux64GL'
-	dependsOn 'buildSpriteTestLinux64GL'
-	dependsOn 'buildTileTestLinux64GL'
+	dependsOn ':buildBackgroundTestLinux64GL'
+	dependsOn ':buildSpriteTestLinux64GL'
+	dependsOn ':buildTileTestLinux64GL'
 }
 
 task runBackgroundTestLinux64GL(type: Exec) {
-	dependsOn 'buildBackgroundTestLinux64GL'
+	dependsOn ':buildBackgroundTestLinux64GL'
 	executable 'tests/background/build/exe/background/linux64/gL/background'
+	args ''
+}
+
+task runGuiTestLinux64GL(type: Exec) {
+	dependsOn ':buildGuiTestLinux64GL'
+	executable 'tests/gui/build/exe/gui/linux64/gL/gui'
 	args ''
 }
 
@@ -219,6 +277,10 @@ task buildBackgroundTestLinux64GLES30 {
 	dependsOn ':tests:background:backgroundLinux64GLES30Executable'
 }
 
+task buildGuiTestLinux64GLES30 {
+	dependsOn ':tests:gui:guiLinux64GLES30Executable'
+}
+
 task buildSpriteTestLinux64GLES30 {
 	dependsOn ':tests:sprites:spritesLinux64GLES30Executable'
 }
@@ -228,67 +290,86 @@ task buildTileTestLinux64GLES30 {
 }
 
 task buildTestsLinux64GLES30 {
-	dependsOn 'buildBackgroundTestLinux64GLES30'
-	dependsOn 'buildSpriteTestLinux64GLES30'
-	dependsOn 'buildTileTestLinux64GLES30'
+	dependsOn ':buildBackgroundTestLinux64GLES30'
+	dependsOn ':buildGuiTestLinux64GLES30'
+	dependsOn ':buildSpriteTestLinux64GLES30'
+	dependsOn ':buildTileTestLinux64GLES30'
 }
 
 task buildTestsLinux64 {
-	dependsOn 'buildTestsLinux64GL'
-	dependsOn 'buildTestsLinux64GLES30'
+	dependsOn ':buildTestsLinux64GL'
+	dependsOn ':buildTestsLinux64GLES30'
 }
 
 task runBackgroundTestLinux64GLES30(type: Exec) {
-	dependsOn 'buildBackgroundTestLinux64GLES30'
+	dependsOn ':buildBackgroundTestLinux64GLES30'
 	executable 'tests/background/build/exe/background/linux64/gLES30/background'
 	args ''
 }
 
+task runGuiTestLinux64GLES30(type: Exec) {
+	dependsOn ':buildGuiTestLinux64GLES30'
+	executable 'tests/gui/build/exe/gui/linux64/gLES30/gui'
+	args ''
+}
+
 task runSpriteTestLinux64GLES30(type: Exec) {
-	dependsOn 'buildSpriteTestLinux64GLES30'
+	dependsOn ':buildSpriteTestLinux64GLES30'
 	executable 'tests/sprites/build/exe/sprites/linux64/gLES30/sprites'
 	args ''
 }
 
 task runTileTestLinux64GLES30(type: Exec) {
-	dependsOn 'buildTileTestLinux64GLES30'
+	dependsOn ':buildTileTestLinux64GLES30'
 	executable 'tests/tiles/build/exe/tiles/linux64/gLES30/tiles'
 	args ''
 }
 
 
 task debugBackgroundTestLinux64GL(type: Exec) {
-	dependsOn 'buildBackgroundTestLinux64GL'
+	dependsOn ':buildBackgroundTestLinux64GL'
 	executable 'valgrind'
 	args 'tests/background/build/exe/background/linux64/gL/background'
 }
 
+task debugGuiTestLinux64GL(type: Exec) {
+	dependsOn ':buildGuiTestLinux64GL'
+	executable 'valgrind'
+	args 'tests/gui/build/exe/gui/linux64/gL/gui'
+}
+
 task debugSpriteTestLinux64GL(type: Exec) {
-	dependsOn 'buildSpriteTestLinux64GL'
+	dependsOn ':buildSpriteTestLinux64GL'
 	executable 'valgrind'
 	args 'tests/sprites/build/exe/sprites/linux64/gL/sprites'
 }
 
 task debugTileTestLinux64GL(type: Exec) {
-	dependsOn 'buildTileTestLinux64GL'
+	dependsOn ':buildTileTestLinux64GL'
 	executable 'valgrind'
 	args 'tests/tiles/build/exe/tiles/linux64/gL/tiles'
 }
 
 task debugBackgroundTestLinux64GLES30(type: Exec) {
-	dependsOn 'buildBackgroundTestLinux64GLES30'
+	dependsOn ':buildBackgroundTestLinux64GLES30'
 	executable 'valgrind'
 	args 'tests/background/build/exe/background/linux64/gLES30/background'
 }
 
+task debugGuiTestLinux64GLES30(type: Exec) {
+	dependsOn ':buildGuiTestLinux64GLES30'
+	executable 'valgrind'
+	args 'tests/gui/build/exe/gui/linux64/gLES30/gui'
+}
+
 task debugSpriteTestLinux64GLES30(type: Exec) {
-	dependsOn 'buildSpriteTestLinux64GLES30'
+	dependsOn ':buildSpriteTestLinux64GLES30'
 	executable 'valgrind'
 	args 'tests/sprites/build/exe/sprites/linux64/gLES30/sprites'
 }
 
 task debugTileTestLinux64GLES30(type: Exec) {
-	dependsOn 'buildTileTestLinux64GLES30'
+	dependsOn ':buildTileTestLinux64GLES30'
 	executable 'valgrind'
 	args 'tests/tiles/build/exe/tiles/linux64/gLES30/tiles'
 }
