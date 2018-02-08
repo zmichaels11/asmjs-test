@@ -52,7 +52,7 @@ std::string util::stringReadAll(const std::string& file) noexcept {
       auto len = in.tellg();
       auto out = std::string();
 
-      out.reserve(in.tellg());
+      out.reserve(len);
       in.seekg(0, std::ios::beg);
       out.assign(std::istreambuf_iterator<char> (in), std::istreambuf_iterator<char> ());
       
