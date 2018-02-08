@@ -1,17 +1,17 @@
 #version 330 core
 
-in vec2 Position;
-in vec2 TexCoord;
-in vec4 Color;
+in vec2 vPosition;
+in vec2 vTexCoord;
+in vec4 vColor;
 
-out vec2 Frag_UV;
-out vec4 Frag_Color;
+out vec2 fTexCoord;
+out vec4 fColor;
 
-uniform mat4 ProjMtx;
+uniform mat4 uProjection;
 
 void main() {
-    Frag_UV = TexCoord;
-    Frag_Color = Color;
+    fTexCoord = vTexCoord;
+    fColor = vColor;
 
-    gl_Position = ProjMtx * vec4(Position, 0, 1);
+    gl_Position = uProjection * vec4(vPosition, 0.0, 1.0);
 }

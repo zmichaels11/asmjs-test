@@ -423,7 +423,11 @@ namespace engine {
                 
                 nk_font_atlas_end(&_device.atlas, nk_handle_id(_device.gl.fontTexture), &_device.null);
 
-                nk_init_default(&_context, &_fonts[info.defaultFontID]->handle);
+                if (info.nFonts) {
+                    nk_init_default(&_context, &_fonts[info.defaultFontID]->handle);
+                } else {
+                    nk_init_default(&_context, nullptr);
+                }
 
                 if (_device.atlas.default_font) {
                     nk_style_set_font(&_context, &_device.atlas.default_font->handle);
@@ -433,17 +437,24 @@ namespace engine {
 
                 nk_buffer_init_default(&_device.cmds);
 
+                
                 {
                     auto newVbo = graphics::buffer({
                         graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW,
                         {nullptr, MAX_VERTEX_BUFFER_SIZE}});
 
                     std::swap(_device.gl.vbo, newVbo);
+                }
 
-                    auto ebo = graphics::buffer({
+                {
+                    auto newEbo = graphics::buffer({
                         graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW,
                         {nullptr, MAX_ELEMENT_BUFFER_SIZE}});
 
+                    std::swap(_device.gl.ebo, newEbo);
+                }                    
+
+                {
                     auto attributes = std::vector<graphics::vertex_attribute_description> ();
 
                     attributes.push_back({0, graphics::vertex_format::X32Y32_SFLOAT, 0, 0});
@@ -456,9 +467,12 @@ namespace engine {
 
                     auto newVao = graphics::vertex_array({
                         attributes.data(), attributes.size(),
-                        bindings.data(), bindings.size()
-                        &_device.gl.ebo});                        
+                        bindings.data(), bindings.size(),
+                        &_device.gl.ebo});
+
+                    std::swap(_device.gl.vao, newVao);
                 }
+                
 
                 if (!_program) {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
