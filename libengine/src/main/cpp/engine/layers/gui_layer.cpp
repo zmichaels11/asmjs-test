@@ -330,6 +330,30 @@ namespace engine {
             nk_end(&pRes->_context);
         }
 
+        void gui_layer::layoutSetMinRowHeight(float height) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_set_min_row_height(&pRes->_context, height);
+        }
+
+        void gui_layer::layoutResetMinRowHeight() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_reset_min_row_height(&pRes->_context);
+        }
+
+        void gui_layer::layoutWidgetBounds() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_widget_bounds(&pRes->_context);
+        }
+
+        void gui_layer::layoutRatioFromPixel(float pixelWidth) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_ratio_from_pixel(&pRes->_context, pixelWidth);
+        }        
+
         void gui_layer::layoutRowDynamic(
             float height,
             int cols) noexcept {
@@ -349,11 +373,360 @@ namespace engine {
             nk_layout_row_static(&pRes->_context, height, itemWidth, cols);
         }
 
+        template<>
+        void gui_layer::layoutRowBegin<nuklear::layout_format::DYNAMIC>(
+            float rowHeight,
+            int cols) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_row_begin(&pRes->_context, NK_DYNAMIC, rowHeight, cols);
+        }
+
+        template<>
+        void gui_layer::layoutRow<nuklear::layout_format::DYNAMIC>(
+            float height,
+            int cols,
+            const float * pRatio) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_row(&pRes->_context, NK_DYNAMIC, height, cols, pRatio);
+        }
+
+        template<>
+        void gui_layer::layoutRow<nuklear::layout_format::STATIC>(
+            float height,
+            int cols,
+            const float * pRatio) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_row(&pRes->_context, NK_STATIC, height, cols, pRatio);
+        }
+
+        void gui_layer::layoutRowTemplateBegin(float rowHeight) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_row_template_begin(&pRes->_context, rowHeight);
+        }
+
+        void gui_layer::layoutRowTemplatePushDynamic() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_row_template_push_dynamic(&pRes->_context);
+        }
+
+        void gui_layer::layoutRowTemplatePushStatic(float width) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_row_template_push_static(&pRes->_context, width);
+        }
+
+        void gui_layer::layoutRowTemplatePushVariable(float minWidth) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_row_template_push_variable(&pRes->_context, minWidth);
+        }
+
+        void gui_layer::layoutRowTemplateEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_row_template_end(&pRes->_context);
+        }
+
+        template<>
+        void gui_layer::layoutSpaceBegin<nuklear::layout_format::DYNAMIC>(
+            float height,
+            int widgetCount) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_space_begin(&pRes->_context, NK_DYNAMIC, height, widgetCount);
+        }
+
+        template<>
+        void gui_layer::layoutSpaceBegin<nuklear::layout_format::STATIC>(
+            float height,
+            int widgetCount) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_space_begin(&pRes->_context, NK_STATIC, height, widgetCount);
+        }
+
+        void gui_layer::layoutSpacePush(const bounds<float, float>& rect) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_space_push(&pRes->_context, nk_rect(rect.x, rect.y, rect.width, rect.height));
+        }
+
+        void gui_layer::layoutSpaceEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_layout_space_end(&pRes->_context);
+        }
+
+        bool gui_layer::groupBegin(
+            const std::string& title,
+            nuklear::panel_flags flags) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_group_begin(&pRes->_context, title.c_str(), static_cast<nk_flags> (flags));
+        }        
+
+        void gui_layer::groupEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_group_end(&pRes->_context);
+        }
+
+        template<>
+        void gui_layer::treePush<nuklear::tree_type::NODE>(
+            const std::string& title,
+            nuklear::collapse_states state) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_tree_push(&pRes->_context, NK_TREE_NODE, title.c_str(), static_cast<nk_collapse_states> (state));
+        }
+
+        template<>
+        void gui_layer::treePush<nuklear::tree_type::TAB>(
+            const std::string& title,
+            nuklear::collapse_states state) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_tree_push(&pRes->_context, NK_TREE_TAB, title.c_str(), static_cast<nk_collapse_states> (state));
+        }
+
+        void gui_layer::treePop() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_tree_pop(&pRes->_context);
+        }
+
+        bounds<float, float> gui_layer::widgetBounds() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto out = nk_widget_bounds(&pRes->_context);
+
+            return {out.x, out.y, out.w, out.h};
+        }
+
+        point<float> gui_layer::widgetPosition() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto out = nk_widget_position(&pRes->_context);
+
+            return {out.x, out.y};
+        }
+
+        void gui_layer::text(const char * txt, int len, nuklear::text_alignment alignment) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_text(&pRes->_context, txt, len, static_cast<nk_flags> (alignment));
+        }
+
+        void gui_layer::text(const char * txt, int len, nuklear::text_alignment align, const color& c) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_text_colored(&pRes->_context, txt, len, static_cast<nk_flags> (align), nk_rgba(c.r, c.g, c.b, c.a));
+        }
+
+        void gui_layer::textWrap(const char * txt, int len) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_text_wrap(&pRes->_context, txt, len);
+        }
+
+        void gui_layer::textWrap(const char * txt, int len, const color& c) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_text_wrap_colored(&pRes->_context, txt, len, nk_rgba(c.r, c.g, c.b, c.a));
+        }
+
+        void gui_layer::label(const std::string& label, nuklear::text_alignment align) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_label(&pRes->_context, label.c_str(), static_cast<nk_flags> (align));
+        }
+
+        void gui_layer::label(const std::string& label, nuklear::text_alignment align, const color& c) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_label_colored(&pRes->_context, label.c_str(), static_cast<nk_flags> (align), nk_rgba(c.r, c.g, c.b, c.a));
+        }
+
+        void gui_layer::labelWrap(const std::string& label) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_label_wrap(&pRes->_context, label.c_str());
+        }
+
+        void gui_layer::labelWrap(const std::string& label, const color& c) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_label_colored_wrap(&pRes->_context, label.c_str(), nk_rgba(c.r, c.g, c.b, c.a));
+        }      
+
+        bool gui_layer::buttonText(const char * title, int len) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_button_text(&pRes->_context, title, len);
+        }
+
+        bool gui_layer::buttonLabel(const std::string& title) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_button_label(&pRes->_context, title.c_str());
+        }
+        
+        bool gui_layer::checkLabel(const std::string& txt, bool active) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_check_label(&pRes->_context, txt.c_str(), active);
+        }
+
+        bool gui_layer::checkText(const char * txt, int len, bool active) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_check_text(&pRes->_context, txt, len, active);
+        }
+
+        bool gui_layer::checkboxLabel(const std::string& label, bool * pActive) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            int active = *pActive;
+            int res = nk_checkbox_label(&pRes->_context, label.c_str(), &active);
+
+            *pActive = active;
+            
+            return res;
+        }
+
+        bool gui_layer::checkboxText(const char * txt, int len, bool * pActive) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            int active = *pActive;
+            int res = nk_checkbox_text(&pRes->_context, txt, len, &active);
+
+            *pActive = active;
+
+            return res;
+        }
+
+        bool gui_layer::radioLabel(const std::string& label, bool * pActive) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            int active = *pActive;
+            int res = nk_radio_label(&pRes->_context, label.c_str(), &active);
+
+            *pActive = active;
+
+            return res;
+        }
+
+        bool gui_layer::radioText(const char * txt, int len, bool * pActive) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            int active = *pActive;
+            int res = nk_radio_text(&pRes->_context, txt, len, &active);
+
+            *pActive = active;
+
+            return res;
+        }        
+
         bool gui_layer::optionLabel(const std::string& label, bool enabled) noexcept {
             auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
 
             return nk_option_label(&pRes->_context, label.c_str(), enabled);
         }
+
+        bool gui_layer::optionText(const char * txt, int len, bool enabled) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_option_text(&pRes->_context, txt, len, enabled);
+        }
+
+        bool gui_layer::selectableLabel(const std::string& label, nuklear::text_alignment align, bool * pSelect) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            int select = *pSelect;
+            int res = nk_selectable_label(&pRes->_context, label.c_str(), static_cast<nk_flags> (align), &select);
+
+            *pSelect = select;
+
+            return res;
+        }
+
+        bool gui_layer::selectLabel(const std::string& label, nuklear::text_alignment align, bool select) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_select_label(&pRes->_context, label.c_str(), static_cast<nk_flags> (align), select);            
+        }
+
+        bool gui_layer::selectableText(const char * txt, int len, nuklear::text_alignment align, bool * pSelect) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            int select = *pSelect;
+            int res = nk_selectable_text(&pRes->_context, txt, len, static_cast<nk_flags> (align), &select);
+
+            *pSelect = select;
+
+            return res;            
+        }
+
+        bool gui_layer::selectText(const char * txt, int len, nuklear::text_alignment align, bool select) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_select_text(&pRes->_context, txt, len, static_cast<nk_flags> (align), select);            
+        }
+
+        template<>
+        void gui_layer::slider<int>(const std::string& label, int min, int * pValue, int max, int step) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_slider_int(&pRes->_context, min, pValue, max, step);            
+        }
+
+        template<>
+        void gui_layer::slider<float>(const std::string& label, float min, float * pValue, float max, float step) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_slider_float(&pRes->_context, min, pValue, max, step);            
+        }
+
+        template<>
+        void gui_layer::progress<nuklear::modify::FIXED>(unsigned int * pCurrent, unsigned int max) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto cur = static_cast<nk_size> (*pCurrent);
+
+            nk_progress(&pRes->_context, &cur, static_cast<nk_size> (max), 0);  
+
+            *pCurrent = static_cast<unsigned int> (cur);
+        }
+
+        template<>
+        void gui_layer::progress<nuklear::modify::MODIFIABLE>(unsigned int * pCurrent, unsigned int max) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto cur = static_cast<nk_size> (*pCurrent);
+
+            nk_progress(&pRes->_context, &cur, static_cast<nk_size> (max), 1);
+
+            *pCurrent = static_cast<unsigned int> (cur);
+        }
+
+        template<>
+        color gui_layer::colorPicker<nuklear::color_format::RGB>(const color& c) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto res = nk_color_picker(&pRes->_context, nk_rgb(c.r, c.g, c.b), NK_RGB);
+
+            return color::rgb(res.r, res.g, res.b);
+        }
+
+        template<>
+        color gui_layer::colorPicker<nuklear::color_format::RGBA>(const color& c) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto res = nk_color_picker(&pRes->_context, nk_rgba(c.r, c.g, c.b, c.a), NK_RGBA);
+
+            return color::rgba(res.r, res.g, res.b, res.a);            
+        }        
 
         template<>
         void gui_layer::property<int>(
@@ -366,18 +739,17 @@ namespace engine {
             nk_property_int(&pRes->_context, label.c_str(), min, pValue, max, step, incPerPixel);
         }
 
-        bool gui_layer::buttonLabel(const std::string& title) noexcept {
-            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+        template<>
+        void gui_layer::property<float> (
+            const std::string& label,
+            float min, float * pValue, float max, float step,
+            float incPerPixel) noexcept  {
 
-            return nk_button_label(&pRes->_context, title.c_str());
+            auto pRes = dynamic_cast<gui_layer_resources * >(_pResources.get());
+
+            nk_property_float(&pRes->_context, label.c_str(), min, pValue, max, step, incPerPixel);
         }
-
-        bool gui_layer::buttonText(const char * title, int len) noexcept {
-            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
-
-            return nk_button_text(&pRes->_context, title, len);
-        }
-
+        
         template<>
         void gui_layer::editString<nuklear::plugin_filter::ASCII>(
             nuklear::edit_flags flags,
@@ -467,6 +839,223 @@ namespace engine {
 
             
             nk_edit_string(pCtx, type, buffer, len, max, nk_filter_oct);
+        }
+
+        template<>
+        bool gui_layer::popupBegin<nuklear::popup_type::DYNAMIC>(
+            const std::string& title,
+            nuklear::panel_flags flags,
+            const bounds<float, float>& bounds) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_popup_begin(&pRes->_context, NK_POPUP_DYNAMIC, title.c_str(), static_cast<nk_flags> (flags), nk_rect(bounds.x, bounds.y, bounds.width, bounds.height));
+        }
+
+        template<>
+        bool gui_layer::popupBegin<nuklear::popup_type::STATIC>(
+            const std::string& title,
+            nuklear::panel_flags flags,
+            const bounds<float, float>& bounds) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_popup_begin(&pRes->_context, NK_POPUP_STATIC, title.c_str(), static_cast<nk_flags> (flags), nk_rect(bounds.x, bounds.y, bounds.width, bounds.height)); 
+        }
+
+        void gui_layer::popupEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_popup_end(&pRes->_context);            
+        }
+
+        void gui_layer::popupClose() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_popup_close(&pRes->_context);            
+        }
+
+        int gui_layer::combo(
+            const char ** pItems, int count,
+            int selected, int itemHeight,
+            const point<float>& size) noexcept {
+
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_combo(&pRes->_context, pItems, count, selected, itemHeight, nk_vec2(size.x, size.y));
+        }
+
+        bool gui_layer::comboBeginText(const char * txt, int len, const point<float>& size) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_combo_begin_text(&pRes->_context, txt, len, nk_vec2(size.x, size.y));            
+        }
+
+        bool gui_layer::comboBeginLabel(const std::string& txt, const point<float>& size) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_combo_begin_label(&pRes->_context, txt.c_str(), nk_vec2(size.x, size.y));
+        }
+
+        bool gui_layer::comboBeginColor(const color& c, const point<float>& size) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_combo_begin_color(&pRes->_context, nk_rgba(c.r, c.g, c.b, c.a), nk_vec2(size.x, size.y));            
+        }
+
+        void gui_layer::comboClose() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_combo_close(&pRes->_context);            
+        }
+
+        void gui_layer::comboEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_combo_end(&pRes->_context);            
+        }
+
+        bool gui_layer::contextualBegin(const point<float>& pos, const bounds<float, float>& triggerBounds) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_contextual_begin(&pRes->_context, 0, nk_vec2(pos.x, pos.y), nk_rect(triggerBounds.x, triggerBounds.y, triggerBounds.width, triggerBounds.height));            
+        }
+
+        bool gui_layer::contextualItemLabel(const std::string& txt, nuklear::text_alignment align) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_contextual_item_label(&pRes->_context, txt.c_str(), static_cast<nk_flags> (align));            
+        }
+
+        bool gui_layer::contextualItemText(const char * txt, int len, nuklear::text_alignment align) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_contextual_item_text(&pRes->_context, txt, len, static_cast<nk_flags> (align));            
+        }
+
+        void gui_layer::contextualClose() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_contextual_close(&pRes->_context);            
+        }
+
+        void gui_layer::contextualEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_contextual_end(&pRes->_context);            
+        }
+
+        void gui_layer::tooltip(const std::string& tip) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_tooltip(&pRes->_context, tip.c_str());            
+        }
+
+        bool gui_layer::tooltipBegin(float width) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_tooltip_begin(&pRes->_context, width);            
+        }
+
+        void gui_layer::tooltipEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_tooltip_end(&pRes->_context);            
+        }
+
+        void gui_layer::menubarBegin() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_menubar_begin(&pRes->_context);            
+        }
+
+        void gui_layer::menubarEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_menubar_end(&pRes->_context);            
+        }
+
+        bool gui_layer::menuBeginLabel(const std::string& label, nuklear::text_alignment align, const point<float>& size) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_menu_begin_label(&pRes->_context, label.c_str(), static_cast<nk_flags> (align), nk_vec2(size.x, size.y));            
+        }
+
+        bool gui_layer::menuBeginText(const char * txt, int len, nuklear::text_alignment align, const point<float>& size) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_menu_begin_text(&pRes->_context, txt, len, static_cast<nk_flags> (align), nk_vec2(size.x, size.y));            
+        }
+
+        bool gui_layer::menuItemLabel(const std::string& label, nuklear::text_alignment align) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_menu_item_label(&pRes->_context, label.c_str(), static_cast<nk_flags> (align));            
+        }
+
+        bool gui_layer::menuItemText(const char * txt, int len, nuklear::text_alignment align) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            return nk_menu_item_text(&pRes->_context, txt, len, static_cast<nk_flags> (align));            
+        }
+
+        void gui_layer::menuClose() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_menu_close(&pRes->_context);            
+        }
+
+        void gui_layer::menuEnd() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_menu_end(&pRes->_context);            
+        }
+
+        void gui_layer::styleDefault() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_style_default(&pRes->_context);            
+        }
+
+        void gui_layer::styleSetFont(int fontID) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto font = pRes->_fonts[fontID];
+
+            nk_style_set_font(&pRes->_context, &font->handle);    
+        }
+
+        void gui_layer::stylePushFont(int fontID) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto font = pRes->_fonts[fontID];
+
+            nk_style_push_font(&pRes->_context, &font->handle); 
+        }
+
+        void gui_layer::stylePushFloat(float * pF, float f) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_style_push_float(&pRes->_context, pF, f);            
+        }
+
+        void gui_layer::stylePushVec2(point<float> * pV, const point<float>& v) noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+            auto tmpV = nk_vec2(pV->x, pV->y);
+
+            nk_style_push_vec2(&pRes->_context, &tmpV, nk_vec2(v.x, v.y));
+            pV->x = tmpV.x;
+            pV->y = tmpV.y;
+        }
+
+        void gui_layer::stylePopVec2() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_style_pop_vec2(&pRes->_context);            
+        }
+
+        void gui_layer::stylePopFloat() noexcept {
+            auto pRes = dynamic_cast<gui_layer_resources * > (_pResources.get());
+
+            nk_style_pop_float(&pRes->_context);            
         }
 
         namespace {
