@@ -13,7 +13,7 @@ constexpr unsigned int TILE_HEIGHT = 32;
 constexpr unsigned int SCREEN_WIDTH = 640;
 constexpr unsigned int SCREEN_HEIGHT = 480;
 constexpr float SCROLL_SPEED = 0.001F;
-constexpr auto HINTS = engine::application_hint::VSYNC;
+constexpr auto HINTS = engine::application_hint::VSYNC | engine::application_hint::DEBUG;
 
 auto _loadTile(
     std::vector<graphics::image * >& imgRefs,
@@ -23,7 +23,7 @@ auto _loadTile(
 
     imgRefs.push_back(ptr.get());
 
-    return ptr;    
+    return ptr;
 }
 
 enum class direction {
@@ -46,7 +46,7 @@ struct tile_test_data {
 };
 
 int main(int argc, char** argv) {
-    engine::application::init({"Tiles Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, HINTS});        
+    engine::application::init({"Tiles Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {4, 5}, HINTS});
 
     auto tileCache = std::vector<decltype(graphics::image::read(""))> ();
     auto ppTileImages = std::vector<graphics::image * > ();

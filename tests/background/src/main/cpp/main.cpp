@@ -14,8 +14,8 @@ constexpr unsigned int SCREEN_HEIGHT = 480;
 constexpr auto HINTS = engine::application_hint::VSYNC | engine::application_hint::DEBUG;
 
 int main(int argc, char** argv) {
-    engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, HINTS});
-        
+    engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {4, 5}, HINTS});
+
     auto backgroundInfo = engine::layers::background_layer_info{0};
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
 

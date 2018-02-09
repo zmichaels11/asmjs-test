@@ -14,14 +14,14 @@
 
 constexpr unsigned int SCREEN_WIDTH = 640;
 constexpr unsigned int SCREEN_HEIGHT = 480;
-constexpr auto HINTS = engine::application_hint::VSYNC;// | engine::application_hint::DEBUG;
+constexpr auto HINTS = engine::application_hint::VSYNC | engine::application_hint::DEBUG;
 
 struct gui_test_data {
     std::vector<std::unique_ptr<gui_test::gui_component>> components;
 };
 
 int main(int argc, char** argv) {
-    engine::application::init({"GUI Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, HINTS});
+    engine::application::init({"GUI Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {4, 5}, HINTS});
 
     auto guiInfo = engine::layers::gui_layer_info {};
     auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();

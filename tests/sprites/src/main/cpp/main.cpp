@@ -24,13 +24,13 @@ struct sprite_test_data {
 
     struct sprite_data_t {
         math::vec2 pos, vel;
-        int frameID;        
+        int frameID;
     } sprites[MAX_SPRITES];
 };
 
 int main(int argc, char** argv) {
-    engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {1, 0}, HINTS});
-            
+    engine::application::init({"Background Test", {SCREEN_WIDTH, SCREEN_HEIGHT}, {4, 5}, HINTS});
+
     auto spriteCache = std::vector<decltype(graphics::image::read(""))>();
     auto ppSpriteImages = std::vector<graphics::image*>();
 
@@ -58,20 +58,20 @@ int main(int argc, char** argv) {
 
     spriteLayerInfo.ext.hints = engine::layers::scene_layer_hint::CLEAR;
     spriteLayerInfo.ext.clear.type = engine::layers::clear_type::COLOR;
-    spriteLayerInfo.ext.clear.clearColor = engine::layers:color::rgb(20, 80, 120);
+    spriteLayerInfo.ext.clear.clearColor = engine::layers::color::rgb(20, 80, 120);
 
     pLayerInfos.push_back(spriteLayerInfo);
-    
+
 
     auto sceneInfo = engine::layers::scene_info{
         {
-            pSpritesheetInfos.data(), pSpritesheetInfos.size(), 
-            nullptr, 0, 
+            pSpritesheetInfos.data(), pSpritesheetInfos.size(),
+            nullptr, 0,
             nullptr, 0},
 
         pLayerInfos.data(), pLayerInfos.size()};
 
-    std::random_device rd;    
+    std::random_device rd;
     std::mt19937 mt(rd());
     std::uniform_real_distribution<double> xdist(0.0, SCREEN_WIDTH);
     std::uniform_real_distribution<double> ydist(0.0, SCREEN_HEIGHT);
