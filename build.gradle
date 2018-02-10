@@ -239,6 +239,10 @@ task buildSpriteTestLinux64GL {
 	dependsOn ':tests:sprites:spritesLinux64GLExecutable'
 }
 
+task buildSoundTestLinux64GL {
+	dependsOn ':tests:sound:soundLinux64GLExecutable'
+}
+
 task buildTileTestLinux64GL {
 	dependsOn ':tests:tiles:tilesLinux64GLExecutable'
 }
@@ -246,6 +250,7 @@ task buildTileTestLinux64GL {
 task buildTestsLinux64GL {
 	dependsOn ':buildBackgroundTestLinux64GL'
 	dependsOn ':buildSpriteTestLinux64GL'
+	dependsOn ':buildSoundTestLinux64GL'
 	dependsOn ':buildTileTestLinux64GL'
 }
 
@@ -264,6 +269,12 @@ task runGuiTestLinux64GL(type: Exec) {
 task runSpriteTestLinux64GL(type: Exec) {
 	dependsOn 'buildSpriteTestLinux64GL'
 	executable 'tests/sprites/build/exe/sprites/linux64/gL/sprites'
+	args ''
+}
+
+task runSoundTestLinux64GL(type: Exec) {
+	dependsOn 'buildSoundTestLinux64GL'
+	executable 'tests/sound/build/exe/sound/linux64/gL/sound'
 	args ''
 }
 

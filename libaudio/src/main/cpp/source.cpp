@@ -32,45 +32,36 @@ namespace audio {
         alSource3f(_handle, AL_DIRECTION, x, y, z);
     }
 
-    std::size_t source::getBuffersQueued() const noexcept {
-        ALint out = 0;
+    std::size_t source::gc() const noexcept {
+        ALint nBuffers = 0;
 
-        alGetSourcei(_handle, AL_BUFFERS_QUEUED, &out);
+        alGetSourcei(_handle, AL_BUFFERS_PROCESSED, &nBuffers);
 
-        return static_cast<std::size_t> (out);
-    }
+        switch (nBuffers) {
+            case 0:
+                break;
+            case 1: {
+                ALuint buffer = 0;
 
-    std::size_t source::getBuffersProcessed() const noexcept {
-        ALint out = 0;
+                alSourceUnqueueBuffers(_handle, 1, &buffer);
+                alDeleteBuffers(1, &buffer);
+            } break;
+            default: {
+                auto pBuffers = std::make_unique<ALuint[]> (nBuffers);
 
-        alGetSourcei(_handle, AL_BUFFERS_PROCESSED, &out);
-
-        return static_cast<std::size_t> (out);
-    }
-
-    void source::unqueueBuffers(buffer * pBuffers, std::size_t nbuffers) const noexcept {
-        if (pBuffers != nullptr && nbuffers > 0) {            
-            auto buffers = std::make_unique<ALuint[]> (nbuffers);
-        
-            alSourceUnqueueBuffers(_handle, static_cast<ALsizei> (nbuffers), buffers.get());        
-
-            for (int i = 0; i < nbuffers; i++) {
-                pBuffers[i] = buffer(buffers[i]);
-            }
+                alSourceUnqueueBuffers(_handle, nBuffers, pBuffers.get());
+                alDeleteBuffers(nBuffers, pBuffers.get());
+            } break;
         }
+
+        return static_cast<std::size_t> (nBuffers);
     }
-
-    void source::queueBuffers(const buffer * pBuffers, std::size_t nBuffers) const noexcept {
-        if (nBuffers) {
-            auto buffers = std::make_unique<ALuint[]> (nBuffers);
-
-            for (int i = 0; i < nBuffers; i++) {
-                buffers[i] = pBuffers[i]._handle;
-            }
-
-            alSourceQueueBuffers(_handle, static_cast<ALsizei> (nBuffers), buffers.get());
-        }
-    }
+    
+    void source::queueBuffer(audio::buffer&& buffer) const noexcept {        
+        alSourceQueueBuffers(_handle, 1, &buffer._handle);
+        // steal the handle
+        buffer._handle = 0;
+    }    
 
     void source::play() const noexcept {
         alSourcePlay(_handle);

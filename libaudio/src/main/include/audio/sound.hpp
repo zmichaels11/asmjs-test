@@ -14,7 +14,6 @@ namespace audio {
         std::unique_ptr<sound_channel> _channel;
         format _format;
         int _sampleRate;
-        buffer _buffers[3];
         source _source;
         sound_state _state;        
         std::size_t _bufferSize;

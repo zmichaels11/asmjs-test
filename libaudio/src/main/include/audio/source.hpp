@@ -70,35 +70,9 @@ namespace audio {
          */
         void setDirection(float x, float y, float z) const noexcept;
 
-        /**
-         * Retrieves the amount of buffers queued up.
-         * 
-         * @return the amount of unprocessed buffers.
-         */
-        std::size_t getBuffersQueued() const noexcept;
+        void queueBuffer(audio::buffer&& buffer) const noexcept;
 
-        /**
-         * Retrieves the amount of buffers processed.
-         * 
-         * @return the amount of processed buffers that are ready for recycle.
-         */
-        std::size_t getBuffersProcessed() const noexcept;
-
-        /**
-         * Removes n processed buffers from the queue.
-         * 
-         * @param pBuffers the array to write the buffers to.
-         * @param n the amount of buffers to retrieve.
-         */
-        void unqueueBuffers(buffer * pBuffers, std::size_t n) const noexcept;
-
-        /**
-         * Adds n buffers to the end of the queue.
-         * 
-         * @param pBuffers the array of buffers to process.
-         * @param n the amount of buffers to process. Default value is 1.
-         */
-        void queueBuffers(const buffer * pBuffers, std::size_t n = 1) const noexcept;
+        std::size_t gc() const noexcept;
 
         /**
          * Begins playback of the source. 

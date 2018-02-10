@@ -30,28 +30,23 @@ namespace audio {
             return;
         }
 
-        auto readySize = _source.getBuffersProcessed();
+        auto readySize = _source.gc();
 
         if (readySize == 0) {
             // no buffers are processed
             return;
-        }
-        
-        auto ready = std::make_unique<buffer[]> (readySize);
+        }        
 
-        _source.unqueueBuffers(ready.get(), readySize);
-
-        auto eof = false;
-
-        for (auto pBuffer = ready.get(); pBuffer != (ready.get() + readySize); pBuffer++) {
+        for (decltype(readySize) i = 0; i < readySize; i++) {            
             auto transfer = std::make_unique<char[]> (_bufferSize);
 
             if (_state == sound_state::PLAYING) {
                 auto size = _bufferSize;
                 auto eof = !_channel->read(transfer.get(), size);
                 
-                pBuffer->setData(_format, transfer.get(), size, _sampleRate);
-                _source.queueBuffers(pBuffer);
+                _source.queueBuffer(buffer({
+                    static_cast<unsigned int> (_sampleRate), _format,
+                    transfer.get(), size}));                
 
                 if (eof) {
                     _state = sound_state::STOPPED;
@@ -72,8 +67,9 @@ namespace audio {
                     }
                 }
 
-                pBuffer->setData(_format, transfer.get(), _bufferSize, _sampleRate);
-                _source.queueBuffers(pBuffer);
+                _source.queueBuffer(buffer({
+                    static_cast<unsigned int> (_sampleRate), _format,
+                    transfer.get(), _bufferSize}));
             }
         }
     }
@@ -102,22 +98,23 @@ namespace audio {
         return _state;
     }
 
-    void sound::play() noexcept {
+    void sound::play() noexcept {        
         int i = 0;
 
         for (; i < 3; i++) {
             auto transfer = std::make_unique<char[]> (_bufferSize);
             auto size = _bufferSize;
-            auto eof = !_channel->read(transfer.get(), size);
-
-            _buffers[i].setData(_format, transfer.get(), size, _sampleRate);            
+            auto eof = !_channel->read(transfer.get(), size);                       
+            
+            _source.queueBuffer(buffer({
+                static_cast<unsigned int> (_sampleRate), _format,
+                transfer.get(), size}));
 
             if (eof) {
                 break;
             }
         }
-
-        _source.queueBuffers(_buffers, i);
+        
         _state = sound_state::PLAYING;
         _source.play();
     }
@@ -141,10 +138,11 @@ namespace audio {
                 }
             }
 
-            _buffers[i].setData(_format, transfer.get(), _bufferSize, _sampleRate);            
+            _source.queueBuffer(buffer({
+                static_cast<unsigned int> (_sampleRate), _format,
+                transfer.get(), _bufferSize}));
         }
-
-        _source.queueBuffers(_buffers, i);
+        
         _state = sound_state::LOOPING;
         _source.play();
     }

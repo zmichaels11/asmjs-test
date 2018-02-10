@@ -49,6 +49,6 @@ namespace engine {
 
         static void setClipboardString(const std::string& content) noexcept;
 
-        static std::string getClipboardString() noexcept;
+        static std::string getClipboardString() noexcept;        
     };
 }

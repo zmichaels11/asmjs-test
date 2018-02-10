@@ -4,19 +4,22 @@
 #include "audio/format.hpp"
 
 namespace audio {
-    buffer::buffer() noexcept {
-        alGenBuffers(1, &_handle);
-        _transient = false;
+    buffer::buffer(const buffer_info& info) noexcept {
+        _info = info;
+
+        alGenBuffers(1, &_handle);        
+        alBufferData(_handle, static_cast<ALenum> (info.format), info.data, static_cast<ALsizei> (info.size), static_cast<ALsizei> (info.frequency));
     }    
 
-    buffer::~buffer() noexcept {
-        if (_handle && !_transient) {
+    buffer::~buffer() noexcept {        
+        if (_handle) {
             alDeleteBuffers(1, &_handle);
-            _handle = 0;
         }
     }
 
-    void buffer::setData(format fmt, const void * data, std::size_t size, unsigned int freq) const noexcept {
-        alBufferData(_handle, static_cast<ALenum> (fmt), data, size, freq);
+    const buffer_info& buffer::getInfo() const noexcept {
+        return _info;
     }
+
+
 }

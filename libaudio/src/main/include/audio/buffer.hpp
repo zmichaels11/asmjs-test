@@ -2,6 +2,7 @@
 
 #include <cstddef>
 
+#include "audio/buffer_info.hpp"
 #include "audio/format.hpp"
 
 namespace audio {
@@ -12,37 +13,31 @@ namespace audio {
      */
     class buffer {
         unsigned int _handle;
-        bool _transient;
+        buffer_info _info;
+
         friend class source;
 
         buffer(const buffer&) = delete;
 
         buffer& operator=(const buffer&) = delete;
 
-        buffer(unsigned int handle) noexcept: 
-            _handle(handle), 
-            _transient(true) {}
-
     public:
         buffer(buffer&&) = default;
 
         buffer& operator=(buffer&&) = default;
 
-        /**
-         * Constructs a new buffer object.
-         */
-        buffer() noexcept;        
+        buffer() noexcept:
+            _handle(0),            
+            _info() {}
+        
+        buffer(const buffer_info& info) noexcept;        
 
-        virtual ~buffer() noexcept;        
+        ~buffer() noexcept;
 
-        /**
-         * Sets the contents of the audio buffer.
-         * 
-         * @param fmt the audio format.
-         * @param data the data to write
-         * @param size the size of the data in basic machine units
-         * @param freq the audio frequency in hz
-         */
-        void setData(format fmt, const void * data, std::size_t size, unsigned int freq) const noexcept;
+        const buffer_info& getInfo() const noexcept;
+
+        inline operator unsigned int() noexcept {
+            return _handle;
+        }
     };
 }
