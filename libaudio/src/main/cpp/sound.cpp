@@ -26,11 +26,11 @@ namespace audio {
     }
 
     void sound::onFrame() noexcept {
+        auto readySize = _source.gc();
+        
         if (_state == sound_state::STOPPED) {
             return;
-        }
-
-        auto readySize = _source.gc();
+        }        
 
         if (readySize == 0) {
             // no buffers are processed
