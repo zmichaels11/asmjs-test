@@ -12,7 +12,7 @@ namespace audio {
     }
 
     vorbis_file_channel::vorbis_file_channel(const std::string& path) noexcept {
-        int err;
+        int err = 0;
         auto handle = stb_vorbis_open_filename(path.c_str(), &err, nullptr);
 
         if (err) {
