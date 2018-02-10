@@ -68,24 +68,28 @@ void sound_test_data::handleGUI(engine::layers::gui_layer * pLayer) noexcept {
 
 		if (pLayer->buttonLabel("load wave")) {
 			sound = std::make_unique<audio::sound> ("data/audio/atpcm16.wav");
+			std::cout << "Loaded data/audio/atpcm16.wav!" << std::endl;
 		}
 
 		if (pLayer->buttonLabel("load ogg")) {
 			sound = std::make_unique<audio::sound> ("data/audio/atmono.ogg");			
+			std::cout << "Loaded data/audio/atmono.ogg!" << std::endl;
 		}
 
 		pLayer->layoutRowDynamic(30, 3);
 
 		if (pLayer->buttonLabel("play")) {
 			if (sound.get()) {
+				std::cout << "Playing sound!" << std::endl;
 				sound->play();
 			} else {
 				std::cerr << "No sound is loaded!" << std::endl;
 			}
 		}
 
-		if (pLayer->buttonLabel("stop")) {
+		if (pLayer->buttonLabel("stop")) {			
 			if (sound.get()) {
+				std::cout << "Stopping sound!" << std::endl;
 				sound->stop();
 			} else {
 				std::cerr << "No sound is loaded!" << std::endl;
@@ -94,6 +98,7 @@ void sound_test_data::handleGUI(engine::layers::gui_layer * pLayer) noexcept {
 
 		if (pLayer->buttonLabel("loop")) {
 			if (sound.get()) {
+				std::cout << "Looping sound!" << std::endl;
 				sound->loop();
 			} else {
 				std::cerr << "No sound is loaded!" << std::endl;

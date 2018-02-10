@@ -30,39 +30,36 @@ namespace audio {
 
     void source::setDirection(float x, float y, float z) const noexcept {
         alSource3f(_handle, AL_DIRECTION, x, y, z);
-    }
+    }    
 
-    std::size_t source::gc() const noexcept {
+    std::size_t source::getProcessedBuffers() const noexcept {
         ALint nBuffers = 0;
 
         alGetSourcei(_handle, AL_BUFFERS_PROCESSED, &nBuffers);
 
-        switch (nBuffers) {
-            case 0:
-                break;
-            case 1: {
-                ALuint buffer = 0;
-
-                alSourceUnqueueBuffers(_handle, 1, &buffer);
-                alDeleteBuffers(1, &buffer);
-            } break;
-            default: {
-                auto pBuffers = std::make_unique<ALuint[]> (nBuffers);
-
-                alSourceUnqueueBuffers(_handle, nBuffers, pBuffers.get());
-                alDeleteBuffers(nBuffers, pBuffers.get());
-            } break;
-        }
-
         return static_cast<std::size_t> (nBuffers);
     }
-    
-    void source::queueBuffer(audio::buffer&& buffer) const noexcept {        
-        alSourceQueueBuffers(_handle, 1, &buffer._handle);
-        // steal the handle
-        buffer._handle = 0;
-    }    
 
+    void source::unqueueBuffers(buffer * pBuffers, std::size_t nBuffers) const noexcept {
+        auto tmp = std::make_unique<ALuint[]> (nBuffers);
+
+        alSourceUnqueueBuffers(_handle, nBuffers, tmp.get());
+
+        for (decltype(nBuffers) i = 0; i < nBuffers; i++) {            
+            pBuffers[i] = buffer(tmp[i]);            
+        }
+    }
+
+    void source::queueBuffers(const buffer * pBuffers, std::size_t nBuffers) const noexcept {
+        auto tmp = std::make_unique<ALuint[]> (nBuffers);
+
+        for (decltype(nBuffers) i = 0; i < nBuffers; i++) {
+            tmp[i] = pBuffers[i];
+        }
+
+        alSourceQueueBuffers(_handle, static_cast<ALsizei> (nBuffers), tmp.get());
+    }
+    
     void source::play() const noexcept {
         alSourcePlay(_handle);
     }

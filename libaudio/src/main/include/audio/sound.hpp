@@ -2,6 +2,7 @@
 
 #include <memory>
 #include <string>
+#include <vector>
 
 #include "audio/buffer.hpp"
 #include "audio/format.hpp"
@@ -18,6 +19,7 @@ namespace audio {
         sound_state _state;        
         std::size_t _bufferSize;
         unsigned int _loopSample;
+        std::vector<buffer> _buffers;
 
         sound(const sound&) = delete;
 

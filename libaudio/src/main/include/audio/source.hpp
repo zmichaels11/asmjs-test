@@ -70,9 +70,11 @@ namespace audio {
          */
         void setDirection(float x, float y, float z) const noexcept;
 
-        void queueBuffer(audio::buffer&& buffer) const noexcept;
+        std::size_t getProcessedBuffers() const noexcept;
 
-        std::size_t gc() const noexcept;
+        void unqueueBuffers(buffer * pBuffers, std::size_t nBuffers = 1) const noexcept;
+
+        void queueBuffers(const buffer * pBuffers, std::size_t nBuffers = 1) const noexcept;
 
         /**
          * Begins playback of the source. 
@@ -80,5 +82,9 @@ namespace audio {
          * This will play until the buffer queue is depleted.
          */
         void play() const noexcept;
+
+        inline operator unsigned int() const noexcept {
+            return _handle;
+        }
     };
 }
