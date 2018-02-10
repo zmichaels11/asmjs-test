@@ -31,6 +31,10 @@ task buildSpriteTestAsmjsWebGL2 {
 	dependsOn ':tests:sprites:spritesAsmjsGLES30Executable'
 }
 
+task buildSoundTestAsmjsWebGL2 {
+	dependsOn ':tests:sound:soundAsmjsGLES30Executable'
+}
+
 task buildTileTestAsmjsWebGL2 {
 	dependsOn ':tests:tiles:tilesAsmjsGLES30Executable'
 }
@@ -39,6 +43,7 @@ task buildTestsAsmjsWebGL2 {
 	dependsOn ':buildBackgroundTestAsmjsWebGL2'
 	dependsOn ':buildGuiTestAsmjsWebGL2'
 	dependsOn ':buildSpriteTestAsmjsWebGL2'
+	dependsOn ':buildSoundTestAsmjsWebGL2'
 	dependsOn ':buildTileTestAsmjsWebGL2'
 }
 
@@ -60,6 +65,12 @@ task runSpriteTestAsmjsWebGL2(type: Exec) {
 	args 'tests/sprites/build/exe/sprites/asmjs/gLES30/sprites.html'
 }
 
+task runSoundTestAsmjsWebGL2(type: Exec) {
+	dependsOn ':buildSoundTestAsmjsWebGL2'
+	executable 'firefox'
+	args 'tests/sound/build/exe/sound/asmjs/gLES30/sound.html'
+}
+
 task runTileTestAsmjsWebGL2(type: Exec) {
 	dependsOn ':buildTileTestAsmjsWebGL2'
 	executable 'firefox'
@@ -78,6 +89,10 @@ task buildSpriteTestBinaryenWebGL2 {
 	dependsOn ':tests:sprites:spritesBinaryenGLES30Executable'
 }
 
+task buildSoundTestBinaryenWebGL2 {
+	dependsOn ':tests:sound:soundBinaryenGLES30Executable'
+}
+
 task buildTileTestBinaryenWebGL2 {
 	dependsOn ':tests:tiles:tilesBinaryenGLES30Executable'
 }
@@ -86,6 +101,7 @@ task buildTestsBinaryenWebGL2 {
 	dependsOn ':buildBackgroundTestBinaryenWebGL2'
 	dependsOn ':buildGuiTestBinaryenWebGL2'
 	dependsOn ':buildSpriteTestBinaryenWebGL2'
+	dependsOn ':buildSoundTestBinaryenWebGL2'
 	dependsOn ':buildTileTestBinaryenWebGL2'
 }
 
@@ -107,6 +123,12 @@ task runSpriteTestBinaryenWebGL2(type: Exec) {
 	args 'tests/sprites/build/exe/sprites/binaryen/gLES30/sprites.html'
 }
 
+task runSoundTestBinaryenWebGL2(type: Exec) {
+	dependsOn ':buildSoundTestBinaryenWebGL2'
+	executable 'firefox'
+	args 'tests/sound/build/exe/sound/binaryen/gLES30/sound.html'
+}
+
 task runTileTestBinaryenWebGL2(type: Exec) {
 	dependsOn ':buildTileTestBinaryenWebGL2'
 	executable 'firefox'
@@ -125,6 +147,10 @@ task buildSpriteTestWindows64GL {
 	dependsOn ':tests:sprites:spritesWindows64GLExecutable'
 }
 
+task buildSoundTestWindows64GL {
+	dependsOn ':tests:sound:soundWindows64GLExecutable'
+}
+
 task buildTileTestWindows64GL {
 	dependsOn ':tests:tiles:tilesWindows64GLExecutable'
 }
@@ -133,6 +159,7 @@ task buildTestsWindows64GL {
 	dependsOn ':buildBackgroundTestWindows64GL'
 	dependsOn ':buildGuiTestWindows64GL'
 	dependsOn ':buildSpriteTestWindows64GL'
+	dependsOn ':buildSoundTestWindows64GL'
 	dependsOn ':buildTileTestWindows64GL'
 }
 
@@ -149,6 +176,14 @@ task runGuiTestWindows64GL(type: Exec) {
 	dependsOn ':buildGuiTestWindows64GL'
 	workingDir 'bin'
 	executable '../tests/gui/build/exe/gui/windows64/gL/gui.exe'
+	args ''
+}
+
+task runSoundTestWindows64GL(type: Exec) {
+	dependsOn ':installWindows64Data'
+	dependsOn ':buildSoundTestWindows64GL'
+	workingDir 'bin'
+	executable '../tests/sound/build/exe/sound/windows64/gL/sound.exe'
 	args ''
 }
 
@@ -180,6 +215,10 @@ task buildSpriteTestWindows64GLES30 {
 	dependsOn ':tests:sprites:spritesWindows64GLES30Executable'
 }
 
+task buildSoundTestWindows64GLES30 {
+	dependsOn ':tests:sound:soundWindows64GLES30Executable'
+}
+
 task buildTileTestWindows64GLES30 {
 	dependsOn ':tests:tiles:tilesWindows64GLES30Executable'
 }
@@ -187,6 +226,7 @@ task buildTileTestWindows64GLES30 {
 task buildTestsWindows64GLES30 {
 	dependsOn ':buildBackgroundTestWindows64GLES30'
 	dependsOn ':buildGuiTestWindows64GLES30'
+	dependsOn ':buildSoundTestWindows64GLES30'
 	dependsOn ':buildSpriteTestWindows64GLES30'
 	dependsOn ':buildTileTestWindows64GLES30'
 }
@@ -209,6 +249,14 @@ task runGuiTestWindows64GLES30(type: Exec) {
 	dependsOn ':buildGuiTestWindows64GLES30'
 	workingDir 'bin'
 	executable '../tests/gui/build/exe/bui/windows64/gLES30/gui.exe'
+	args ''
+}
+
+task runSoundTestWindows64GLES30(type: Exec) {
+	dependsOn ':installWindows64Data'
+	dependsOn ':buildSoundTestWindows64GLES30'
+	workingDir 'bin'
+	executable '../tests/sound/build/exe/sound/windows64/gLES30/sound.exe'
 	args ''
 }
 
@@ -249,8 +297,9 @@ task buildTileTestLinux64GL {
 
 task buildTestsLinux64GL {
 	dependsOn ':buildBackgroundTestLinux64GL'
-	dependsOn ':buildSpriteTestLinux64GL'
+	dependsOn ':buildGuiTestLinux64GL'
 	dependsOn ':buildSoundTestLinux64GL'
+	dependsOn ':buildSpriteTestLinux64GL'	
 	dependsOn ':buildTileTestLinux64GL'
 }
 
@@ -292,6 +341,10 @@ task buildGuiTestLinux64GLES30 {
 	dependsOn ':tests:gui:guiLinux64GLES30Executable'
 }
 
+task buildSoundTestLinux64GLES30 {
+	dependsOn ':tests:sound:soundLinux64GLES30Executable'
+}
+
 task buildSpriteTestLinux64GLES30 {
 	dependsOn ':tests:sprites:spritesLinux64GLES30Executable'
 }
@@ -303,6 +356,7 @@ task buildTileTestLinux64GLES30 {
 task buildTestsLinux64GLES30 {
 	dependsOn ':buildBackgroundTestLinux64GLES30'
 	dependsOn ':buildGuiTestLinux64GLES30'
+	dependsOn ':buildSoundTestLinux64GLES30'
 	dependsOn ':buildSpriteTestLinux64GLES30'
 	dependsOn ':buildTileTestLinux64GLES30'
 }
@@ -321,6 +375,12 @@ task runBackgroundTestLinux64GLES30(type: Exec) {
 task runGuiTestLinux64GLES30(type: Exec) {
 	dependsOn ':buildGuiTestLinux64GLES30'
 	executable 'tests/gui/build/exe/gui/linux64/gLES30/gui'
+	args ''
+}
+
+task runSoundTestLinux64GLES30(type: Exec) {
+	dependsOn ':buildSoundTestLinux64GLES30'
+	executable 'tests/sound/build/exe/sound/linux64/gLES30/sound'
 	args ''
 }
 
@@ -349,6 +409,12 @@ task debugGuiTestLinux64GL(type: Exec) {
 	args 'tests/gui/build/exe/gui/linux64/gL/gui'
 }
 
+task debugSoundTestLinux64GL(type: Exec) {
+	dependsOn ':buildSoundTestLinux64GL'
+	executable 'valgrind'
+	args 'tests/sound/build/exe/sound/linux64/gL/sound'
+}
+
 task debugSpriteTestLinux64GL(type: Exec) {
 	dependsOn ':buildSpriteTestLinux64GL'
 	executable 'valgrind'
@@ -371,6 +437,12 @@ task debugGuiTestLinux64GLES30(type: Exec) {
 	dependsOn ':buildGuiTestLinux64GLES30'
 	executable 'valgrind'
 	args 'tests/gui/build/exe/gui/linux64/gLES30/gui'
+}
+
+task debugSoundTestLinux64GLES30(type: Exec) {
+	dependsOn ':buildSoundTestLinux64GLES30'
+	executable 'valgrind'
+	args 'tests/sound/build/exe/sound/linux64/gLES30/sound'
 }
 
 task debugSpriteTestLinux64GLES30(type: Exec) {
