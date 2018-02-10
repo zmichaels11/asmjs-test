@@ -27,7 +27,7 @@ namespace audio {
 
     void sound::onFrame() noexcept {
         auto readySize = _source.gc();
-        
+
         if (_state == sound_state::STOPPED) {
             return;
         }        
@@ -98,7 +98,9 @@ namespace audio {
         return _state;
     }
 
-    void sound::play() noexcept {        
+    void sound::play() noexcept {
+        _channel->seekStart();
+          
         int i = 0;
 
         for (; i < 3; i++) {
