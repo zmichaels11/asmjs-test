@@ -1,7 +1,7 @@
 #include "pch.h"
 #include "audio/sound.hpp"
 
-#include "audio/vorbis_file_channel.hpp"
+#include "audio/vorbis_channel.hpp"
 #include "audio/wave_file_channel.hpp"
 
 namespace audio {
@@ -11,7 +11,7 @@ namespace audio {
 
     sound::sound(const std::string& path, float loopOffset) noexcept {
         if (util::hasSuffix(path, "ogg")) {
-            _channel = std::make_unique<vorbis_file_channel> (path);
+            _channel = std::make_unique<vorbis_channel> (path);
         } else if (util::hasSuffix(path, "wav")) {
             _channel = std::make_unique<wave_file_channel> (path);
         } else {

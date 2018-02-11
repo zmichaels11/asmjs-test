@@ -7,7 +7,7 @@
 #include "audio/sound_channel.hpp"
 
 namespace audio {
-    class vorbis_file_channel : public sound_channel {
+    class vorbis_channel : public sound_channel {
         
         int _channels;
         int _sampleRate;
@@ -19,16 +19,16 @@ namespace audio {
 
         void * _handle;
 
-        vorbis_file_channel(vorbis_file_channel&) = delete;
+        vorbis_channel(vorbis_channel&) = delete;
 
-        vorbis_file_channel& operator=(const vorbis_file_channel&) = delete;
+        vorbis_channel& operator=(const vorbis_channel&) = delete;
 
     public:
-        vorbis_file_channel(vorbis_file_channel&&) = default;
+        vorbis_channel(vorbis_channel&&) = default;
 
-        vorbis_file_channel& operator=(vorbis_file_channel&&) = default;
+        vorbis_channel& operator=(vorbis_channel&&) = default;
 
-        vorbis_file_channel() noexcept:
+        vorbis_channel() noexcept:
             _channels(0),
             _sampleRate(0),
             _byteRate(0),
@@ -38,9 +38,11 @@ namespace audio {
             _format(static_cast<format>(0)),
             _handle(nullptr){}
 
-        vorbis_file_channel(const std::string& path) noexcept;
+        vorbis_channel(const std::string& path) noexcept;
 
-        virtual ~vorbis_file_channel() noexcept;                
+        vorbis_channel(const void * data, std::size_t size) noexcept;
+
+        virtual ~vorbis_channel() noexcept;                
 
         virtual void seekStart() noexcept;
 
