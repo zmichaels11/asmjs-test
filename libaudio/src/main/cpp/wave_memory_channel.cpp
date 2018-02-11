@@ -1,39 +1,35 @@
 #include "pch.h"
-#include "audio/wave_file_channel.hpp"
+#include "audio/wave_memory_channel.hpp"
 
-#include <fstream>
+#include <cstring>
+
 #include <sstream>
 
-namespace audio {    
+namespace audio {
     namespace {
-        void _onError(const std::string& msg) {
-            std::cerr << "[AL] wave_file_channel error: " << msg << std::endl;
-            __builtin_trap();        
-        }    
+        void  _onError(const std::string& msg) noexcept;
     }
 
-    wave_file_channel::wave_file_channel(const std::string& path) noexcept {
-        _file.open(path, std::ifstream::binary);
-
-        if (!_file) {
-            _onError("Failed to open file: " + path);
-        }
-
+    wave_memory_channel::wave_memory_channel(const char * data, std::size_t len) noexcept {
         constexpr std::int32_t RIFF = 0x46464952;
         constexpr std::int32_t WAVE = 0x45564157;
 
         std::int32_t riff = 0;
         std::int32_t wave = 0;
 
-        _file.read(reinterpret_cast<char *> (&riff), sizeof(riff));        
-        _file.seekg(4, std::ifstream::cur);
-        _file.read(reinterpret_cast<char *> (&wave), sizeof(wave));
+        _data = data;
+        _offset = 0;
+        _len = len;
+
+        std::memcpy(&riff, _data, 4); _offset += 4;
+        _offset += 4;
+        std::memcpy(&wave, _data + _offset, 4); _offset += 4;
 
         if (riff != RIFF) {
             std::stringstream err;
 
             err << "Container is not RIFF! Expected: "
-                << RIFF
+                << RIFF 
                 << " but got: "
                 << riff;
 
@@ -43,80 +39,83 @@ namespace audio {
         if (wave != WAVE) {
             _onError("Audio format is not WAVE!");
         }
-        
+
         while (!parseSubchunk()) {
-            //process
+            // process
         }
 
-        _dataStart = _file.tellg();
+        _dataStart = _offset;
     }
 
-    void wave_file_channel::seekStart() noexcept {
-        _file.seekg(_dataStart);
+    void wave_memory_channel::seekStart() noexcept {
+        _offset = _dataStart;
     }
 
-    void wave_file_channel::seek(unsigned int sample) noexcept {
-        auto seekPos = _channels * _bitsPerSample / 8 * sample;
-
-        _file.seekg(seekPos, std::ifstream::cur);            
-    }
-
-    float wave_file_channel::getLength() const noexcept {
+    float wave_memory_channel::getLength() const noexcept {
         return static_cast<float> (_size) / static_cast<float> (_byteRate);
     }
 
-    int wave_file_channel::getSampleRate() const noexcept {
+    int wave_memory_channel::getSampleRate() const noexcept {
         return _sampleRate;
     }
 
-    int wave_file_channel::getChannels() const noexcept {
+    int wave_memory_channel::getChannels() const noexcept {
         return _channels;
     }
 
-    int wave_file_channel::getBitsPerSample() const noexcept {
+    int wave_memory_channel::getBitsPerSample() const noexcept {
         return _bitsPerSample;
     }
 
-    int wave_file_channel::getByteRate() const noexcept {
+    int wave_memory_channel::getByteRate() const noexcept {
         return _byteRate;
     }
 
-    format wave_file_channel::getFormat() const noexcept {
+    format wave_memory_channel::getFormat() const noexcept {
         return _format;
     }
 
-    bool wave_file_channel::read(void * dst, std::size_t& n) noexcept {
-        auto chars = reinterpret_cast<char *> (dst);
+    bool wave_memory_channel::read(void * dst, std::size_t& n) noexcept {
+        auto remaining = _len - _offset;
 
-        if (_file.read(chars, n)) {
-            return true;
-        } else {
-            n = _file.gcount();
+        if (n > remaining) {
+            n = static_cast<std::size_t> (remaining);
+            std::memcpy(dst, _data + _offset, n);
+            _offset = _len;
             return false;
-        }        
+        } else if (n == remaining) {
+            std::memcpy(dst, _data + _offset, n);
+            _offset = _len;
+            return false;
+        } else {
+            std::memcpy(dst, _data + _offset, n);
+            _offset += n;
+            return true;
+        }
     }
 
-    void wave_file_channel::parseFormatSubchunk(unsigned int chunkSize) noexcept {                
-        std::int16_t audioFormat;
+    void wave_memory_channel::parseFormatSubchunk(unsigned int chunkSize) noexcept {
+        std::int16_t audioFormat = 0;
 
-        _file.read(reinterpret_cast<char *> (&audioFormat), sizeof(audioFormat));
-        _file.read(reinterpret_cast<char *> (&_channels), sizeof(_channels));
-        _file.read(reinterpret_cast<char *> (&_sampleRate), sizeof(_sampleRate));
-        _file.read(reinterpret_cast<char *> (&_byteRate), sizeof(_byteRate));        
-        // skip blockAlign
-        _file.seekg(2, std::ifstream::cur);
-        _file.read(reinterpret_cast<char *> (&_bitsPerSample), sizeof(_bitsPerSample));
+        std::memcpy(&audioFormat, _data + _offset, 2);                      _offset += 2;
+        std::memcpy(&_channels, _data + _offset, sizeof(_channels));        _offset += sizeof(_channels);
+        std::memcpy(&_sampleRate, _data + _offset, sizeof(_sampleRate));    _offset += sizeof(_sampleRate);
+        std::memcpy(&_byteRate, _data + _offset, sizeof(_byteRate));        _offset += sizeof(_byteRate);
 
-        constexpr std::int16_t _PCM = 0x0001;
+        _offset += 2;
 
-        if (audioFormat != _PCM) {
-            std::int16_t extSize;
+        std::memcpy(&_bitsPerSample, _data + _offset, sizeof(_byteRate));   _offset += sizeof(_byteRate);
 
-            _file.read(reinterpret_cast<char *> (&extSize), sizeof(extSize));
+        constexpr std::int16_t PCM = 0x0001;
 
-            if (extSize == 22) {                
-                _file.seekg(6, std::ifstream::cur);
-                _file.read(reinterpret_cast <char*> (audioFormat), sizeof(audioFormat));
+        if (audioFormat != PCM) {
+            std::int16_t extSize = 0;
+
+            std::memcpy(&extSize, _data + _offset, 2); _offset += 2;
+
+            if (extSize == 22) {
+                _offset += 6;
+                std::memcpy(&audioFormat, _data + _offset, 2); _offset += 2;
             }
         }
 
@@ -133,8 +132,7 @@ namespace audio {
                                 break;
                             default:
                                 _onError("Unsupported audio format!");
-                        }
-                        break;
+                        } break;
                     case 2:
                         switch (_bitsPerSample) {
                             case 8:
@@ -144,13 +142,11 @@ namespace audio {
                                 _format = format::STEREO16;
                                 break;
                             default:
-                                _onError("Unsupported audio format!");       
-                        }
-                        break;
+                                _onError("Unsupported audio format!");                                
+                        } break;
                     default:
                         _onError("Unsupported audio format!");
-                }
-                break;
+                } break;
             case 0x0003:
                 switch (_channels) {
                     case 1:
@@ -160,8 +156,7 @@ namespace audio {
                                 break;
                             default:
                                 _onError("Unsupported audio format!");
-                        }
-                        break;
+                        } break;
                     case 2:
                         switch (_bitsPerSample) {
                             case 32:
@@ -169,12 +164,10 @@ namespace audio {
                                 break;
                             default:
                                 _onError("Unsupported audio format!");
-                        }
-                        break;
+                        } break;
                     default:
                         _onError("Unsupported audio format!");
-                }
-                break;
+                } break;
             case 0x0006:
                 switch (_channels) {
                     case 1:
@@ -184,9 +177,8 @@ namespace audio {
                         _format = format::STEREO_ALAW;
                         break;
                     default:
-                        _onError("Unsupported audio format!");
-                }
-                break;
+                        _onError("Unsupported audio format!");                    
+                } break;
             case 0x0007:
                 switch (_channels) {
                     case 1:
@@ -197,36 +189,42 @@ namespace audio {
                         break;
                     default:
                         _onError("Unsupported audio format!");
-                }
-                break;
+                } break;
             default:
                 _onError("Unsupported audio format!");
         }
     }
 
-    void wave_file_channel::skipSubchunk(unsigned int chunkSize) noexcept {        
-        _file.seekg(chunkSize, std::ifstream::cur);
+    void wave_memory_channel::skipSubchunk(unsigned int chunkSize) noexcept {
+        _offset += chunkSize;
     }
 
-    bool wave_file_channel::parseSubchunk() noexcept {
-        std::int32_t chunkId;        
+    bool wave_memory_channel::parseSubchunk() noexcept {
+        std::int32_t chunkId;
         std::int32_t chunkSize;
 
-        _file.read(reinterpret_cast<char *> (&chunkId), sizeof(chunkId));
-        _file.read(reinterpret_cast<char *> (&chunkSize), sizeof(chunkSize));
+        std::memcpy(&chunkId, _data + _offset, 4);      _offset += 4;
+        std::memcpy(&chunkSize, _data + _offset, 4);    _offset += 4;
 
         chunkId = __builtin_bswap32(chunkId);
-        
+
         switch (chunkId) {
-            case 0x666d7420:                
+            case 0x666d7420:
                 parseFormatSubchunk(chunkSize);
                 return false;
-            case 0x64617461:                
+            case 0x64617461:
                 _size = chunkSize;
                 return true;
             default:
                 skipSubchunk(chunkSize);
                 return false;
+        }
+    }
+
+    namespace {
+        void _onError(const std::string& msg) noexcept {
+            std::cerr << "[AL] wave_memory_channel error: " << msg << std::endl;
+            __builtin_trap();
         }
     }
 }
