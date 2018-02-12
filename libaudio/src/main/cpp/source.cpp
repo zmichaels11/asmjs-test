@@ -1,9 +1,10 @@
 #include "pch.h"
 #include "audio/source.hpp"
 
+#include "audio.hpp"
 #include "audio/buffer.hpp"
 
-namespace audio {
+namespace audio {    
     source::source() noexcept {
         alGenSources(1, &_handle);
     }
@@ -41,26 +42,52 @@ namespace audio {
     }
 
     void source::unqueueBuffers(buffer * pBuffers, std::size_t nBuffers) const noexcept {
-        auto tmp = std::make_unique<ALuint[]> (nBuffers);
+        box(pBuffers, nBuffers, [ this ](auto pBuffers, auto nBuffers) {
+            alSourceUnqueueBuffers(*this, nBuffers, pBuffers);
+        });
+    }
 
-        alSourceUnqueueBuffers(_handle, nBuffers, tmp.get());
+    source_state source::getState() const noexcept {
+        ALint state = 0;
 
-        for (decltype(nBuffers) i = 0; i < nBuffers; i++) {            
-            pBuffers[i] = buffer(tmp[i]);            
-        }
+        alGetSourcei(_handle, AL_SOURCE_STATE, &state);
+
+        return static_cast<source_state> (state);
     }
 
     void source::queueBuffers(const buffer * pBuffers, std::size_t nBuffers) const noexcept {
-        auto tmp = std::make_unique<ALuint[]> (nBuffers);
-
-        for (decltype(nBuffers) i = 0; i < nBuffers; i++) {
-            tmp[i] = pBuffers[i];
-        }
-
-        alSourceQueueBuffers(_handle, static_cast<ALsizei> (nBuffers), tmp.get());
+        unbox(pBuffers, nBuffers, [ this ](auto pBuffers, auto nBuffers) {
+            alSourceQueueBuffers(*this, nBuffers, pBuffers);
+        });   
     }
     
     void source::play() const noexcept {
         alSourcePlay(_handle);
+    }
+
+    void source::pause() const noexcept {
+        alSourcePause(_handle);        
+    }
+
+    void source::stop() const noexcept {
+        alSourceStop(_handle);
+    }
+
+    void source::playAll(const source * pSources, std::size_t n) noexcept {
+        unbox(pSources, n, [](auto pSources, auto n) {
+            alSourcePlayv(static_cast<ALsizei> (n), pSources);
+        });
+    }
+
+    void source::pauseAll(const source * pSources, std::size_t n) noexcept {
+        unbox(pSources, n, [](auto pSources, auto n) { 
+            alSourcePausev(static_cast<ALsizei> (n), pSources);
+        });
+    }
+
+    void source::stopAll(const source * pSources, std::size_t n) noexcept {
+        unbox(pSources, n, [](auto pSources, auto n) {
+            alSourceStopv(static_cast<ALsizei> (n), pSources);
+        });        
     }
 }

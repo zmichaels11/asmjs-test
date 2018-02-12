@@ -18,16 +18,16 @@ namespace audio {
 
         buffer(const buffer&) = delete;
 
-        buffer& operator=(const buffer&) = delete;
-
-        buffer(unsigned int handle) noexcept:
-            _handle(handle),
-            _transient(true) {}
+        buffer& operator=(const buffer&) = delete;        
 
     public:
         buffer(buffer&&) = default;
 
         buffer& operator=(buffer&&) = default;
+
+        buffer(unsigned int handle) noexcept:
+            _handle(handle),
+            _transient(true) {}
 
         buffer() noexcept:
             _handle(0),            

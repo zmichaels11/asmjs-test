@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+#include "audio/source_state.hpp"
+
 namespace audio {
     class buffer;
 
@@ -76,12 +78,24 @@ namespace audio {
 
         void queueBuffers(const buffer * pBuffers, std::size_t nBuffers = 1) const noexcept;
 
+        source_state getState() const noexcept;
+
         /**
          * Begins playback of the source. 
          * 
          * This will play until the buffer queue is depleted.
          */
         void play() const noexcept;
+
+        void pause() const noexcept;
+
+        void stop() const noexcept;
+
+        static void playAll(const source * pSources, std::size_t n = 1) noexcept;
+
+        static void pauseAll(const source * pSources, std::size_t n = 1) noexcept;
+
+        static void stopAll(const source * pSources, std::size_t n = 1) noexcept;        
 
         inline operator unsigned int() const noexcept {
             return _handle;
