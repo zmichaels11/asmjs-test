@@ -277,6 +277,9 @@ namespace {
         }
 
         glfwSetFramebufferSizeCallback(pWindow, _updateFramebufferSize);
+        glfwSetCharCallback(pWindow, _handleKeyEvent);
+        glfwSetMouseButtonCallback(pWindow, _handleMouseButtonEvent);
+        glfwSetScrollCallback(pWindow, _handleScrollEvent);
 
         audio::init(); 
     }
