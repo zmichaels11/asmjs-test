@@ -41,6 +41,33 @@ namespace audio {
         return static_cast<std::size_t> (nBuffers);
     }
 
+    std::size_t source::unqueueBuffers() const noexcept {
+        ALint nBuffers = 0;
+
+        alGetSourcei(_handle, AL_BUFFERS_PROCESSED, &nBuffers);
+
+        switch (nBuffers) {
+            case 0:
+                return 0;
+            case 1: {
+                ALuint buffer = 0;
+
+                alSourceUnqueueBuffers(_handle, 1, &buffer);
+                alDeleteBuffers(1, &buffer);
+
+                return static_cast<std::size_t> (nBuffers);
+            } break;
+            default: {
+                auto pBuffers = std::make_unique<ALuint[]> (nBuffers);
+
+                alSourceUnqueueBuffers(_handle, nBuffers, pBuffers.get());
+                alDeleteBuffers(nBuffers, pBuffers.get());
+                
+                return static_cast<std::size_t> (nBuffers);
+            } break;
+        }
+    }
+
     void source::unqueueBuffers(buffer * pBuffers, std::size_t nBuffers) const noexcept {
         box(pBuffers, nBuffers, [ this ](auto pBuffers, auto nBuffers) {
             alSourceUnqueueBuffers(*this, nBuffers, pBuffers);
@@ -59,6 +86,11 @@ namespace audio {
         unbox(pBuffers, nBuffers, [ this ](auto pBuffers, auto nBuffers) {
             alSourceQueueBuffers(*this, nBuffers, pBuffers);
         });   
+    }
+
+    void source::queueBuffer(audio::buffer&& buffer) const noexcept {
+        alSourceQueueBuffers(_handle, 1, &buffer._handle);
+        buffer._transient = true;
     }
     
     void source::play() const noexcept {

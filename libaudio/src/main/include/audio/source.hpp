@@ -76,7 +76,11 @@ namespace audio {
 
         void unqueueBuffers(buffer * pBuffers, std::size_t nBuffers = 1) const noexcept;
 
+        std::size_t unqueueBuffers() const noexcept;
+
         void queueBuffers(const buffer * pBuffers, std::size_t nBuffers = 1) const noexcept;
+
+        void queueBuffer(audio::buffer&& buffer) const noexcept;        
 
         source_state getState() const noexcept;
 
