@@ -39,6 +39,8 @@ namespace audio {
 
         wave_file_channel(const std::string& path) noexcept;
 
+        virtual ~wave_file_channel() {}
+
         virtual void seekStart() noexcept;
 
         virtual void seek(unsigned int sample) noexcept;

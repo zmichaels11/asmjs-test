@@ -11,12 +11,9 @@ constexpr unsigned int SCREEN_HEIGHT = 480;
 constexpr auto HINTS = engine::application_hint::VSYNC | engine::application_hint::DEBUG;
 
 struct sound_test_data {
-	std::unique_ptr<audio::sound> sound;
-
-	sound_test_data() :
-		sound(nullptr) {}
-
-	void handleGUI(engine::layers::gui_layer * pLayer) noexcept;
+	void handleGUI(
+		engine::layers::gui_layer * pGUILayer,
+		engine::layers::sound_layer * pSoundLayer) noexcept;
 };
 
 int main(int argc, char** argv) {
@@ -24,28 +21,28 @@ int main(int argc, char** argv) {
 
 	engine::application::setOnUpdate([](auto pUserData) {
 		auto pSoundTestData = reinterpret_cast<sound_test_data * > (pUserData);
-
-		if (pSoundTestData->sound.get()) {
-			pSoundTestData->sound->onFrame();
-		}
-
 		auto pScene = engine::application::getScene();
-		auto pLayer = dynamic_cast<engine::layers::gui_layer * > (pScene->getLayer(0));
+		auto pGUILayer = dynamic_cast<engine::layers::gui_layer * > (pScene->getLayer(0));
+		auto pSoundLayer = dynamic_cast<engine::layers::sound_layer * > (pScene->getLayer(1));
 
-		pSoundTestData->handleGUI(pLayer);
+		pSoundTestData->handleGUI(pGUILayer, pSoundLayer);
 	});
 
 	engine::application::setUserData(std::make_shared<sound_test_data>());
 
 	auto guiInfo = engine::layers::gui_layer_info{};
+	auto soundInfo = engine::layers::sound_layer_info{10};
+
 	auto pLayerInfos = std::vector<engine::layers::scene_layer_info>();
-	auto guiLayerInfo = engine::layers::scene_layer_info(guiInfo);
+	auto guiLayerInfo = engine::layers::scene_layer_info(guiInfo);	
+	auto soundLayerInfo = engine::layers::sound_layer_info(soundInfo);
 
 	guiLayerInfo.ext.hints = engine::layers::scene_layer_hint::CLEAR;
 	guiLayerInfo.ext.clear.type = engine::layers::clear_type::COLOR;
 	guiLayerInfo.ext.clear.clearColor = engine::layers::color::rgb(20, 80, 120);
 
 	pLayerInfos.push_back(guiLayerInfo);
+	pLayerInfos.push_back(soundLayerInfo);
 
 	auto sceneInfo = engine::layers::scene_info{
 		{nullptr, 0, nullptr, 0, nullptr,  0},
@@ -58,54 +55,29 @@ int main(int argc, char** argv) {
 	return 0;
 }
 
-void sound_test_data::handleGUI(engine::layers::gui_layer * pLayer) noexcept {
+void sound_test_data::handleGUI(
+	engine::layers::gui_layer * pGUILayer,
+	engine::layers::sound_layer * pSoundLayer) noexcept {
+
 	constexpr auto WINDOW_FLAGS = engine::layers::nuklear::panel_flags::BORDER
             | engine::layers::nuklear::panel_flags::MOVABLE
             | engine::layers::nuklear::panel_flags::TITLE;
 
-	if (pLayer->begin("Sound Demo", {50, 50, 200, 200}, WINDOW_FLAGS)) {
-		pLayer->layoutRowDynamic(30, 2);
+	if (pGUILayer->begin("Sound Demo", {50, 50, 200, 200}, WINDOW_FLAGS)) {
+		pGUILayer->layoutRowDynamic(30, 2);
 
-		if (pLayer->buttonLabel("load wave")) {
-			sound = std::make_unique<audio::sound> ("data/audio/atpcm16.wav");
-			std::cout << "Loaded data/audio/atpcm16.wav!" << std::endl;
+		if (pGUILayer->buttonLabel("play wave")) {
+			auto pSound = std::make_unique<audio::wave_file_channel> ("data/audio/atpcm16.wav");
+			
+			pSoundLayer->playSoundAt(std::move(pSound), 1.0F, 1.0F, 1.0F, 0.0F, 0.0F, 0.0F);
+			std::cout << "Playing data/audio/atpcm16.wav!" << std::endl;
 		}
 
-		if (pLayer->buttonLabel("load ogg")) {
-			sound = std::make_unique<audio::sound> ("data/audio/atmono.ogg");			
+		if (pGUILayer->buttonLabel("play ogg")) {
 			std::cout << "Loaded data/audio/atmono.ogg!" << std::endl;
-		}
-
-		pLayer->layoutRowDynamic(30, 3);
-
-		if (pLayer->buttonLabel("play")) {
-			if (sound.get()) {
-				std::cout << "Playing sound!" << std::endl;
-				sound->play();
-			} else {
-				std::cerr << "No sound is loaded!" << std::endl;
-			}
-		}
-
-		if (pLayer->buttonLabel("stop")) {			
-			if (sound.get()) {
-				std::cout << "Stopping sound!" << std::endl;
-				sound->stop();
-			} else {
-				std::cerr << "No sound is loaded!" << std::endl;
-			}
-		}
-
-		if (pLayer->buttonLabel("loop")) {
-			if (sound.get()) {
-				std::cout << "Looping sound!" << std::endl;
-				sound->loop();
-			} else {
-				std::cerr << "No sound is loaded!" << std::endl;
-			}
 		}
 	}
 
-	pLayer->end();
+	pGUILayer->end();
 }
 

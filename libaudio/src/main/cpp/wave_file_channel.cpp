@@ -10,7 +10,7 @@ namespace audio {
             std::cerr << "[AL] wave_file_channel error: " << msg << std::endl;
             __builtin_trap();        
         }    
-    }
+    }    
 
     wave_file_channel::wave_file_channel(const std::string& path) noexcept {
         _file.open(path, std::ifstream::binary);

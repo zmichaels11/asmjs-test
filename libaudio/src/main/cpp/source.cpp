@@ -10,7 +10,7 @@ namespace audio {
     }
 
     source::~source() noexcept {
-        alDeleteSources(1, &_handle);        
+        alDeleteSources(1, &_handle); 
     }
 
     void source::setGain(float value) const noexcept {
@@ -55,7 +55,7 @@ namespace audio {
                 alSourceUnqueueBuffers(_handle, 1, &buffer);
                 alDeleteBuffers(1, &buffer);
 
-                return static_cast<std::size_t> (nBuffers);
+                return 1;
             } break;
             default: {
                 auto pBuffers = std::make_unique<ALuint[]> (nBuffers);
@@ -89,7 +89,7 @@ namespace audio {
     }
 
     void source::queueBuffer(audio::buffer&& buffer) const noexcept {
-        alSourceQueueBuffers(_handle, 1, &buffer._handle);
+        alSourceQueueBuffers(_handle, 1, &buffer._handle);        
         buffer._transient = true;
     }
     

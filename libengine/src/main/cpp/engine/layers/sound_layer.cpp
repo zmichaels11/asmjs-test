@@ -26,7 +26,7 @@ namespace engine {
                 sound_layer_info _info;
                 float _projection[16];
 
-                std::vector<audio::source> _sources;
+                std::vector<std::unique_ptr<audio::source>> _sources;
                 std::vector<sound> _sounds;
 
                 sound_layer_resources(
@@ -57,7 +57,12 @@ namespace engine {
             float x,float y, float z) noexcept {
 
             auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get());
-            auto source = audio::source();              
+
+            pRes->_sources.push_back(std::make_unique<audio::source>());
+            pRes->_sounds.push_back(sound());
+
+            auto& source = pRes->_sources.back();
+            auto& sound = pRes->_sounds.back();
 
             constexpr std::size_t BUFFER_SIZE = 4096;
 
@@ -65,7 +70,7 @@ namespace engine {
             float bufferTime = secondsPerBuffer;
             int initialBuffers = 1;
 
-            while (bufferTime < 0.05) {
+            while (bufferTime < 0.1F) {
                 initialBuffers++;
                 bufferTime += secondsPerBuffer;
             }
@@ -81,7 +86,7 @@ namespace engine {
 
                 buffer.setData(snd->getFormat(), transfer.get(), size, snd->getSampleRate());
 
-                source.queueBuffer(std::move(buffer));
+                source->queueBuffer(std::move(buffer));
 
                 //TODO: support small sounds
                 if (eof) {
@@ -89,23 +94,42 @@ namespace engine {
                 }
             }
             
-            source.play();
+            source->play();
 
-            sound s;
-
-            std::swap(s._channel, snd);
-            s._position = {x, y, z};
-            s._priority = priority;
-            s._looping = looping;
-            s._eof = false;
-            s._positional = true;
-
-            pRes->_sources.push_back(std::move(source));
-            pRes->_sounds.push_back(std::move(s));
+            sound._position = {x, y, z};
+            std::swap(sound._channel, snd);
+            sound._priority = priority;
+            sound._looping = looping;
+            sound._eof = false;            
         }
 
         void sound_layer::beginWrite() noexcept {
-            //TODO: remove dead sounds
+            auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get());
+
+            auto preserveSources = std::vector<std::unique_ptr<audio::source>>();
+            auto preserveSounds = std::vector<sound>();
+            auto nSounds = pRes->_sources.size();
+
+            preserveSources.reserve(nSounds);
+
+            for (decltype(nSounds) i = 0; i < nSounds; i++) {
+                auto tmpSource = std::unique_ptr<audio::source> (nullptr);
+                auto tmpSound = sound();
+                
+                std::swap(tmpSource, pRes->_sources[i]);
+                std::swap(tmpSound, pRes->_sounds[i]);
+
+                if (tmpSource->getState() != audio::source_state::STOPPED) {                    
+                    preserveSources.push_back(std::move(tmpSource));
+                    preserveSounds.push_back(std::move(tmpSound));
+                } else {
+                    // clear any lingering buffers.
+                    tmpSource->unqueueBuffers();                    
+                }
+            }
+
+            std::swap(pRes->_sources, preserveSources);
+            std::swap(pRes->_sounds, preserveSounds);
         }
 
         void sound_layer::endWrite() noexcept {
@@ -115,19 +139,19 @@ namespace engine {
             auto nSounds = pRes->_sources.size();
 
             for (decltype(nSounds) i = 0; i < nSounds; i++) {
-                auto& source = pRes->_sources[i];
-                
-                if (source.getState() == audio::source_state::STOPPED) {
-                    continue;
-                }
-
-                auto require = source.unqueueBuffers();
+                auto& source = pRes->_sources[i];            
+                auto require = source->unqueueBuffers();
 
                 if (require == 0) {
                     continue;
                 }
 
                 auto& sound = pRes->_sounds[i];
+
+                if (sound._channel == nullptr) {
+                    // channel is closed; sound is ending
+                    continue;
+                }
 
                 for (decltype(require) j = 0; j < require; j++) {
                     std::size_t size = 4096;
@@ -142,7 +166,7 @@ namespace engine {
 
                         buffer.setData(sound._channel->getFormat(), transfer.get(), size, sound._channel->getSampleRate());
 
-                        source.queueBuffer(std::move(buffer));
+                        source->queueBuffer(std::move(buffer));
 
                         if (sound._eof) {
                             sound._channel = nullptr;
@@ -173,7 +197,7 @@ namespace engine {
                 if (sound._positional) {
                     auto newPos = projection * math::vec4(sound._position.x, sound._position.y, 0.0, 1.0);
 
-                    source.setPosition(newPos.x, newPos.y, newPos.z);
+                    source->setPosition(newPos.x, newPos.y, newPos.z);
                 }                
             }
         }
