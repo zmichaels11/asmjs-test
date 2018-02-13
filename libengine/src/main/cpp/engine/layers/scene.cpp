@@ -10,6 +10,7 @@
 #include "engine/layers/gui_layer.hpp"
 #include "engine/layers/scene_info.hpp"
 #include "engine/layers/scene_layer.hpp"
+#include "engine/layers/sound_layer.hpp"
 
 namespace engine {
     namespace layers {
@@ -187,6 +188,15 @@ namespace engine {
 
                             _layers.push_back({*it, std::move(ptr)});                            
                         } break;
+                        case layer_type::SOUND_LAYER: {
+                            auto ptr = std::make_unique<sound_layer> (_context, it->info.soundLayer);
+
+                            _beginWriteCommands.push_back(std::bind(&sound_layer::beginWrite, ptr.get()));
+                            _endWriteCommands.push_back(std::bind(&sound_layer::endWrite, ptr.get()));
+
+                            _layers.push_back({*it, std::move(ptr)});                            
+                        } break;
+
                         default: 
                             _onError("Invalid layer_type!");                        
                     }

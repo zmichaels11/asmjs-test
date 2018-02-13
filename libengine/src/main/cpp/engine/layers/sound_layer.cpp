@@ -22,6 +22,7 @@ namespace engine {
             bool operator< (const sound& lhs, const sound& rhs) noexcept;
 
             struct sound_layer_resources : public base_resources {
+                const context * _pCtx;
                 sound_layer_info _info;
                 float _projection[16];
 
@@ -30,7 +31,7 @@ namespace engine {
 
                 sound_layer_resources(
                     const context& ctx,
-                    const sound_layer_info& info);
+                    const sound_layer_info& info) noexcept;
 
                 virtual ~sound_layer_resources() {}
             };            
@@ -109,9 +110,7 @@ namespace engine {
 
         void sound_layer::endWrite() noexcept {
             //TODO: remove low priority sounds
-        }
 
-        void sound_layer::render() noexcept {
             auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get());
             auto nSounds = pRes->_sources.size();
 
@@ -154,6 +153,10 @@ namespace engine {
             }
         }
 
+        void sound_layer::render() noexcept {
+            
+        }
+
         void sound_layer::invalidate() noexcept {
 
         }
@@ -163,7 +166,7 @@ namespace engine {
 
             projection.data(pRes->_projection);
 
-            for (int i = 0; i < pRes->_sounds.size(); i++) {
+            for (decltype(pRes->_sounds.size()) i = 0; i < pRes->_sounds.size(); i++) {
                 auto& sound = pRes->_sounds[i];
                 auto& source = pRes->_sources[i];
 
@@ -189,6 +192,31 @@ namespace engine {
             void _onError(const std::string& msg) noexcept {
                 std::cout << "[render engine] sound_layer error: " << msg << std::endl;
                 __builtin_trap();
+            }
+
+            sound_layer_resources::sound_layer_resources(
+                const context& ctx,
+                const sound_layer_info& info) noexcept {
+
+                _info = info;
+                _pCtx = &ctx;
+                
+                _projection[0] = 1.0F;
+                _projection[1] = 0.0F;
+                _projection[2] = 0.0F;
+                _projection[3] = 0.0F;
+                _projection[4] = 0.0F;
+                _projection[5] = 1.0F;
+                _projection[6] = 0.0F;
+                _projection[7] = 0.0F;
+                _projection[8] = 0.0F;
+                _projection[9] = 0.0F;
+                _projection[10] = 1.0F;
+                _projection[11] = 0.0F;
+                _projection[12] = 0.0F;
+                _projection[13] = 0.0F;
+                _projection[14] = 0.0F;
+                _projection[15] = 1.0F;
             }
         }
     }

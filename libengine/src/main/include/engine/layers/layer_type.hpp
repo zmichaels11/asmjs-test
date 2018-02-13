@@ -5,7 +5,8 @@ namespace engine {
         enum class layer_type {
             BACKGROUND_LAYER,
             BASIC_SPRITE_LAYER,
-            GUI_LAYER
+            GUI_LAYER,
+            SOUND_LAYER
         };
     }
 }

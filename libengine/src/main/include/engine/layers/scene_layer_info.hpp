@@ -7,6 +7,7 @@
 #include "engine/layers/gui_layer_info.hpp"
 #include "engine/layers/layer_type.hpp"
 #include "engine/layers/scene_layer_hint.hpp"
+#include "engine/layers/sound_layer_info.hpp"
 
 namespace engine {
     namespace layers {
@@ -24,6 +25,7 @@ namespace engine {
                 background_layer_info backgroundLayer;
                 basic_sprite_layer_info basicSpriteLayer;                
                 gui_layer_info guiLayer;
+                sound_layer_info soundLayer;
 
                 constexpr info_u(const background_layer_info& info) noexcept:
                     backgroundLayer(info) {}
@@ -33,6 +35,9 @@ namespace engine {
 
                 constexpr info_u(const gui_layer_info& info) noexcept:
                     guiLayer(info) {}
+
+                constexpr info_u(const sound_layer_info& info) noexcept:
+                    soundLayer(info) {}
 
             } info;
 
@@ -48,6 +53,11 @@ namespace engine {
 
             constexpr scene_layer_info(const gui_layer_info& inf) noexcept :
                 type(layer_type::GUI_LAYER),
+                ext({scene_layer_hint::NONE}),
+                info(inf) {}
+
+            constexpr scene_layer_info(const sound_layer_info& inf) noexcept:
+                type(layer_type::SOUND_LAYER),
                 ext({scene_layer_hint::NONE}),
                 info(inf) {}
         };
