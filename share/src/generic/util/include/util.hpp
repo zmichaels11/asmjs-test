@@ -8,6 +8,7 @@
 #include <memory>
 #include <streambuf>
 #include <string>
+#include <vector>
 
 class util {
     util() = delete;
@@ -20,7 +21,7 @@ public:
 
     inline static std::string stringReadAll(const std::string& file) noexcept;
 
-    inline static std::unique_ptr<char[]> readAll(const std::string& file) noexcept;
+    inline static std::vector<char> readAll(const std::string& file) noexcept;
 
     template<class T>
     inline static T bestFitPowerOf2(T value) noexcept;
@@ -63,15 +64,18 @@ std::string util::stringReadAll(const std::string& file) noexcept {
     }
 }
 
-std::unique_ptr<char[]> util::readAll(const std::string& file) noexcept {
+std::vector<char> util::readAll(const std::string& file) noexcept {
     auto in = std::ifstream(file, std::ios::in | std::ios::binary | std::ios::ate);
 
     if (in.good()) {
       auto len = in.tellg();
-      auto out = std::make_unique<char[]> (std::size_t(len));
+      auto out = std::vector<char>();
+
+      out.reserve(len);
+      out.resize(len);
 
       in.seekg(0, std::ios::beg);
-      in.read(out.get(), len);
+      in.read(out.data(), len);
 
       return out;
     } else {

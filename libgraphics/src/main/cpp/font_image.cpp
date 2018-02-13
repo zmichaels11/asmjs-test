@@ -102,7 +102,7 @@ namespace graphics {
         auto len = text.length();
         auto out = std::vector<char_sprite>();
 
-        for (int i = 0; i < len; i++) {
+        for (decltype(len) i = 0; i < len; i++) {
             auto c = text[i];
             auto q = stbtt_aligned_quad{0};            
             auto codeIndex = c - _info.firstChar;
@@ -124,7 +124,7 @@ namespace graphics {
         font_resources_impl::font_resources_impl(const font_info& info) noexcept {
                 auto fontData = util::readAll(info.fontFile);
 
-                stbtt_InitFont(&_fontInfo, reinterpret_cast<const unsigned char *> (fontData.get()), 0);
+                stbtt_InitFont(&_fontInfo, reinterpret_cast<const unsigned char *> (fontData.data()), 0);
                 _scale = stbtt_ScaleForPixelHeight(&_fontInfo, info.charHeight);
 
                 int ascent, descent, lineGap;
@@ -154,7 +154,7 @@ namespace graphics {
                 _dataSize = w * h;
                 _data = std::make_unique<unsigned char[]> (_dataSize);
 
-                while (stbtt_BakeFontBitmap(reinterpret_cast<const unsigned char *> (fontData.get()), 0, info.charHeight, _data.get(), w, h, info.firstChar, info.charCount, _cdata.get()) == 0) {
+                while (stbtt_BakeFontBitmap(reinterpret_cast<const unsigned char *> (fontData.data()), 0, info.charHeight, _data.get(), w, h, info.firstChar, info.charCount, _cdata.get()) == 0) {
                     if (flipflop) {
                         w <<= 1;
                     } else {

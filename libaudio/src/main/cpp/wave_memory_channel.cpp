@@ -195,6 +195,12 @@ namespace audio {
         }
     }
 
+    void wave_memory_channel::seek(unsigned int sample) noexcept {
+        auto seekPos = _channels * _bitsPerSample / 8 * sample;
+
+        _offset = _dataStart + seekPos;
+    }
+
     void wave_memory_channel::skipSubchunk(unsigned int chunkSize) noexcept {
         _offset += chunkSize;
     }

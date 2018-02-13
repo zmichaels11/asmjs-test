@@ -8,6 +8,8 @@
 #include "engine/layers/sprite_sheet.hpp"
 #include "engine/layers/tiled_image.hpp"
 
+#include "audio.hpp"
+
 namespace engine {
     namespace layers {
         namespace {
@@ -18,6 +20,8 @@ namespace engine {
                 std::vector<sprite_sheet> _spriteSheets;
                 std::vector<bitmap_font> _fonts;
                 std::vector<std::unique_ptr<renderable>> _renderables;
+                std::vector<sound_info> _soundResources;
+
                 std::vector<std::function<void()>> _beginWriteCommands;
                 std::vector<std::function<void()>> _endWriteCommands;
                 std::vector<std::function<void()>> _renderCommands;
@@ -94,6 +98,21 @@ namespace engine {
             return res->_renderables[id].get();
         }
 
+        std::unique_ptr<audio::sound_channel> context::openSoundChannel(int id) const noexcept {
+            auto res = dynamic_cast<const context_resources * > (_pResources.get());
+            auto& info = res->_soundResources[id];
+
+            switch (info.type) {
+                case sound_type::VORBIS:
+                    return std::make_unique<audio::vorbis_channel> (info.data, info.len);
+                case sound_type::WAVE:
+                    return std::make_unique<audio::wave_memory_channel> (info.data, info.len);
+                default:
+                    _onError("Unknown sound type!");
+            }
+            
+        }
+
         namespace {
             void _onError(const std::string& msg) noexcept {                
                 std::cerr << "[render_engine] context error: " << msg << std::endl;
@@ -106,6 +125,15 @@ namespace engine {
                 _spriteSheets.reserve(info.nSpriteInfos);
                 _fonts.reserve(info.nFontInfos);
                 _renderables.reserve(info.nRenderableInfos);
+                _soundResources.reserve(info.nSoundResources);
+
+                for (decltype(info.nSoundResources) i = 0; i < info.nSoundResources; i++) {
+                    if (info.pSoundResources[i].type == sound_type::WAVE) {
+                        std::cerr << "Memory streaming of WAVE data is experimental!" << std::endl;
+                    }
+
+                    _soundResources.push_back(info.pSoundResources[i]);
+                }
 
                 for (decltype(info.nSpriteInfos) i = 0; i < info.nSpriteInfos; i++) {
                     auto spriteSheet = sprite_sheet(info.pSpriteInfos[i]);    

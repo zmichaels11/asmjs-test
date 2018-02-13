@@ -43,10 +43,20 @@ namespace engine {
 
             virtual void setProjection(const float * projection) noexcept;
 
-            const sound_layer_info& getInfo() const noexcept;
+            const sound_layer_info& getInfo() const noexcept;            
 
             void playSoundAt(
                 std::unique_ptr<audio::sound_channel>&& snd,
+                float priority,
+                float pitch,
+                float gain,
+                float x, 
+                float y, 
+                float z
+            ) noexcept;
+
+            void playSoundAt(
+                int soundID,
                 float priority,
                 float pitch,
                 float gain,

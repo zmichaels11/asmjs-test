@@ -69,6 +69,7 @@ namespace engine {
                         graphics::buffer ebo;
                         graphics::vertex_array vao;
                         graphics::texture fontTexture;
+                        graphics::texture nullTexture;
                     } gl;
                     
                     unsigned int text[MAX_TEXT_SIZE];
@@ -275,11 +276,17 @@ namespace engine {
             const nk_draw_command * cmd;
             nk_draw_index * offset = nullptr;
 
+            int prevTexId = 0;
+
             nk_draw_foreach(cmd, &pRes->_context, &pRes->_device.cmds) {
                 if (cmd->elem_count > 0) {                                        
-                    auto texture = graphics::texture(cmd->texture.id, graphics::texture_target::TEXTURE_2D);
+                    if (cmd->texture.id != prevTexId) {
+                        prevTexId = cmd->texture.id;
+                        
+                        auto texture = graphics::texture(prevTexId, graphics::texture_target::TEXTURE_2D);
 
-                    texture.bind(0);
+                        texture.bind(0);                        
+                    }                    
 
                     auto sx = static_cast<int>(cmd->clip_rect.x * pRes->_size.scaleW);
                     auto sy = static_cast<int>((pRes->_size.height - static_cast<int>(cmd->clip_rect.y + cmd->clip_rect.h)) * pRes->_size.scaleH);
@@ -1176,6 +1183,34 @@ namespace engine {
                     .x = 0.0F, 
                     .y = 0.0F, 
                     .isDown = false};
+
+                {
+                    auto newTexture = graphics::texture({
+                        {4, 4, 1},
+                        1, 1,
+                        {
+                            {graphics::mag_filter::NEAREST, graphics::min_filter::NEAREST},
+                            {graphics::address_mode::CLAMP_TO_EDGE, graphics::address_mode::CLAMP_TO_EDGE, graphics::address_mode::REPEAT},
+                            {-1000.0F, 1000.0F}
+                        },
+                        graphics::internal_format::RGBA8
+                    });
+
+                    auto tmp = std::make_unique<unsigned char[]> (4 * 4 * 4);
+
+                    for (int i = 0; i < 4 * 4 * 4; i++) {
+                        tmp[i] = static_cast<unsigned char> (0xFF);
+                    }
+
+                    newTexture.subImage(0, 0, 0, 0, 4, 4, 1, {
+                        graphics::pixel_type::UNSIGNED_BYTE,
+                        graphics::pixel_format::RGBA,
+                        tmp.get()});
+
+                    std::swap(_device.gl.nullTexture, newTexture);
+
+                    _device.null.texture = nk_handle_id(_device.gl.nullTexture);
+                }
                 
                 nk_font_atlas_init_default(&_device.atlas);
                 nk_font_atlas_begin(&_device.atlas);
@@ -1203,6 +1238,8 @@ namespace engine {
                         },
                         graphics::internal_format::RGBA8
                     });
+
+                    std::cout << "Width: " << imgWidth << " Height: " << imgHeight << std::endl;
 
                     newTexture.subImage(0, 0, 0, 0, imgWidth, imgHeight, 1, {
                         graphics::pixel_type::UNSIGNED_BYTE,

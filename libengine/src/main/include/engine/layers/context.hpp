@@ -8,6 +8,8 @@
 #include "engine/layers/renderable.hpp"
 #include "engine/layers/sprite_sheet.hpp"
 
+#include "audio.hpp"
+
 namespace engine {
     namespace layers {
         class context {
@@ -33,6 +35,8 @@ namespace engine {
             const renderable * getRenderableImage(int id) const noexcept;
 
             renderable * getRenderableImage(int id) noexcept;
+
+            std::unique_ptr<audio::sound_channel> openSoundChannel(int id) const noexcept;
 
             const context_info& getInfo() const noexcept;
 

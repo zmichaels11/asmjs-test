@@ -50,13 +50,20 @@ namespace engine {
             return pRes->_info;
         }
 
+        void sound_layer::playSoundAt(int soundID, float priority, float pitch, float gain, float x, float y, float z) noexcept {
+            auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get()); 
+            auto snd = pRes->_pCtx->openSoundChannel(soundID);
+
+            playSoundAt(std::move(snd), priority, pitch, gain, x, y, z);
+        }
+
         void sound_layer::playSoundAt(
             std::unique_ptr<audio::sound_channel>&& snd,
             float priority,
             float pitch, float gain,
             float x,float y, float z) noexcept {
 
-            auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get());
+            auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get());            
 
             pRes->_sources.push_back(std::make_unique<audio::source>());
             pRes->_sounds.push_back(sound());
@@ -75,7 +82,7 @@ namespace engine {
                 bufferTime += secondsPerBuffer;
             }
             
-            bool looping = false;
+            bool looping = false;            
 
             for (int i = 0; i < initialBuffers; i++) {
                 std::size_t size = BUFFER_SIZE;
