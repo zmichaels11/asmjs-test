@@ -1,14 +1,10 @@
+#include "pch.h"
 #include <jni.h>
 
 #include <cstddef>
 
-#include <dlfcn.h>
-
-#include <iostream>
-#include <string>
-#include <vector>
-
 #include "jvmapp/config.hpp"
+#include "jvmapp/shared_object.hpp"
 
 namespace {
     /*
@@ -28,6 +24,8 @@ namespace {
     void _onWarning(const std::string& msg) noexcept {
         std::cerr << "[jni] warning: " << msg << std::endl;
     }
+
+    jvmapp::shared_object _jvmso;
 }
 
 int main(int argc, char ** argv) {
@@ -52,20 +50,9 @@ int main(int argc, char ** argv) {
     JavaVM * pJavaVM;
     JNIEnv * pJNIEnv;
 
-    auto pJVMLib = dlopen("../lib/server/libjvm.so", RTLD_LAZY);
-    
-    {
-        auto error = dlerror();
+    _jvmso = jvmapp::shared_object("../lib/server/libjvm.so");
 
-        if (error) {
-            _onError(error);
-        }
-    }
-
-    typedef jint(*CreateJvmFuncPtr) (JavaVM**, void**, JavaVMInitArgs*);
-
-    auto pfnJNI_CreateJVM = reinterpret_cast<CreateJvmFuncPtr> (dlsym(pJVMLib, "JNI_CreateJavaVM"));
-
+    auto pfnJNI_CreateJVM = _jvmso.loadPfn<JNICALL jint(JavaVM**, void**, void*)>("JNI_CreateJavaVM");
     auto flag = pfnJNI_CreateJVM(&pJavaVM, reinterpret_cast<void **> (&pJNIEnv), &vmArgs);
 
     if (flag == JNI_ERR) {
@@ -109,8 +96,6 @@ int main(int argc, char ** argv) {
     }
 
     pJavaVM->DestroyJavaVM();
-
-    dlclose(pJVMLib);
 
     return 0;
 }

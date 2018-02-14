@@ -32,6 +32,7 @@ namespace jvmapp {
 
     shared_object::~shared_object() {
         if (_handle) {
+            std::cout << "Closing object!" << std::endl;
             dlclose(_handle);
             _handle = nullptr;
         }

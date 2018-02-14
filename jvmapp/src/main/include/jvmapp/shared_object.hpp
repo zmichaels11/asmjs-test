@@ -1,8 +1,10 @@
 #pragma once
 
 #include <functional>
+#include <iostream>
 #include <sstream>
 #include <string>
+#include <utility>
 
 #include "jvmapp/load_exception.hpp"
 
@@ -15,11 +17,22 @@ namespace jvmapp {
         shared_object& operator=(const shared_object&) = delete;
 
     public:
-        shared_object(shared_object&&) = default;
+        inline shared_object(shared_object&& other) noexcept {
+            _handle = other._handle;
+            other._handle = nullptr;
+        }
 
-        shared_object& operator= (shared_object&&) = default;
+        inline shared_object& operator= (shared_object&& other) {
+            _handle = other._handle;
+            other._handle = nullptr;
+
+            return *this;
+        }
 
         shared_object(const std::string& dllPath);
+
+        shared_object() noexcept:
+            _handle(nullptr) {}
 
         ~shared_object();
 
