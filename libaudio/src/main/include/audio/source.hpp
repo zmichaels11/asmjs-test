@@ -4,6 +4,7 @@
 
 #include <utility>
 
+#include "audio/source_info.hpp"
 #include "audio/source_state.hpp"
 
 namespace audio {
@@ -16,6 +17,7 @@ namespace audio {
      */
     class source {
         unsigned int _handle;
+        source_info _info;        
 
         source(const source&) = delete;
 
@@ -24,12 +26,14 @@ namespace audio {
     public:
         inline source(source&& other) noexcept {
             _handle = other._handle;
+            _info = std::move(other._info);
 
             other._handle = 0;
         }
 
         inline source& operator=(source&& other) {
             std::swap(_handle, other._handle);
+            std::swap(_info, other._info);
 
             return *this;
         }
@@ -37,7 +41,11 @@ namespace audio {
         /**
          * Constructs a new source object.
          */
-        source() noexcept;
+        source() noexcept:
+            _handle(0),
+            _info() {}
+
+        source(const source_info& info) noexcept;
 
         virtual ~source() noexcept;          
 
@@ -113,6 +121,10 @@ namespace audio {
 
         inline operator unsigned int() const noexcept {
             return _handle;
+        }
+
+        inline const source_info& getInfo() const noexcept {
+            return _info;
         }
     };
 }

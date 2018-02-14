@@ -5,8 +5,11 @@
 #include "audio/buffer.hpp"
 
 namespace audio {    
-    source::source() noexcept {
+    source::source(const source_info& info) noexcept {
         alGenSources(1, &_handle);
+        alSourcef(_handle, AL_GAIN, info.gain);
+        alSourcef(_handle, AL_PITCH, info.pitch);
+        alSource3f(_handle, AL_POSITION, info.position.x, info.position.y, info.position.z);
     }
 
     source::~source() noexcept {

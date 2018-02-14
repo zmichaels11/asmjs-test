@@ -8,26 +8,57 @@ namespace engine {
         namespace {
             void _onError(const std::string& msg) noexcept;
 
-            struct sound {         
+            struct sound_t {         
                 std::unique_ptr<audio::sound_channel> _channel;                
                 struct position_t {
-                    float x, y, z;                    
+                    float x, y, z;
+
+                    position_t() noexcept:
+                        x(0.0F),
+                        y(0.0F),
+                        z(0.0F) {}
+
+                    position_t(float tx, float ty, float tz) noexcept:
+                        x(tx),
+                        y(ty),
+                        z(tz) {}
+
                 } _position;
                 float _priority;
                 bool _looping;
                 bool _eof;
                 bool _positional;
-            };
 
-            bool operator< (const sound& lhs, const sound& rhs) noexcept;
+                sound_t() noexcept:
+                    _channel(nullptr),
+                    _position(),
+                    _priority(0.0F),
+                    _looping(false),
+                    _eof(true),
+                    _positional(false) {}
+
+                sound_t(
+                    std::unique_ptr<audio::sound_channel>&& channel, 
+                    float priority, 
+                    bool looping, 
+                    bool positional, 
+                    float x, float y, float z) noexcept:
+
+                    _channel(std::move(channel)),
+                    _position(x, y, z),
+                    _priority(priority),
+                    _looping(looping),                                        
+                    _eof(false),
+                    _positional(positional) {}
+            };
 
             struct sound_layer_resources : public base_resources {
                 const context * _pCtx;
                 sound_layer_info _info;
                 float _projection[16];
 
-                std::vector<std::unique_ptr<audio::source>> _sources;
-                std::vector<sound> _sounds;
+                std::vector<audio::source> _sources;
+                std::vector<sound_t> _sounds;
 
                 sound_layer_resources(
                     const context& ctx,
@@ -63,37 +94,36 @@ namespace engine {
             float pitch, float gain,
             float x,float y, float z) noexcept {
 
-            auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get());            
+            auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get());
 
-            pRes->_sources.push_back(std::make_unique<audio::source>());
-            pRes->_sounds.push_back(sound());
-
-            auto& source = pRes->_sources.back();
-            auto& sound = pRes->_sounds.back();
+            auto source = audio::source(audio::source_info(gain, pitch, x, y, z));
+            auto sound = sound_t(std::move(snd), priority, false, true, x, y, z);
 
             constexpr std::size_t BUFFER_SIZE = 4096;
 
-            float secondsPerBuffer = static_cast<float> (BUFFER_SIZE) / static_cast<float> (snd->getByteRate());
+            float secondsPerBuffer = static_cast<float> (BUFFER_SIZE) / static_cast<float> (sound._channel->getByteRate());
             float bufferTime = secondsPerBuffer;
             int initialBuffers = 1;
 
             while (bufferTime < 0.1F) {
                 initialBuffers++;
                 bufferTime += secondsPerBuffer;
-            }
-            
-            bool looping = false;            
+            }                   
 
             for (int i = 0; i < initialBuffers; i++) {
                 std::size_t size = BUFFER_SIZE;
                 auto transfer = std::make_unique<char[]> (size);
-                bool eof = !snd->read(transfer.get(), size);                
+                bool eof = !sound._channel->read(transfer.get(), size);                
 
                 audio::buffer buffer;
 
-                buffer.setData(snd->getFormat(), transfer.get(), size, snd->getSampleRate());
+                buffer.setData(
+                    sound._channel->getFormat(), 
+                    transfer.get(), 
+                    size, 
+                    sound._channel->getSampleRate());
 
-                source->queueBuffer(std::move(buffer));
+                source.queueBuffer(std::move(buffer));
 
                 //TODO: support small sounds
                 if (eof) {
@@ -101,40 +131,34 @@ namespace engine {
                 }
             }
             
-            source->play();
-
-            sound._position = {x, y, z};
-            std::swap(sound._channel, snd);
-            sound._priority = priority;
-            sound._looping = looping;
-            sound._eof = false;            
+            source.play();
+            
+            pRes->_sources.push_back(std::move(source));
+            pRes->_sounds.push_back(std::move(sound));
         }
 
         void sound_layer::beginWrite() noexcept {
             auto pRes = dynamic_cast<sound_layer_resources * > (_pResources.get());
 
-            auto preserveSources = std::vector<std::unique_ptr<audio::source>>();
-            auto preserveSounds = std::vector<sound>();
+            auto preserveSources = std::vector<audio::source>();
+            auto preserveSounds = std::vector<sound_t>();
             auto nSounds = pRes->_sources.size();
 
             preserveSources.reserve(nSounds);
 
             for (decltype(nSounds) i = 0; i < nSounds; i++) {
-                auto tmpSource = std::unique_ptr<audio::source> (nullptr);
-                auto tmpSound = sound();
-                
-                std::swap(tmpSource, pRes->_sources[i]);
-                std::swap(tmpSound, pRes->_sounds[i]);
+                auto tmpSource = std::move(pRes->_sources[i]);
+                auto tmpSound = std::move(pRes->_sounds[i]);
 
-                if (tmpSource->getState() != audio::source_state::STOPPED) {                    
+                if (tmpSource.getState() != audio::source_state::STOPPED) {                    
                     preserveSources.push_back(std::move(tmpSource));
                     preserveSounds.push_back(std::move(tmpSound));
                 } else {
                     // clear any lingering buffers.
-                    tmpSource->unqueueBuffers();                    
+                    tmpSource.unqueueBuffers();                    
                 }
             }
-
+            
             std::swap(pRes->_sources, preserveSources);
             std::swap(pRes->_sounds, preserveSounds);
         }
@@ -147,7 +171,7 @@ namespace engine {
 
             for (decltype(nSounds) i = 0; i < nSounds; i++) {
                 auto& source = pRes->_sources[i];            
-                auto require = source->unqueueBuffers();
+                auto require = source.unqueueBuffers();
 
                 if (require == 0) {
                     continue;
@@ -173,7 +197,7 @@ namespace engine {
 
                         buffer.setData(sound._channel->getFormat(), transfer.get(), size, sound._channel->getSampleRate());
 
-                        source->queueBuffer(std::move(buffer));
+                        source.queueBuffer(std::move(buffer));
 
                         if (sound._eof) {
                             sound._channel = nullptr;
@@ -204,7 +228,7 @@ namespace engine {
                 if (sound._positional) {
                     auto newPos = projection * math::vec4(sound._position.x, sound._position.y, 0.0, 1.0);
 
-                    source->setPosition(newPos.x, newPos.y, newPos.z);
+                    source.setPosition(newPos.x, newPos.y, newPos.z);
                 }                
             }
         }
