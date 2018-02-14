@@ -17,8 +17,8 @@ namespace engine {
             struct extension_operations_t {
                 scene_layer_hint hints;
                 clear_operation clear;
-                engine::layers::bounds<int, int> scissor;
-                engine::layers::bounds<int, int> viewport;
+                engine::layers::bounds<int, unsigned int> scissor;
+                engine::layers::bounds<int, unsigned int> viewport;
             } ext;
             
             union info_u {

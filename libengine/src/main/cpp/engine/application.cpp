@@ -264,7 +264,7 @@ namespace {
             __builtin_trap();
         }
 
-        _viewport = {0, 0, static_cast<int> (info.window.width), static_cast<int> (info.window.height)};
+        _viewport = {0, 0, static_cast<unsigned int> (info.window.width), static_cast<unsigned int> (info.window.height)};
 
         glfwMakeContextCurrent(pWindow);
 
@@ -300,7 +300,7 @@ namespace {
     void _updateFramebufferSize(GLFWwindow *, int width, int height) noexcept {
         _viewport.width = width;
         _viewport.height = height;
-        _scissorRect = {true, 0, 0, width, height};
+        _scissorRect = {true, 0, 0, static_cast<unsigned int> (width), static_cast<unsigned int> (height)};
     }
 
     void _doFrame() noexcept {        

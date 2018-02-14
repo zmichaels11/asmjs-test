@@ -232,7 +232,9 @@ namespace engine {
             graphics::uniform::setUniform1(_uTexture, 0);
             graphics::uniform::setUniformMatrix4(_uProjection, 1, ortho);
 
-            graphics::apply(graphics::viewport_state_info{0, 0, pRes->_size.displayWidth, pRes->_size.displayHeight});
+            graphics::apply(graphics::viewport_state_info{
+                0, 0, 
+                static_cast<unsigned int>(pRes->_size.displayWidth), static_cast<unsigned int> (pRes->_size.displayHeight)});
 
             {                
                 auto pVertices = std::make_unique<char[]> (MAX_VERTEX_BUFFER_SIZE);
@@ -290,8 +292,8 @@ namespace engine {
 
                     auto sx = static_cast<int>(cmd->clip_rect.x * pRes->_size.scaleW);
                     auto sy = static_cast<int>((pRes->_size.height - static_cast<int>(cmd->clip_rect.y + cmd->clip_rect.h)) * pRes->_size.scaleH);
-                    auto sw = static_cast<int>(cmd->clip_rect.w * pRes->_size.scaleW);
-                    auto sh = static_cast<int>(cmd->clip_rect.h * pRes->_size.scaleH);
+                    auto sw = static_cast<unsigned int>(cmd->clip_rect.w * pRes->_size.scaleW);
+                    auto sh = static_cast<unsigned int>(cmd->clip_rect.h * pRes->_size.scaleH);
 
                     auto scissorState = graphics::scissor_state_info{true, sx, sy, sw, sh};
                                     
