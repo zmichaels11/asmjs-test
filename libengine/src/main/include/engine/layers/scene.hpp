@@ -20,6 +20,9 @@ namespace engine {
 
             scene& operator=(scene&&) = default;
 
+            scene() noexcept:
+                _pResources(nullptr) {}
+
             scene(const scene_info& info) noexcept;
 
             void beginWrite() noexcept;
@@ -35,6 +38,10 @@ namespace engine {
             const scene_info& getInfo() const noexcept;
 
             context * getContext() noexcept;
+
+            inline operator bool() const noexcept {
+                return _pResources.get() != nullptr;
+            }
         };
     }
 }

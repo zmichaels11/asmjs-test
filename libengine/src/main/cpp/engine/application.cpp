@@ -23,9 +23,25 @@ namespace {
     struct native_resources {        
         GLFWwindow * pWindow;        
 
-        native_resources() noexcept {}
+        native_resources() noexcept:
+            pWindow(nullptr) {}
 
         native_resources(const engine::application_info& info) noexcept;
+
+        native_resources(const native_resources&) = delete;
+
+        native_resources& operator=(const native_resources&) = delete;
+
+        inline native_resources(native_resources&& other) noexcept {
+            pWindow = std::move(other.pWindow);
+            other.pWindow = nullptr;
+        }
+
+        inline native_resources& operator=(native_resources&& other) {
+            std::swap(pWindow, other.pWindow);
+
+            return *this;
+        }
 
         ~native_resources();
 
@@ -34,8 +50,8 @@ namespace {
 }
 
 namespace {
-    std::unique_ptr<engine::layers::scene> _scene(nullptr);
-    std::unique_ptr<native_resources> _pNativeResources(nullptr);
+    engine::layers::scene _scene;
+    native_resources _nativeResources;
     std::function<void(void*)> _onFrame(nullptr);
     std::function<void(void*)> _onUpdate(nullptr);
     std::function<void(void*)> _onInit(nullptr);
@@ -52,7 +68,7 @@ namespace {
 
 namespace engine {
     engine::layers::scene * application::getScene() noexcept {
-        return _scene.get();
+        return &_scene;
     }
 
     void application::step() noexcept {
@@ -60,7 +76,7 @@ namespace engine {
     }
 
     void application::setScene(const engine::layers::scene_info& info) noexcept {        
-        _scene = std::make_unique<engine::layers::scene> (info);
+        _scene = engine::layers::scene(info);
 
         if (_onInit) {
             _onInit(_pUserData.get());
@@ -72,7 +88,7 @@ namespace engine {
         _scrollCallbacks.clear();
         _mouseButtonCallbacks.clear();
         
-        _scene.reset();
+        _scene = engine::layers::scene();
     }
 
     void application::setOnInit(const std::function<void(void*)>& callback) noexcept {
@@ -88,7 +104,7 @@ namespace engine {
     }
 
     void application::init(const application_info& info) noexcept {
-        _pNativeResources = std::make_unique<native_resources> (info);
+        _nativeResources = native_resources(info);
     }
 
     const void * application::getViewport() noexcept {
@@ -100,7 +116,7 @@ namespace engine {
     }
 
     void * application::getContext() noexcept {
-        return reinterpret_cast<void * > (_pNativeResources->pWindow);
+        return reinterpret_cast<void * > (_nativeResources.pWindow);
     }
 
     double application::getTime() noexcept {
@@ -115,7 +131,7 @@ namespace engine {
 #if defined(__EMSCRIPTEN__)
         emscripten_set_main_loop(_doFrame, 0, 1);
 #else
-        while (_pNativeResources->isValid()) {
+        while (_nativeResources.isValid()) {
             _doFrame();
         }
 #endif
@@ -134,11 +150,11 @@ namespace engine {
     }
 
     void application::setClipboardString(const std::string& content) noexcept {
-        glfwSetClipboardString(_pNativeResources->pWindow, content.c_str());
+        glfwSetClipboardString(_nativeResources.pWindow, content.c_str());
     }
 
     std::string application::getClipboardString() noexcept {
-        return glfwGetClipboardString(_pNativeResources->pWindow);
+        return glfwGetClipboardString(_nativeResources.pWindow);
     }
 }
 
@@ -285,7 +301,7 @@ namespace {
     }
 
     native_resources::~native_resources() {        
-        _scene.reset(nullptr);        
+        _scene = engine::layers::scene();
 
         if (pWindow) {
             glfwDestroyWindow(pWindow);
@@ -307,9 +323,9 @@ namespace {
         glfwPollEvents();     
 
         if (_onUpdate && _scene) {
-            _scene->beginWrite();     
+            _scene.beginWrite();     
             _onUpdate(_pUserData.get());
-            _scene->endWrite();
+            _scene.endWrite();
         }
 
         if (_onFrame) {
@@ -317,9 +333,9 @@ namespace {
         }        
 
         if (_scene) {
-            _scene->render();
+            _scene.render();
         }
         
-        glfwSwapBuffers(_pNativeResources->pWindow);    
+        glfwSwapBuffers(_nativeResources.pWindow);    
     }
 }
