@@ -1237,9 +1237,7 @@ namespace engine {
                             {-1000.0F, 1000.0F}
                         },
                         graphics::internal_format::RGBA8
-                    });
-
-                    std::cout << "Width: " << imgWidth << " Height: " << imgHeight << std::endl;
+                    });                    
 
                     newTexture.subImage(0, 0, 0, 0, imgWidth, imgHeight, 1, {
                         graphics::pixel_type::UNSIGNED_BYTE,

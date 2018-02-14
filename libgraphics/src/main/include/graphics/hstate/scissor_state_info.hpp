@@ -5,7 +5,8 @@
 namespace graphics {
     struct scissor_state_info {
         bool scissorTestEnabled;
-        int left, bottom, width, height;
+        int left, bottom;
+        unsigned int width, height;
 
         static scissor_state_info defaults() noexcept;
     };

@@ -4,7 +4,8 @@
 
 namespace graphics {
     struct viewport_state_info {
-        int x, y, width, height;
+        int x, y;
+        unsigned int width, height;
         float minDepth, maxDepth;
     };
 
