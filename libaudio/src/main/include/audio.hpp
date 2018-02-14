@@ -6,7 +6,6 @@
 #include <memory>
 
 #include "audio/buffer.hpp"
-#include "audio/sound.hpp"
 #include "audio/source.hpp"
 #include "audio/vorbis_channel.hpp"
 #include "audio/wave_file_channel.hpp"
