@@ -169,12 +169,10 @@ namespace engine {
                         1.0F, 0.0F,
                         1.0F, 1.0F};
 
-                    auto newSelect = graphics::buffer({
+                    _select = graphics::buffer({
                         graphics::buffer_target::ARRAY,
                         graphics::buffer_usage::STATIC_DRAW,
                         {select, sizeof(float) * 8}});
-
-                    std::swap(_select, newSelect);
                 }
 
                 {
@@ -195,16 +193,14 @@ namespace engine {
                             break;
                     }
 
-                    auto newVbo = graphics::buffer({
-                        target: graphics::buffer_target::ARRAY,
-                        usage: usage,
-                        initialData: {
+                    _vbo = graphics::buffer({
+                        graphics::buffer_target::ARRAY,
+                        usage,
+                        {
                             pData: nullptr, 
                             size: _vboSize
                         }
                     });
-
-                    std::swap(_vbo, newVbo);
                 }                                
 
                 {
@@ -266,13 +262,11 @@ namespace engine {
                         pBuffer: &_vbo, 
                         offset: 0});
 
-                    auto newVao = graphics::vertex_array({
+                    _vao = graphics::vertex_array({
                         pAttributes: attributes.data(), 
                         nAttributes: attributes.size(),
                         pBindings: bindings.data(), 
                         nBindings: bindings.size()});
-
-                    std::swap(_vao, newVao);
                 }
 
                 if (!_program) {                    
@@ -310,13 +304,9 @@ namespace engine {
                         name: "vFrameSize", 
                         location: 5});
 
-                    auto newProgram = graphics::program({
-                        ppShaders: pShaders.data(), 
-                        nShaders: pShaders.size(),
-                        pAttributes: attributes.data(), 
-                        nAttributes: attributes.size()});
-
-                    std::swap(_program, newProgram);
+                    _program = graphics::program({
+                        pShaders.data(), pShaders.size(),
+                        attributes.data(), attributes.size()});
 
                     if ((_uProjection = _program.getUniformLocation("uProjection")) < 0) {
                         _onError("Could not find uniform \"uProjection\"!");

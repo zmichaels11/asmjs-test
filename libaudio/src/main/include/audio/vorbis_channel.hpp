@@ -2,6 +2,7 @@
 
 #include <cstddef>
 #include <string>
+#include <utility>
 
 #include "audio/format.hpp"
 #include "audio/sound_channel.hpp"
@@ -24,9 +25,31 @@ namespace audio {
         vorbis_channel& operator=(const vorbis_channel&) = delete;
 
     public:
-        vorbis_channel(vorbis_channel&&) = default;
+        inline vorbis_channel(vorbis_channel&& other) noexcept {
+            _channels = other._channels;
+            _sampleRate = other._sampleRate;
+            _byteRate = other._byteRate;
+            _size = other._size;
+            _dataStart = other._dataStart;
+            _time = other._time;
+            _format = other._format;
+            _handle = other._handle;
 
-        vorbis_channel& operator=(vorbis_channel&&) = default;
+            other._handle = nullptr;            
+        }
+
+        inline vorbis_channel& operator=(vorbis_channel&& other) {
+            std::swap(_channels, other._channels);
+            std::swap(_sampleRate, other._sampleRate);
+            std::swap(_byteRate, other._byteRate);
+            std::swap(_size, other._size);
+            std::swap(_dataStart, other._dataStart);
+            std::swap(_time, other._time);
+            std::swap(_format, other._format);
+            std::swap(_handle, other._handle);
+
+            return *this;
+        }
 
         vorbis_channel() noexcept:
             _channels(0),

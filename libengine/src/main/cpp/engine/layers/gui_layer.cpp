@@ -1185,7 +1185,7 @@ namespace engine {
                     .isDown = false};
 
                 {
-                    auto newTexture = graphics::texture({
+                    _device.gl.nullTexture = graphics::texture({
                         {4, 4, 1},
                         1, 1,
                         {
@@ -1202,12 +1202,10 @@ namespace engine {
                         tmp[i] = static_cast<unsigned char> (0xFF);
                     }
 
-                    newTexture.subImage(0, 0, 0, 0, 4, 4, 1, {
+                    _device.gl.nullTexture.subImage(0, 0, 0, 0, 4, 4, 1, {
                         graphics::pixel_type::UNSIGNED_BYTE,
                         graphics::pixel_format::RGBA,
                         tmp.get()});
-
-                    std::swap(_device.gl.nullTexture, newTexture);
 
                     _device.null.texture = nk_handle_id(_device.gl.nullTexture);
                 }
@@ -1228,7 +1226,8 @@ namespace engine {
                     int imgWidth = 0;
                     int imgHeight = 0;
                     auto img = nk_font_atlas_bake(&_device.atlas, &imgWidth, &imgHeight, NK_FONT_ATLAS_RGBA32);
-                    auto newTexture = graphics::texture({
+                    
+                    _device.gl.fontTexture = graphics::texture({
                         {static_cast<std::size_t> (imgWidth), static_cast<std::size_t> (imgHeight), 1},
                         1, 1,
                         {
@@ -1239,12 +1238,10 @@ namespace engine {
                         graphics::internal_format::RGBA8
                     });                    
 
-                    newTexture.subImage(0, 0, 0, 0, imgWidth, imgHeight, 1, {
+                    _device.gl.fontTexture.subImage(0, 0, 0, 0, imgWidth, imgHeight, 1, {
                         graphics::pixel_type::UNSIGNED_BYTE,
                         graphics::pixel_format::RGBA,
                         const_cast<void *> (img)});
-
-                    std::swap(_device.gl.fontTexture, newTexture);
                 }
                 
                 nk_font_atlas_end(&_device.atlas, nk_handle_id(_device.gl.fontTexture), &_device.null);
@@ -1265,19 +1262,15 @@ namespace engine {
 
                 
                 {
-                    auto newVbo = graphics::buffer({
+                    _device.gl.vbo = graphics::buffer({
                         graphics::buffer_target::ARRAY, graphics::buffer_usage::STREAM_DRAW,
-                        {nullptr, MAX_VERTEX_BUFFER_SIZE}});
-
-                    std::swap(_device.gl.vbo, newVbo);                    
+                        {nullptr, MAX_VERTEX_BUFFER_SIZE}});              
                 }
 
                 {
-                    auto newEbo = graphics::buffer({
+                    _device.gl.ebo = graphics::buffer({
                         graphics::buffer_target::ELEMENT, graphics::buffer_usage::STREAM_DRAW,
                         {nullptr, MAX_ELEMENT_BUFFER_SIZE}});
-
-                    std::swap(_device.gl.ebo, newEbo);
                 }                    
 
                 {
@@ -1291,12 +1284,10 @@ namespace engine {
 
                     bindings.push_back({0, 20, graphics::vertex_input_rate::PER_VERTEX, &_device.gl.vbo, 0});
 
-                    auto newVao = graphics::vertex_array({
+                    _device.gl.vao = graphics::vertex_array({
                         attributes.data(), attributes.size(),
                         bindings.data(), bindings.size(),
                         &_device.gl.ebo});
-
-                    std::swap(_device.gl.vao, newVao);
                 }
                 
 
@@ -1315,19 +1306,17 @@ namespace engine {
                     attributes.push_back({"vTexCoord", 1});
                     attributes.push_back({"vColor", 2});
 
-                    auto newProgram = graphics::program({
+                    _program = graphics::program({
                         pShaders.data(), pShaders.size(),
                         attributes.data(), attributes.size()});
 
-                    if ((_uTexture = newProgram.getUniformLocation("uTexture")) < 0) {
+                    if ((_uTexture = _program.getUniformLocation("uTexture")) < 0) {
                         _onError("Unable to find uniform \"uTexture\"!");
                     }
 
-                    if ((_uProjection = newProgram.getUniformLocation("uProjection")) < 0) {
+                    if ((_uProjection = _program.getUniformLocation("uProjection")) < 0) {
                         _onError("Unabel to find uniform \"uProjection\"!");
                     }
-
-                    std::swap(_program, newProgram);
                 }
             }
         }

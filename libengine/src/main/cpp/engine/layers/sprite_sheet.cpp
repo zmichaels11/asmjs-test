@@ -98,15 +98,12 @@ namespace engine {
                 
                 _sprites = std::make_unique<image_view[]> (_info.imageCount);
                 
-                auto newTexture = graphics::texture(graphics::texture_info{
+                _texture = graphics::texture(graphics::texture_info{
                     {width, height, 1},
                     _info.imageCount,
                     levelCount,
                     samplerInfo,
-                    graphics::internal_format::RGBA8
-                });
-
-                std::swap(_texture, newTexture);
+                    graphics::internal_format::RGBA8});
 
                 unsigned int currentLayer = 0;
 

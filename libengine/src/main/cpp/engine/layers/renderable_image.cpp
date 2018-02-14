@@ -63,10 +63,7 @@ namespace engine {
                     ? util::optimalMipmapCount(res->_pImage->getWidth(), res->_pImage->getHeight(), 1u)
                     : 1;
 
-                auto newTexture = graphics::texture(textureInfo);
-
-                std::swap(res->_texture, newTexture);                
-                
+                res->_texture = graphics::texture(textureInfo);                
                 res->_texture.subImage(0, 0, 0, 0, res->_pImage);
 
                 if (textureInfo.levels > 1) {

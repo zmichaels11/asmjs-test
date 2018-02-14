@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 #include "graphics/hinfo/shader_info.hpp"
 
@@ -20,9 +21,23 @@ namespace graphics {
         friend class program;
 
     public:
-        shader(shader&&) = default;
+        inline shader(shader&& other) noexcept {
+            _info = std::move(other._info);
+            _name = std::move(other._name);
+            _handle = other._handle;
+            _external = other._external;
 
-        shader& operator=(shader&&) = default;
+            other._handle = 0;
+        }
+
+        inline shader& operator=(shader&& other) {
+            std::swap(_info, other._info);
+            std::swap(_name, other._name);
+            std::swap(_handle, other._handle);
+            std::swap(_external, other._external);
+
+            return *this;
+        }
 
         shader() noexcept: 
             _info(),

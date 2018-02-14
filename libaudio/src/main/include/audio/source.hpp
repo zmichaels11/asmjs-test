@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+#include <utility>
+
 #include "audio/source_state.hpp"
 
 namespace audio {
@@ -20,9 +22,17 @@ namespace audio {
         source& operator=(const source&) = delete;
 
     public:
-        source(source&&) = default;                
+        inline source(source&& other) noexcept {
+            _handle = other._handle;
 
-        source& operator=(source&&) = default;
+            other._handle = 0;
+        }
+
+        inline source& operator=(source&& other) {
+            std::swap(_handle, other._handle);
+
+            return *this;
+        }
 
         /**
          * Constructs a new source object.

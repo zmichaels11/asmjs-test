@@ -3,6 +3,7 @@
 #include <cstddef>
 
 #include <string>
+#include <utility>
 
 #include "graphics/hbitfield/buffer_access.hpp"
 #include "graphics/henum/buffer_target.hpp"
@@ -23,9 +24,23 @@ namespace graphics {
 
         friend class vertex_array;
     public:
-        buffer(buffer&&) = default;
+        inline buffer(buffer&& other) noexcept {
+            _handle = other._handle;
+            _info = std::move(_info);
+            _external = other._external;
+            _name = std::move(_name);
 
-        buffer& operator=(buffer&&) = default;        
+            other._handle = 0;
+        }
+
+        inline buffer& operator=(buffer&& other) {
+            std::swap(_handle, other._handle);
+            std::swap(_info, other._info);
+            std::swap(_external, other._external);
+            std::swap(_name, other._name);
+            
+            return *this;
+        }
 
         buffer() noexcept: 
             _handle(0),

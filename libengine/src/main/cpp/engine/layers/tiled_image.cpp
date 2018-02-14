@@ -252,11 +252,11 @@ namespace engine {
                     util::normalize(info.clearColor.b),
                     util::normalize(info.clearColor.a)}};
 
-                _viewport = {0, 0, static_cast<int> (textureWidth), static_cast<int> (textureHeight)};
-                _scissor = {true, 0, 0, static_cast<int> (textureWidth), static_cast<int> (textureHeight)};
+                _viewport = {0, 0, static_cast<unsigned int> (textureWidth), static_cast<unsigned int> (textureHeight)};
+                _scissor = {true, 0, 0, static_cast<unsigned int> (textureWidth), static_cast<unsigned int> (textureHeight)};
                 
                 {
-                    auto newTexture = graphics::texture({
+                    _texture = graphics::texture({
                         {textureWidth, textureHeight, 1}, // should this be power-of-2?
                         1, 1,
                         {
@@ -265,8 +265,6 @@ namespace engine {
                             {-1000.0, 1000.0}
                         },
                         graphics::internal_format::RGBA8});
-
-                    std::swap(_texture, newTexture);
                 }
 
                 {
@@ -274,11 +272,9 @@ namespace engine {
 
                     attachmentInfo.push_back(graphics::attachment_info(&_texture));
 
-                    auto newFB = graphics::framebuffer({
+                    _fb = graphics::framebuffer({
                         .pAttachments = attachmentInfo.data(), 
                         .nAttachments = attachmentInfo.size()});
-
-                    std::swap(_fb, newFB);
                 }       
 
                 {
@@ -296,12 +292,10 @@ namespace engine {
                         }
                     }
 
-                    auto newPosition = graphics::buffer({
+                    _vbos.position = graphics::buffer({
                         graphics::buffer_target::ARRAY,
                         graphics::buffer_usage::STATIC_DRAW,
                         {positionData.data(), positionData.size() * sizeof(vec2_t)}});
-
-                    std::swap(_vbos.position, newPosition);
                 }
 
                 {
@@ -316,21 +310,17 @@ namespace engine {
                     selectData.push_back({1.0F, 0.0F});
                     selectData.push_back({1.0F, 1.0F});                    
 
-                    auto newSelect = graphics::buffer({
+                    _vbos.select = graphics::buffer({
                         graphics::buffer_target::ARRAY,
                         graphics::buffer_usage::STATIC_DRAW,
                         {selectData.data(), sizeof(vec2_t) * selectData.size()}});
-
-                    std::swap(_vbos.select, newSelect);
                 }
 
                 {
-                    auto newImageView = graphics::buffer({
+                    _vbos.imageView = graphics::buffer({
                         graphics::buffer_target::ARRAY,
                         graphics::buffer_usage::STREAM_DRAW,
                         {nullptr, sizeof(tile_slot) * _tileCount}});
-
-                    std::swap(_vbos.imageView, newImageView);
                 }
 
                 constexpr int A_SELECT = 0;
@@ -398,13 +388,11 @@ namespace engine {
                         pBuffer: &_vbos.imageView, 
                         offset: 0});
 
-                    auto newVao = graphics::vertex_array({
+                    _vao = graphics::vertex_array({
                         pAttributes: attributes.data(), 
                         nAttributes: attributes.size(), 
                         pBindings: bindings.data(), 
                         nBindings: bindings.size()});
-
-                    std::swap(_vao, newVao);
                 }
 
                 if (!_program) {
@@ -434,13 +422,11 @@ namespace engine {
                         name: "vFrameView", 
                         location: A_FRAME_VIEW});                    
 
-                    auto newProgram = graphics::program({
+                    _program = graphics::program({
                         ppShaders: pShaders.data(), 
                         nShaders: pShaders.size(), 
                         pAttributes: attributes.data(), 
                         nAttributes: attributes.size()});
-
-                    std::swap(_program, newProgram);
 
                     if ((_uImage = _program.getUniformLocation("uImage")) < 0) {
                         _onError("Could not find uniform: \"uImage\"!");

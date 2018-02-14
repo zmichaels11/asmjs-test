@@ -2,6 +2,8 @@
 
 #include <cstddef>
 
+#include <utility>
+
 #include "audio/format.hpp"
 
 namespace audio {
@@ -21,9 +23,19 @@ namespace audio {
         buffer& operator=(const buffer&) = delete;        
 
     public:
-        buffer(buffer&&) = default;
+        inline buffer(buffer&& other) noexcept {
+            _handle = other._handle;
+            _transient = other._transient;
+            
+            other._handle = 0;                        
+        }
 
-        buffer& operator=(buffer&&) = default;
+        inline buffer& operator=(buffer&& other) {
+            std::swap(_handle, other._handle);
+            std::swap(_transient, other._transient);
+
+            return *this;
+        }
 
         buffer(unsigned int handle) noexcept:
             _handle(handle),

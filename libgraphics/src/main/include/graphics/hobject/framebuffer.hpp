@@ -3,6 +3,7 @@
 #include <cstddef>
 
 #include <string>
+#include <utility>
 
 #include "graphics/henum/draw_buffer.hpp"
 #include "graphics/hinfo/framebuffer_info.hpp"
@@ -20,9 +21,23 @@ namespace graphics {
         framebuffer& operator=(const framebuffer&) = delete;
 
     public:
-        framebuffer(framebuffer&&) = default;
+        inline framebuffer(framebuffer&& other) noexcept {
+            _handle = other._handle;
+            _info = std::move(other._info);
+            _external = other._external;
+            _name = std::move(other._name);
 
-        framebuffer& operator=(framebuffer&&) = default;
+            other._handle = 0;
+        }
+
+        inline framebuffer& operator=(framebuffer&& other) {
+            std::swap(_handle, other._handle);
+            std::swap(_info, other._info);
+            std::swap(_external, other._external);
+            std::swap(_name, other._name);
+
+            return *this;
+        }
 
         framebuffer() noexcept: 
             _handle(0),

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 #include "graphics/henum/texture_target.hpp"
 #include "graphics/hinfo/pixel_info.hpp"
@@ -24,9 +25,25 @@ namespace graphics {
         friend class framebuffer;
 
     public:
-        texture(texture&&) = default;
+        inline texture(texture&& other) noexcept {
+            _info = std::move(other._info);
+            _name = std::move(other._name);
+            _handle = other._handle;
+            _target = other._target;
+            _external = other._external;
 
-        texture& operator=(texture&&) = default;
+            other._handle = 0;
+        }
+
+        inline texture& operator=(texture&& other) {
+            std::swap(_info, other._info);
+            std::swap(_name, other._name);
+            std::swap(_handle, other._handle);
+            std::swap(_target, other._target);
+            std::swap(_external, other._external);
+
+            return *this;
+        }
 
         texture() noexcept: 
             _handle(0),

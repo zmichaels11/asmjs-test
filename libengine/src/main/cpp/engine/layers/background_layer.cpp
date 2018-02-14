@@ -195,9 +195,7 @@ namespace engine {
 
                 _pCtx = &ctx;
 
-                auto newVao = graphics::vertex_array::empty();
-
-                std::swap(_vao, newVao);
+                _vao = graphics::vertex_array::empty();
 
                 if (!_program) {
                     auto vsh = graphics::shader::makeVertex(VERTEX_SHADER_PATH);
@@ -208,12 +206,10 @@ namespace engine {
                     pShaders.push_back(&vsh);
                     pShaders.push_back(&fsh);                    
 
-                    auto newProgram = graphics::program({
+                    _program = graphics::program({
                         ppShaders: pShaders.data(), 
                         nShaders: pShaders.size()
                     });
-
-                    std::swap(_program, newProgram);
 
                     if ((_uImage = _program.getUniformLocation("uImage")) < 0) {
                         _onError("Could not find uniform \"uImage\"!");

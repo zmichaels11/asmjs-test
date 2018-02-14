@@ -16,9 +16,23 @@ namespace graphics {
         program& operator= (const program&) = delete;
 
     public:
-        program(program&&) = default;
+        inline program(program&& other) noexcept {
+            _info = std::move(other._info);
+            _name = std::move(other._name);
+            _handle = other._handle;
+            _external = other._external;            
 
-        program& operator=(program&&) = default;
+            other._handle = 0;
+        }
+
+        inline program& operator=(program&& other) {
+            std::swap(_info, other._info);
+            std::swap(_handle, other._handle);
+            std::swap(_external, other._external);
+            std::swap(_name, other._name);
+
+            return *this;
+        }
 
         program() noexcept: 
             _info(),

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <utility>
 
 #include "graphics/hinfo/vertex_array_info.hpp"
 
@@ -20,9 +21,21 @@ namespace graphics {
         vertex_array& operator=(const vertex_array&) = delete;
 
     public:
-        vertex_array(vertex_array&&) = default;
+        inline vertex_array(vertex_array&& other) noexcept {
+            _info = std::move(other._info);
+            _name = std::move(other._name);
+            _handle = other._handle;
+            _external = other._external;
+        }
 
-        vertex_array& operator=(vertex_array&&) = default;        
+        inline vertex_array& operator=(vertex_array&& other) {
+            std::swap(_info, other._info);
+            std::swap(_name, other._name);
+            std::swap(_handle, other._handle);
+            std::swap(_external, other._external);
+
+            return *this;
+        }
 
         vertex_array() noexcept:
             _info(), 
