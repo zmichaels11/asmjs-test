@@ -4,7 +4,7 @@ model {
     components {
         jvmapp(NativeExecutableSpec) {            
             targetPlatform 'linux64'
-            //targetPlatform 'windows64'
+            targetPlatform 'windows64'
 
             sources {
                 cpp {
@@ -33,16 +33,30 @@ model {
     }
 }
 
-task bundle(type: Copy) {
-    dependsOn 'jvmappExecutable'
+task bundleLinux64(type: Copy) {
+    dependsOn 'jvmappLinux64Executable'
 
-    from 'build/exe/jvmapp'
+    from 'build/exe/jvmapp/linux64'
     into 'dist/bin'
 }
 
-task test(type: Exec) {
-    dependsOn 'bundle'
+task bundleWindows64(type: Copy) {
+    dependsOn 'jvmappWindows64Executable'
+
+    from 'build/exe/jvmapp/windows64'
+    into 'dist/bin'
+}
+
+task testLinux64(type: Exec) {
+    dependsOn 'bundleLinux64'
     executable './jvmapp'
+    workingDir 'dist/bin'
+    args 'Hello World!', 'This is Java9!'
+}
+
+task testWindows64(type: Exec) {
+    dependsOn 'bundleWindows64'
+    executable './jvmapp.exe'
     workingDir 'dist/bin'
     args 'Hello World!', 'This is Java9!'
 }

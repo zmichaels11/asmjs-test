@@ -72,7 +72,28 @@ namespace jvmapp {
 }
 
 #elif defined(WIN32) || defined(_WIN32) || defined(__WIN32) && !defined(__CYGWIN__)
-#error "Windows implement not completed yet!"
+#include <windows.h>
+namespace jvmapp {
+    template<class T>
+    std::function<T> shared_object::loadPfn(const std::string& fnName) const {
+        auto result = GetProcAddress(
+            reinterpret_cast<HMODULE> (_handle),
+            fnName.c_str());
+
+        if (!result) {
+            std::stringstream err;
+
+            err << "[load_exception] Error: could not load function symbol\""
+                << fnName
+                << "\"";
+
+            throw load_exception(err.str());
+        }
+
+        return reinterpret_cast<T*> (result);
+    }
+}
+
 #else
 #error "Only linux and windows are supported right now!"
 #endif

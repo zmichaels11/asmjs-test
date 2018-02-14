@@ -5,13 +5,13 @@ sourceCompatibility = '1.9'
 
 def JAVA_HOME = System.properties.'java.home'
 
-task clearDist(type: Delete) {
+clean.doFirst {
     delete 'dist'
 }
 
 task bundle(type: Exec) {
-    dependsOn 'jar'
-    dependsOn 'clearDist'
+    dependsOn 'clean'
+    dependsOn 'jar'    
     executable 'jlink'
-    args '--module-path', "$JAVA_HOME/jmods:build/libs", '--add-modules', 'jvmapp', '--output', 'dist', '--compress=2', '--strip-debug', '--no-header-files', '--no-man-pages'    
+    args '--module-path', "$JAVA_HOME/jmods:build/libs", '--add-modules', 'jvmapp', '--output', 'dist', '--compress=2', '--strip-debug', '--no-header-files', '--no-man-pages'
 }

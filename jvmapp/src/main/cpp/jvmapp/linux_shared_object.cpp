@@ -10,13 +10,18 @@ namespace jvmapp {
     shared_object::shared_object(const std::string& soPath) {
         dlerror();
 
-        _handle = dlopen(soPath.c_str(), RTLD_LAZY);
+        {
+            auto adjust = soPath + ".so";
+
+            _handle = dlopen(adjust.c_str(), RTLD_LAZY);
+        }
 
         if (!_handle) {                        
             std::stringstream err;
 
-            err << "[link_exception] Error linking shared object: "
-                << soPath;
+            err << "[link_exception] Error linking shared object: \""
+                << soPath
+                << "\"";
 
             {
                 auto errstr = dlerror();
@@ -32,12 +37,9 @@ namespace jvmapp {
 
     shared_object::~shared_object() {
         if (_handle) {
-            std::cout << "Closing object!" << std::endl;
             dlclose(_handle);
             _handle = nullptr;
         }
     }    
 }
-
-
 #endif

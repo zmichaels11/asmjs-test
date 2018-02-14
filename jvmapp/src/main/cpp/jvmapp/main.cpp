@@ -35,22 +35,22 @@ int main(int argc, char ** argv) {
 
     for (std::size_t i = 0; i < jvmapp::JAVA_VM_ARG_COUNT; i++) {
         auto opt = JavaVMOption{
-            .optionString = const_cast<char *> (reinterpret_cast<const char *> (jvmapp::JAVA_VM_ARGS[i].c_str())),
-            .extraInfo = nullptr};
+            const_cast<char *> (reinterpret_cast<const char *> (jvmapp::JAVA_VM_ARGS[i].c_str())),
+            nullptr};
 
         jvmopts.push_back(opt);
     }
 
     auto vmArgs = JavaVMInitArgs{
-        .version = JNI_VERSION_9,
-        .nOptions = static_cast<jint> (jvmopts.size()),
-        .options = jvmopts.data(),
-        .ignoreUnrecognized = JNI_TRUE};
+        JNI_VERSION_9,
+        static_cast<jint> (jvmopts.size()),
+        jvmopts.data(),
+        JNI_TRUE};
         
     JavaVM * pJavaVM;
     JNIEnv * pJNIEnv;
 
-    _jvmso = jvmapp::shared_object("../lib/server/libjvm.so");
+    _jvmso = jvmapp::shared_object("../lib/server/libjvm");
 
     auto pfnJNI_CreateJVM = _jvmso.loadPfn<JNICALL jint(JavaVM**, void**, void*)>("JNI_CreateJavaVM");
     auto flag = pfnJNI_CreateJVM(&pJavaVM, reinterpret_cast<void **> (&pJNIEnv), &vmArgs);
@@ -66,9 +66,9 @@ int main(int argc, char ** argv) {
         pJavaVM->DestroyJavaVM();
     } else {        
         JNINativeMethod pfnTestReentrantInfo = {
-            .name = const_cast<char *> ("testReentrant"),
-            .signature = const_cast<char *> ("()V"),
-            .fnPtr = reinterpret_cast<void *> (&_testReentrant)};
+            const_cast<char *> ("testReentrant"),
+            const_cast<char *> ("()V"),
+            reinterpret_cast<void *> (&_testReentrant)};
 
         pJNIEnv->RegisterNatives(jmain, &pfnTestReentrantInfo, 1);
 
