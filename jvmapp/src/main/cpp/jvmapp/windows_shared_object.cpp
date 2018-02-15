@@ -7,12 +7,8 @@
 #include "jvmapp/link_exception.hpp"
 
 namespace jvmapp {
-    shared_object::shared_object(const std::string& dllPath) {
-        {
-            auto adjust = dllPath + ".dll";
-
-            _handle = reinterpret_cast<void * > (LoadLibraryA(adjust.c_str()));
-        }                
+    shared_object::shared_object(const std::string& dllPath) {        
+        _handle = reinterpret_cast<void * > (LoadLibraryA(dllPath.c_str()));
 
         if (!_handle) {
             std::stringstream err;

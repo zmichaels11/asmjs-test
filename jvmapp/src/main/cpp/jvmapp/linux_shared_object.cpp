@@ -9,12 +9,8 @@
 namespace jvmapp {
     shared_object::shared_object(const std::string& soPath) {
         dlerror();
-
-        {
-            auto adjust = soPath + ".so";
-
-            _handle = dlopen(adjust.c_str(), RTLD_LAZY);
-        }
+        
+        _handle = dlopen(soPath.c_str(), RTLD_LAZY);        
 
         if (!_handle) {                        
             std::stringstream err;
